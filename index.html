@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming studios</title>
+    <style>
+meta[name="viewport"]{
+ content:'width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,;
+}
+
+.high-refresh-rate {
+  scroll-behavior: smooth;
+  transition: all 0.2s ease-in-out;
+}
+.low-refresh-rate {
+ 
+  transition: none;
+  scroll-behavior: auto;
+}
+
+html {
+  font-size: 80%;
+}
+
+.container {
+  max-width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, p {
+  margin: 0.5rem 0;
+}
+
+p,h1 {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (max-width: 480px) {
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial,italic;
+            background-image: url('Nel.png'); /* Replace with your image path */
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #fff;
+             font-size: 1rem; 
+  line-height: 1.5;
+        }
+
+        header {
+            position: fixed;
+            text-align: left;
+            padding: 5px;
+            background: black;
+            Width:100%;
+            Z-index:1000;
+            Top:0;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+           color:gold;
+        }
+
+        header p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+           color:gold;
+        }
+
+        header .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header .cta-buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: black;
+            color: gold;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        header .cta-buttons button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        nav {
+            position: fixed;
+            Bottom: 0;
+            background: black;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            Width:100%;
+            z-index: 1000;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: gold;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 6px 30px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover {
+            background: white;
+        }
+
+        main {
+            padding: 50px 20px;
+            text-align: center;
+            background: linear-gradient(120deg, black, gold);
+            color: gold;
+            margin: 20px auto;
+            border-radius: 10px;
+            max-width: 1024px;
+           Width:device-width;
+          Height:100vh;
+        }
+
+        .audio-container, .video-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid rgba(355, 355, 355, 0.3);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            text-align: left;
+        }
+
+        .audio-container h4, .video-container h4 {
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        audio,
+video {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+. Audio-container {
+Height :;
+}
+        .video-container video {
+            max-width: 100%;  
+            height: auto; 
+        }
+
+    .profile-link {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background-color: black;
+            text-decoration: none;
+            color: gold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .profile-link:hover {
+            background-color: white;
+            transform: translateY(-2px);
+        }
+
+        .profile-link img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .profile-link .profile-name {
+            font-size: 1.2em;
+            font-weight: bold;
+           Text-align:left;
+        }
+
+        
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+.loader {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid black;
+  border-top-color: gold;
+  animation: spin 3s linear infinite;
+  z-index: 1000;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.loaded {
+  display: none;
+}
+
+.search-bar {
+  margin-bottom: 15px;
+  width: 83%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 15px;
+  border:3px solid black ;
+  background: linear-gradient(180deg,gold,gold);
+  color: black;
+  outline: none;
+}
+
+#threads-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.thread {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.thread-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 5px;
+}
+
+.thread-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.thread-body {
+    font-size: 16px;
+    color: #ffffff;
+    line-height: 1.5;
+}
+
+.timestamp {
+    font-size: 12px;
+    font-style: italic;
+    color: #dddddd;
+}
+
+    .music-player {
+      width: 100%;
+      background: linear-gradient(180deg, gold,black);
+      border: 2px solid #ddd;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+     
+    }
+
+    .song-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .progress-container {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .current-time {
+      font-size: 20px;
+      color: gold;
+      margin-right: 10px;
+    }
+
+    .duration {
+      font-size: 20px;
+      color: gold;
+      margin-left: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 5px;
+      margin: 0 10px;
+      accent-color: black;
+    }
+
+    .play-pause-btn {
+      width: 88%;
+      height: 50px;
+      background-color: black;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      margin: 20px ;    
+    }
+
+    .play-pause-btn:hover {
+      background:gold ;
+    }
+
+    </style>
+</head>
+<body>
+   <div class="loader"></div>
+    <header>
+        <h1>Upcoming Studios</h1>
+     
+    </header>
+
+    <nav>
+     <a href="#Updates" onclick="showSection('updates')">Updates</a>
+        <a href="#music" onclick="showSection('music')">Music</a>
+        <a href="#videos" onclick="showSection('videos')">Videos</a>
+        <a href="#profiles" onclick="showSection('profiles')">Profiles</a>
+        
+    </nav>
+
+<!---Updates Section--->
+<main id="updates" class="section active">
+
+     <h2>Updates</h2>
+            <div id="threads-container">
+
+              <!-- Thread 1 -->
+              <div class="thread">
+            <div class="thread-header">
+                <p><strong>Artist Name</strong></p>
+                <p class="timestamp">Posted on: 2024-11-23</p>
+            </div>
+            <div class="thread-body">
+                <p>Excited to announce a new single dropping this Friday! Stay tuned for "Golden Vibes."</p>
+            </div>
+        </div>
+
+        <!-- Thread 2 -->
+        <div class="thread">
+            <div class="thread-header">
+                <p><strong>Artist Name</strong></p>
+                <p class="timestamp">Posted on: 2024-11-20</p>
+            </div>
+            <div class="thread-body">
+                <p>Just wrapped up an amazing live session—thank you to everyone who joined the stream!</p>
+            </div>
+            </div>
+
+        <!-- Add more threads manually here -->
+            </div>
+</main>
+
+<!---music section--->
+    <main id="music" class="section ">
+        <h2>Music</h2>
+<div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search Music..." onkeyup="filterItems('audio-container', this.value)">
+        </div>
+
+        <div class="audio-container">
+            <h4>Trouble I'm in</h4>
+            <p>Artist: Twinbed</p>
+        <div class="music-player">
+    <img src="1.png" alt="Song Image" class="song-image">
+    <div class="progress-container">
+      <span class="current-time">0:00</span>
+      <input type="range" class="progress-bar" value="0" min="0" max="100">
+      <span class="duration">0:00</span>
+    </div>
+    <button class="play-pause-btn">Play</button>
+    <audio class="audio" src="Twinbed.mp3"></audio>
+  </div>               
+        </div>
+
+        <div class="audio-container">
+            <h4>Queen of my heart</h4>
+            <p>Artist: westlife</p>
+          <div class="music-player">
+    <img src="1.png" alt="Song Image" class="song-image">
+    <div class="progress-container">
+      <span class="current-time">0:00</span>
+      <input type="range" class="progress-bar" value="0" min="0" max="100">
+      <span class="duration">0:00</span>
+    </div>
+    <button class="play-pause-btn">Play</button>
+    <audio class="audio" src="Westlife - Queen Of My Heart Official Video.mp3"></audio>
+  </div>      
+         
+
+       
+                
+        </div>
+    </main>
+
+<!---video section--->
+    <main id="videos" class="section">
+        <h2>Videos</h2>
+<div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search Videos..." onkeyup="filterItems('video-container', this.value)">
+        </div>
+
+        <div class="video-container">
+            <h4>Gwen ×  Peter</h4>
+            <p>Description: A beautiful scenery.</p>
+            <video controls>
+                <source src="Gwen ×  Peter.mp4" type="video/mp4">
+                Your browser does not support the video element.
+            </video>
+        </div>
+
+        <div class="video-container">
+            <h4>Alright</h4>
+            <p>Description: An amazing performance.</p>
+            <video controls>
+                <source src="alright.mp4" type="video/mp4">
+                Your browser does not support the video element.
+            </video>
+        </div>
+
+    </main>
+
+<!---Profile Section--->
+    <main id="profiles" class="section">
+        <h2>Profiles</h2>
+<div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search Profiles..." onkeyup="filterItems('profile-link', this.value)">
+        </div>
+
+        
+            <a href="beta.html" class="profile-link">
+                <img src="profile1.jpg" alt="Gold">
+                <div style="margin-left: 15px;">
+                    <p class="profile-name">Gold Profile</p>
+                    <p class="profile-name" style="font-size: 0.9rem;">Genre: none</p>
+                </div>
+            </a>
+        </div>
+
+     
+
+   
+            <a href="silver.html" class="profile-link">
+                <img src="profile2.jpg" alt="silver">
+                <div style="margin-left: 15px;">
+                    <p class="profile-name">Sliver Profile</p>
+                    <p class="profile-name" style="font-size: 0.9rem;">Genre: None</p>
+                </div>
+            </a>
+        </div>
+
+  <a href="white.html" class="profile-link">
+                <img src="profile2.jpg" alt="silver">
+                <div style="margin-left: 15px;">
+                    <p class="profile-name">white Profile</p>
+                    <p class="profile-name" style="font-size: 0.9rem;">Genre: 3</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+//SECTION MANAGEMENT 
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            const activeSection = document.getElementById(sectionId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            }
+        }
+
+//MUSIC PLAYER HANDLER 
+    // Get all music players
+    const musicPlayers = document.querySelectorAll('.music-player');
+
+    // Loop through each music player
+    musicPlayers.forEach((musicPlayer) => {
+      const audio = musicPlayer.querySelector('.audio');
+      const playPauseBtn = musicPlayer.querySelector('.play-pause-btn');
+      const progressBar = musicPlayer.querySelector('.progress-bar');
+      const currentTimeDisplay = musicPlayer.querySelector('.current-time');
+      const durationDisplay = musicPlayer.querySelector('.duration');
+
+      // Add event listener to the play/pause button
+      playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+          playPauseBtn.textContent = 'Pause';
+        }  else {
+          audio.pause();
+          playPauseBtn.textContent = 'Play';
+        }
+      });
+
+      // Update the progress bar
+      audio.addEventListener('timeupdate', () => {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressBar.value = progress;
+        const minutes = Math.floor(audio.currentTime / 60);
+        const seconds = Math.floor(audio.currentTime % 60);
+        currentTimeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      });
+
+      // Update the duration display
+      audio.addEventListener('loadedmetadata', () => {
+        const minutes = Math.floor(audio.duration / 60);
+        const seconds = Math.floor(audio.duration % 60);
+        durationDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      });
+
+      // Add event listener to the progress bar
+      progressBar.addEventListener('input', () => {
+        const progress = progressBar.value;
+        audio.currentTime = (progress / 100) * audio.duration;
+      });
+    });
+
+//AUDIO AND VIDEO MANAGEMENT 
+// Get all audio and video elements
+const mediaElements = document.querySelectorAll('audio, video');
+
+// Add an event listener to each media element
+mediaElements.forEach((element) => {
+  element.addEventListener('play', () => {
+    // Pause all other media elements when this one starts playing
+    mediaElements.forEach((otherElement) => {
+      if (otherElement !== element) {
+        otherElement.pause();
+      }
+    });
+  });
+});
+
+//CONTROLSLIST
+document.addEventListener('DOMContentLoaded', () => {
+  const mediaElements = document.querySelectorAll('audio, video');
+  mediaElements.forEach((element) => {
+    element.setAttribute('controlsList', 'nodownload');
+  });
+});
+
+//AUTO VEDIO PLAY
+const videos = document.querySelectorAll('video');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.play();
+    } else {
+      entry.target.pause();
+    }
+  });
+}, {
+  threshold: 0.8,
+});
+
+videos.forEach((video) => {
+  observer.observe(video);
+});
+
+//DEV TOOLS 
+// Disable right-click context menu
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+});
+
+// Detect DevTools opening
+(function() {
+    let devtools = false;
+    const element = new Image();
+    Object.defineProperty(element, 'id', {
+        get: function() {
+            devtools = true;
+            throw new Error('DevTools detected!');
+        }
+    });
+    setInterval(() => {
+        devtools = false;
+        console.log(element);
+        if (devtools) {
+            alert('Developer Tools are not allowed on this platform.');
+        }
+    }, 1000);
+})();
+
+// Disable F12 and other key combinations
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I')) {
+        event.preventDefault();
+        alert('Developer Tools are disabled.');
+    }
+});
+
+//LOADING ANIMATIONS MANAGEMENT 
+// Wait for the page to finish loading
+document.addEventListener("DOMContentLoaded", () => {
+  // Get all audio and video elements on the page
+  const mediaElements = document.querySelectorAll("audio, video");
+
+  // Set the preload attribute to "auto" for each media element
+  mediaElements.forEach((element) => {
+    element.preload = "auto"; // Load media after page load
+  });
+});
+
+// Show loader when page is loading
+document.addEventListener('DOMContentLoaded', () => {
+  const loader = document.querySelector('.loader');
+ 
+  // Hide loader and show main content when page has finished loading
+  loader.classList.add('loaded');
+  mainContent.style.display = 'block';
+});
+
+// Optional: Add event listener to detect when loader is fully hidden
+document.addEventListener('transitionend', (e) => {
+  if (e.target.classList.contains('loader')) {
+    // Remove loader from DOM after it's fully hidden
+    e.target.remove();
+  }
+});
+
+//SEARCH FUNCTION 
+// Filter Functionality
+        function filterItems(containerClass, query) {
+            const items = document.querySelectorAll(`.${containerClass}`);
+            query = query.toLowerCase();
+
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+//FONT 
+// Function to handle font scaling
+function adjustFontScaling() {
+  const rootElement = document.documentElement;
+  const defaultFontSize = 16; // Default font size in pixels
+  const currentFontSize = parseFloat(
+    window.getComputedStyle(rootElement).fontSize
+  );
+  
+  // Ensure layout doesn't break
+  if (currentFontSize > defaultFontSize) {
+    rootElement.style.fontSize = `${defaultFontSize}px`;
+  }
+}
+
+// Monitor for changes in the font size
+window.addEventListener("resize", adjustFontScaling);
+window.addEventListener("load", adjustFontScaling);
+
+//MEMORY ASSISTANCE 
+// Check device memory and adjust resource scaling
+function adjustResourceScaling() {
+    const memory = navigator.deviceMemory || 1; // Default to 1 if unsupported
+
+    // Dynamic resource scaling based on memory
+    if (memory > 4) {
+        console.log("High-memory device detected. Enabling high-performance mode.");
+        document.body.classList.add('high-performance'); // Add class for high-res animations, resources
+    } else {
+        console.log("Low-memory device detected. Enabling optimized mode.");
+        document.body.classList.add('low-performance'); // Add class for optimized settings
+    }
+}
+
+//LAZY LOADING 
+// Lazy loading for images, audio, and video
+function lazyLoadMedia() {
+    const lazyMedia = document.querySelectorAll('img[data-src], audio[data-src], video[data-src]');
+
+    // Observer for lazy loading
+    const lazyObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const element = entry.target;
+
+                // Replace data-src with src
+                if (element.tagName === "IMG" || element.tagName === "VIDEO" || element.tagName === "AUDIO") {
+                    element.src = element.dataset.src;
+                }
+
+                // Load additional data if available
+                if (element.tagName === "VIDEO" || element.tagName === "AUDIO") {
+                    element.load();
+                }
+
+                // Stop observing the loaded element
+                observer.unobserve(element);
+            }
+        });
+    });
+
+    // Observe all lazy media
+    lazyMedia.forEach(media => lazyObserver.observe(media));
+}
+
+// Call the functions on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+    adjustResourceScaling();
+    lazyLoadMedia();
+});
+
+//REFRESH-RATE 
+// Get the device's refresh rate
+const refreshRate = window.screen.refreshRate || 60;
+
+// Adjust animation based on refresh rate
+if (refreshRate >= 90) {
+  // High refresh rate, enable smooth animations
+  document.body.classList.add('high-refresh-rate');
+} else {
+  // Low refresh rate, reduce animation complexity
+  document.body.classList.add('low-refresh-rate');
+}
+
+//CACHE 
+// Function to set data with an expiration time
+function setDataWithExpiry(key, value, expiryTimeInHours = 1) {
+    const now = new Date();
+    const expiry = now.getTime() + expiryTimeInHours * 60 * 60 * 1000; // 1 hour in milliseconds
+    const data = {
+        value: value,
+        expiry: expiry
+    };
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+// Function to get data, check expiry, and delete if expired
+function getDataWithExpiry(key) {
+    const dataString = localStorage.getItem(key);
+    if (!dataString) {
+        return null; // Data doesn't exist
+    }
+
+    const data = JSON.parse(dataString);
+    const now = new Date();
+
+    // Check if data is expired
+    if (now.getTime() > data.expiry) {
+        localStorage.removeItem(key); // Remove expired data
+        return null; // Data is expired
+    }
+
+    return data.value; // Data is still valid
+}
+
+// Example usage
+setDataWithExpiry('exampleKey', 'exampleValue');
+
+// Retrieve data later
+const storedValue = getDataWithExpiry('exampleKey');
+if (storedValue) {
+    console.log('Data:', storedValue); // Valid data
+} else {
+    console.log('Data has expired or does not exist.');
+}
+
+    </script>
+</body>
+</html>
