@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upcoming studios</title>
-    <style>
+    <title>Upcoming studios</title>    <style>
 meta[name="viewport"]{
  content:'width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,;
 }
@@ -20,24 +19,21 @@ meta[name="viewport"]{
 }
 
 html {
-  font-size: 80%;
+  font-size: 70%;
 }
 
-.container {
-  max-width: 100%;
-  padding: 1rem;
-  box-sizing: border-box;
-}
 
 h1, h2, h3, p {
   margin: 0.5rem 0;
 }
+
 
 p,h1 {
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
 }
+
 
 @media (max-width: 480px) {
 }
@@ -48,6 +44,7 @@ p,h1 {
 @media (min-width: 768px) and (max-width: 1024px) {
 }
 
+
         * {
             margin: 0;
             padding: 0;
@@ -56,13 +53,13 @@ p,h1 {
 
         body {
             font-family: Arial,italic;
-            background-image: url('Nel.png'); /* Replace with your image path */
+            background-color:skyblue;
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
             color: #fff;
              font-size: 1rem; 
-  line-height: 1.5;
+             line-height: 1.5;
         }
 
         header {
@@ -83,34 +80,8 @@ p,h1 {
            color:gold;
         }
 
-        header p {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
-           color:gold;
-        }
-
-        header .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        header .cta-buttons button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: black;
-            color: gold;
-            transition: background 0.3s, transform 0.3s;
-        }
-
-        header .cta-buttons button:hover {
-            background: rgba(255, 255, 255, 1);
-            transform: scale(1.1);
-        }
+        
+     
 
         nav {
             position: fixed;
@@ -138,14 +109,14 @@ p,h1 {
         }
 
         main {
-            padding: 50px 20px;
+            padding: 70px 20px;
             text-align: center;
-            background black:
-            color: gold;
+            background: linear-gradient(120deg, black, gold);
+            color: #ffffff;
             margin: 20px auto;
             border-radius: 10px;
             max-width: 1024px;
-           Width:device-width;
+           Width:100vw auto;
           Height:100vh auto;
         }
 
@@ -208,6 +179,7 @@ Height :;
            Text-align:left;
         }
 
+
         
 
         .section {
@@ -244,6 +216,8 @@ Height :;
 .loaded {
   display: none;
 }
+
+
 
 .search-bar {
   margin-bottom: 15px;
@@ -292,15 +266,19 @@ Height :;
     line-height: 1.5;
 }
 
+
 .timestamp {
     font-size: 12px;
     font-style: italic;
     color: #dddddd;
 }
 
+
+
+
     .music-player {
       width: 100%;
-      background: linear-gradient(180deg, silver, silver);
+      background: linear-gradient(180deg, gold,black);
       border: 2px solid #ddd;
       padding: 20px;
       border-radius: 10px;
@@ -310,7 +288,7 @@ Height :;
 
     .song-image {
       width: 100%;
-      height: 300px;
+      height: 200px;
       object-fit: cover;
       border-radius: 10px;
     }
@@ -356,11 +334,52 @@ Height :;
       background:gold ;
     }
 
+
+.contact-section {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 5px;
+}
+
+.contact-section h2 {
+  margin-top: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.contact-section p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #666;
+}
+
+.contact-section a {
+  text-decoration: none;
+  color: #337ab7;
+  transition: color 0.2s ease;
+}
+
+.contact-section a:hover {
+  color: #23527c;
+}
+
+.contact-section a:active {
+  color: #1a1d23;
+}
+
+
     </style>
 </head>
 <body>
    <div class="loader"></div>
     <header>
+<a class="link" href="#about" onclick="showSection('about')">About</a>
+<a class="link" href="#contact" onclick="showSection('contact')">Contact</a>
+
         <h1>Upcoming Studios</h1>
      
     </header>
@@ -373,11 +392,16 @@ Height :;
         
     </nav>
 
+
+
 <!---Updates Section--->
 <main id="updates" class="section active">
 
+
      <h2>Updates</h2>
             <div id="threads-container">
+
+
 
               <!-- Thread 1 -->
               <div class="thread">
@@ -389,6 +413,9 @@ Height :;
                 <p>Excited to announce a new single dropping this Friday! Stay tuned for "Golden Vibes."</p>
             </div>
         </div>
+
+
+
 
         <!-- Thread 2 -->
         <div class="thread">
@@ -405,12 +432,20 @@ Height :;
             </div>
 </main>
 
+
+
+
+
 <!---music section--->
     <main id="music" class="section ">
         <h2>Music</h2>
 <div class="search-container">
             <input type="text" class="search-bar" placeholder="Search Music..." onkeyup="filterItems('audio-container', this.value)">
         </div>
+
+
+
+
 
         <div class="audio-container">
             <h4>Trouble I'm in</h4>
@@ -427,6 +462,12 @@ Height :;
   </div>               
         </div>
 
+
+
+
+
+
+
         <div class="audio-container">
             <h4>Queen of my heart</h4>
             <p>Artist: westlife</p>
@@ -439,13 +480,17 @@ Height :;
     </div>
     <button class="play-pause-btn">Play</button>
     <audio class="audio" src="Westlife - Queen Of My Heart Official Video.mp3"></audio>
-  </div>      
-         
-
-       
-                
+  </div>               
         </div>
+
+
+
+
     </main>
+
+
+
+
 
 <!---video section--->
     <main id="videos" class="section">
@@ -453,6 +498,10 @@ Height :;
 <div class="search-container">
             <input type="text" class="search-bar" placeholder="Search Videos..." onkeyup="filterItems('video-container', this.value)">
         </div>
+
+
+
+
 
         <div class="video-container">
             <h4>Gwen ×  Peter</h4>
@@ -462,6 +511,11 @@ Height :;
                 Your browser does not support the video element.
             </video>
         </div>
+
+
+
+
+
 
         <div class="video-container">
             <h4>Alright</h4>
@@ -474,6 +528,10 @@ Height :;
 
     </main>
 
+
+
+
+
 <!---Profile Section--->
     <main id="profiles" class="section">
         <h2>Profiles</h2>
@@ -481,8 +539,10 @@ Height :;
             <input type="text" class="search-bar" placeholder="Search Profiles..." onkeyup="filterItems('profile-link', this.value)">
         </div>
 
+
+
         
-            <a href="https://dulas-17.github.io/Studios/" class="profile-link">
+            <a href="beta.html" class="profile-link">
                 <img src="profile1.jpg" alt="Gold">
                 <div style="margin-left: 15px;">
                     <p class="profile-name">Gold Profile</p>
@@ -490,6 +550,8 @@ Height :;
                 </div>
             </a>
         </div>
+
+
 
      
 
@@ -503,6 +565,10 @@ Height :;
             </a>
         </div>
 
+
+
+
+
   <a href="white.html" class="profile-link">
                 <img src="profile2.jpg" alt="silver">
                 <div style="margin-left: 15px;">
@@ -512,6 +578,39 @@ Height :;
             </a>
         </div>
     </main>
+
+
+
+
+
+
+
+
+
+
+
+<!---About Section--->
+    <main id="about" class="section">
+        <h2>About Us</h2>
+        <p>We are a platform dedicated to bringing you the latest in music, videos, and artist profiles.</p>
+    </main>
+
+
+
+
+
+<!--- Contact Section--->
+    <main id="contact" class="section">
+        <h2>Contact Us</h2>
+<div class="contact-section">
+  <h2>Contact Us</h2>
+  <p>Email: <a href="mailto:info@example.com">info@example.com</a></p>
+  <p>Facebook: <a href="https://www.facebook.com/yourfacebookpage" target="_blank">Follow us on Facebook</a></p>
+  <p>WhatsApp: <a href="https://wa.me/yourwhatsappnumber" target="_blank">Chat with us on WhatsApp</a></p>
+</div>
+    </main>
+
+
 
     <script>
 //SECTION MANAGEMENT 
@@ -530,6 +629,8 @@ Height :;
                 activeSection.classList.add('active');
             }
         }
+
+
 
 //MUSIC PLAYER HANDLER 
     // Get all music players
@@ -577,6 +678,9 @@ Height :;
       });
     });
 
+
+
+
 //AUDIO AND VIDEO MANAGEMENT 
 // Get all audio and video elements
 const mediaElements = document.querySelectorAll('audio, video');
@@ -601,6 +705,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+
 //AUTO VEDIO PLAY
 const videos = document.querySelectorAll('video');
 
@@ -619,6 +725,8 @@ const observer = new IntersectionObserver((entries) => {
 videos.forEach((video) => {
   observer.observe(video);
 });
+
+
 
 //DEV TOOLS 
 // Disable right-click context menu
@@ -653,6 +761,8 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+
+
 //LOADING ANIMATIONS MANAGEMENT 
 // Wait for the page to finish loading
 document.addEventListener("DOMContentLoaded", () => {
@@ -682,6 +792,8 @@ document.addEventListener('transitionend', (e) => {
   }
 });
 
+
+
 //SEARCH FUNCTION 
 // Filter Functionality
         function filterItems(containerClass, query) {
@@ -697,6 +809,9 @@ document.addEventListener('transitionend', (e) => {
                 }
             });
         }
+
+
+
 
 //FONT 
 // Function to handle font scaling
@@ -717,13 +832,15 @@ function adjustFontScaling() {
 window.addEventListener("resize", adjustFontScaling);
 window.addEventListener("load", adjustFontScaling);
 
+
+
 //MEMORY ASSISTANCE 
 // Check device memory and adjust resource scaling
 function adjustResourceScaling() {
     const memory = navigator.deviceMemory || 1; // Default to 1 if unsupported
 
     // Dynamic resource scaling based on memory
-    if (memory > 4) {
+    if (memory >=2) {
         console.log("High-memory device detected. Enabling high-performance mode.");
         document.body.classList.add('high-performance'); // Add class for high-res animations, resources
     } else {
@@ -731,6 +848,8 @@ function adjustResourceScaling() {
         document.body.classList.add('low-performance'); // Add class for optimized settings
     }
 }
+
+
 
 //LAZY LOADING 
 // Lazy loading for images, audio, and video
@@ -769,6 +888,9 @@ document.addEventListener("DOMContentLoaded", () => {
     lazyLoadMedia();
 });
 
+
+
+
 //REFRESH-RATE 
 // Get the device's refresh rate
 const refreshRate = window.screen.refreshRate || 60;
@@ -782,11 +904,13 @@ if (refreshRate >= 90) {
   document.body.classList.add('low-refresh-rate');
 }
 
+
+
 //CACHE 
 // Function to set data with an expiration time
-function setDataWithExpiry(key, value, expiryTimeInHours = 1) {
+function setDataWithExpiry(key, value, expiryTimeInHours = 60) {
     const now = new Date();
-    const expiry = now.getTime() + expiryTimeInHours * 60 * 60 * 1000; // 1 hour in milliseconds
+    const expiry = now.getTime() + expiryTimeInHours *60* 60 * 60 * 1000; // 1 hour in milliseconds
     const data = {
         value: value,
         expiry: expiry
@@ -824,6 +948,122 @@ if (storedValue) {
     console.log('Data has expired or does not exist.');
 }
 
+
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
