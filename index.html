@@ -949,6 +949,15 @@ if (storedValue) {
 }
 
 
+
+// Select all paragraphs on the page
+const paragraphs = document.querySelectorAll("p");
+
+// Apply the clamp font size dynamically
+paragraphs.forEach(paragraph => {
+    paragraph.style.fontSize = "clamp(16px, 2vw, 20px)";
+});
+
     </script>
 </body>
 </html>
