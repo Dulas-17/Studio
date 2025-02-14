@@ -991,6 +991,50 @@ contactButton.addEventListener('click', () => {
 
 
 
+
+
+
+
+// Set cache expiration time (3 hours)
+const cacheExpirationTime = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+
+// Function to cache data
+function cacheData(data) {
+  localStorage.setItem('cachedData', JSON.stringify(data));
+  localStorage.setItem('cacheTimestamp', Date.now());
+}
+
+// Function to retrieve cached data
+function getCachedData() {
+  const cachedData = localStorage.getItem('cachedData');
+  const cacheTimestamp = localStorage.getItem('cacheTimestamp');
+  if (cachedData && cacheTimestamp) {
+    const currentTime = Date.now();
+    if (currentTime - cacheTimestamp < cacheExpirationTime) {
+      return JSON.parse(cachedData);
+    }
+  }
+  return null;
+}
+
+// Cache the entire HTML document
+const htmlContent = document.documentElement.outerHTML;
+cacheData(htmlContent);
+
+// Serve cached content if available
+window.addEventListener('load', () => {
+  const cachedContent = getCachedData();
+  if (cachedContent) {
+    document.documentElement.outerHTML = cachedContent;
+  }
+});
+
+// Update cache when online
+window.addEventListener('online', () => {
+  const htmlContent = document.documentElement.outerHTML;
+  cacheData(htmlContent);
+});
+
     </script>
 </body>
 </html>
