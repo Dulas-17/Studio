@@ -615,6 +615,25 @@ video {
 
 
     <script>
+
+// Add scroll tracking
+let isScrolling;
+window.addEventListener('scroll', () => {
+    const activeSection = document.querySelector('.section.active');
+    if (activeSection) {
+        clearTimeout(isScrolling);
+        isScrolling = setTimeout(() => {
+            scrollPositions[activeSection.id] = {
+                position: window.scrollY,
+                timestamp: Date.now()
+            };
+        }, 150);
+    }
+});
+
+
+
+
 //SECTION MANAGEMENT 
         function scrollToSection(sectionId) {
             const section = document.getElementById(sectionId);
