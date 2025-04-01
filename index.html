@@ -857,6 +857,49 @@ videos.forEach((video) => {
 
 
 
+// Function to cache data in local storage
+function cacheData() {
+  // Get all media elements (audio, video, and images)
+  const mediaElements = document.querySelectorAll('audio, video, img');
+
+  // Loop through each media element
+  mediaElements.forEach((element) => {
+    // Get the source URL of the media element
+    const srcUrl = element.src;
+
+    // Download the media data and store it in local storage
+    fetch(srcUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          const fileData = fileReader.result;
+          localStorage.setItem(srcUrl, fileData);
+        };
+        fileReader.readAsDataURL(blob);
+      });
+  });
+}
+
+// Function to load cached data from local storage
+function loadCachedData() {
+  // Get all media elements (audio, video, and images)
+  const mediaElements = document.querySelectorAll('audio, video, img');
+
+  // Loop through each media element
+  mediaElements.forEach((element) => {
+    // Get the source URL of the media element
+    const srcUrl = element.src;
+
+    // Check if the media data is cached in local storage
+    if (localStorage.getItem(srcUrl)) {
+      // Load the cached media data
+      element.src = localStorage.getItem(srcUrl);
+    }
+  });
+}
+
+
 //DEV TOOLS 
 // Disable right-click context menu
 document.addEventListener('contextmenu', (event) => {
