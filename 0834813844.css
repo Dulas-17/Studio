@@ -1,0 +1,48 @@
+/* Style for the genre bar container */
+.genre-bar {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap to the next line */
+    gap: 10px; /* Space between buttons */
+    margin-bottom: 20px; /* Space below the genre bar */
+    justify-content: center; /* Center the buttons */
+    padding: 10px;
+    background-color: #222; /* Darker background for the bar */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Style for individual genre buttons */
+.genre-btn {
+    background-color: #444; /* Default button background */
+    color: #eee; /* Text color */
+    border: 1px solid #555;
+    padding: 8px 15px;
+    border-radius: 20px; /* More rounded corners */
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping inside button */
+}
+
+/* Hover effect for genre buttons */
+.genre-btn:hover {
+    background-color: #666;
+    transform: translateY(-2px); /* Slight lift effect */
+    border-color: #888;
+}
+
+/* Active (selected) state for genre buttons */
+.genre-btn.active {
+    background-color: #007bff; /* A distinct color for active */
+    color: white;
+    border-color: #007bff;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Subtle glow for active */
+}
+
+/* Remove hover effect for active button (optional, but good for "not disappear") */
+.genre-btn.active:hover {
+    background-color: #007bff; /* Keep the same color */
+    transform: none; /* No lift */
+    cursor: default; /* Change cursor back */
+}
