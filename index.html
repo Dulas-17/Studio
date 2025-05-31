@@ -2,227 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Private Watchroom</title>
+  <title>BayWatch</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-   
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      font-size: 16px;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #121212;
-      color: #fff;
-      line-height: 1.6;
-    }
-
-    nav {
-      background: #1f1f1f;
-      padding: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-    }
-
-    nav button {
-      padding: 0.6rem 1.2rem;
-      background: #00cec9;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s;
-    }
-
-    nav button:hover {
-      background: #01a3a4;
-    }
-
-    .section {
-      display: none;
-      padding: 1rem;
-      max-width: 1100px;
-      margin: auto;
-    }
-
-    .active {
-      display: block;
-    }
-
-    .search-box {
-      margin: 1.5rem 0;
-      text-align: center;
-    }
-
-    .search-box input {
-      width: 90%;
-      max-width: 500px;
-      padding: 0.8rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: none;
-    }
-
-    .series-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .series-item {
-      background: #2c2c2c;
-      padding: 1rem;
-      border-radius: 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .series-item:hover {
-      background: #3a3a3a;
-    }
-
-    .series-item img {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-
-    .series-details {
-      text-align: center;
-    }
-
-    .series-details img {
-      width: 100%;
-      max-height: 400px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .episode-buttons {
-      margin-top: 1rem;
-    }
-
-    .episode-buttons button {
-      display: block;
-      width: 100%;
-      max-width: 400px;
-      margin: 0.5rem auto;
-      padding: 1rem;
-      background: #0984e3;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .episode-buttons button:hover {
-      background: #067fd2;
-    }
-
-    #videoFullScreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 9999;
-      display: none;
-      flex-direction: column;
-    }
-
-    #videoFullScreen iframe {
-      flex: 1;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    #videoFullScreen button {
-      padding: 1rem;
-      background: red;
-      color: white;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    @media (max-width: 768px) {
-      html {
-        font-size: 15px;
-      }
-
-      nav {
-        flex-direction: column;
-      }
-
-      .series-details img {
-        max-height: 250px;
-      }
-
-      .episode-buttons button {
-        font-size: 0.95rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      html {
-        font-size: 14px;
-      }
-
-      .series-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .episode-buttons button {
-        padding: 0.8rem;
-      }
-
-      nav button {
-        width: 100%;
-      }
-    }
-
-  </style>
-</head>
+  <link rel="stylesheet" href="0834813844.css">
+  </head>
 <body>
 
   <nav>
     <button onclick="showSection('home')">Home</button>
-    <button onclick="showSection('series')">Series</button>
     <button onclick="showSection('movies')">Movies</button>
+    <button onclick="showSection('series')">Series</button>
   </nav>
 
   <div id="home" class="section active">
-    <h1>Welcome to Our Private Watchroom</h1>
-    <p>Enjoy our hand-picked series, movies, and animations with friends.</p>
+    <h1>Baywatch</h1>
+    <p>NB:The page is still under development</p>
+    <p>we currently only have 2 uploads </p>
   </div>
 
   <div id="series" class="section">
-    <h2>Series</h2>
+    <h2>Shows</h2>
+    <div id="seriesGenreBar" class="genre-bar">
+        </div>
     <div class="search-box">
       <input type="text" id="seriesSearch" placeholder="Search for a series..." onkeyup="searchContent('series')">
-    </div>
+      </div>
+
     <div id="seriesList" class="series-grid"></div>
+
     <div id="seriesDetails" class="series-details" style="display: none;"></div>
   </div>
 
-  <div id="movies" class="section">
+
+ <div id="movies" class="section">
     <h2>Movies</h2>
+    <div id="movieGenreBar" class="genre-bar">
+        </div>
     <div class="search-box">
       <input type="text" id="movieSearch" placeholder="Search for a movie..." onkeyup="searchContent('movies')">
     </div>
@@ -230,284 +45,14 @@
     <div id="movieDetails" class="series-details" style="display: none;"></div>
   </div>
 
+
+
   <div id="videoFullScreen">
-    <button onclick="closeFullScreen()">Back</button>
+    <button onclick="closeFullScreen()">🔙</button>
     <iframe src="" allowfullscreen></iframe>
   </div>
 
-  <script>
-    const content = {
-      series: [
-        {
-          title: "Konosuba Season 1",
-          image: "2.jpg",
-          description: "An intergalactic adventure across unknown planets.",
-          episodes: [
-            { title: "Episode 1", link: "https://drive.google.com/file/d/110UyhRjYnSOomo3-9Wh30BZonjVHr7Nu/preview" },
-            { title: "Episode 2", link: "https://drive.google.com/file/d/1128cXGsLQ_wUcjls8hcZbfy-YbeRwChc/preview" },
-            { title: "Episode 3", link: "https://drive.google.com/file/d/110VFc93Wq49TvnsWq9AclCCsyt5scLSC/preview" },
-            { title: "Episode 4", link: "https://drive.google.com/file/d/119B_PFF3wtTyQMu3pu4-rBpN1rrfI7dR/preview" },
-            { title: "Episode 5", link: "https://drive.google.com/file/d/116FV6qv7Hjdpkj4v7deuoactP-ee-T9A/preview" },
-            { title: "Episode 6", link: "https://drive.google.com/file/d/11A96GHkRYHQ1uwRwa4eMiVBxbqM5YcmA/preview" },
-            { title: "Episode 7", link: "https://drive.google.com/file/d/11TiSwpcFJr2N8r7GPyIGgmgy2tHfnQTtL/preview" },
-            { title: "Episode 8", link: "https://drive.google.com/file/d/11tAEoUZsUeQa4ja3-Nnt76nOKR2_w5wa/preview" },
-            { title: "Episode 9", link: "https://drive.google.com/file/d/11V8IleXjjcnlUAparkf44XBFEUwxK8Ou/preview" },
-            { title: "Episode 10", link: "https://drive.google.com/file/d/11uRZmLQxY52jeIsQKiw6vf2d1jTiCBlr/preview" },
-          ]
-        }
-      ],
-
-
-
-
-      movies: [
-        {
-          title: "Your Name",
-          image:"1.jpeg",
-          description: "A beautiful romantic fantasy that transcends time and space.",
-          link: "https://drive.google.com/file/d/10e007gPw7-zykD4XnHU_v_HV3mS7Y72Y/preview"
-        },
-
-
-
-{
-          title: "The Life List",
-          image:"11.jpeg",
-                    description: " After  her mother's passing Alex is forced to complete a list she compiled when she was 13 only so she could have some of her mother's inherentence ,but on her Journey she finds secrets about herself. ",
-       link:"https://drive.google.com/file/d/12tRqoS9sXycE7RODnlxu11HVR7wcZbtL/preview"
-   
-        } ,
-
-
-{
-          title: "Power Rangers",
-          image:"pr.jpeg",
-          description: " .",
-            link:"https://drive.google.com/file/d/17looZTle9cX9De1f6gN5QUcBhopDoKvx/preview"
-        },
-
-      ]
-    };
-
-    // --- New/Modified JavaScript for Remembering State ---
-
-    // Function to save the current scroll position of the document
-    function saveScrollPosition() {
-        localStorage.setItem('scrollPosition', window.scrollY);
-    }
-
-    // Function to restore scroll position for the entire window
-    function restoreScrollPosition() {
-        const storedScrollY = localStorage.getItem('scrollPosition');
-        if (storedScrollY) {
-            window.scrollTo(0, parseInt(storedScrollY, 10));
-        }
-    }
-
-    // Function to save the active section and optional detail index
-    function saveState(sectionId, detailType = null, detailIndex = null) {
-        localStorage.setItem('lastActiveSection', sectionId);
-        if (detailType !== null && detailIndex !== null) {
-            localStorage.setItem('lastDetailType', detailType);
-            localStorage.setItem('lastDetailIndex', detailIndex);
-        } else {
-            localStorage.removeItem('lastDetailType');
-            localStorage.removeItem('lastDetailIndex');
-        }
-        saveScrollPosition(); // Save scroll position whenever state changes
-    }
-
-    // Modified showSection to also save the section ID
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      saveState(id); // Save the active section
-
-      if (id === 'series') {
-        showSeriesList();
-        document.getElementById('seriesDetails').style.display = 'none';
-      } else if (id === 'movies') {
-        showMovieList();
-        document.getElementById('movieDetails').style.display = 'none';
-      }
-      window.scrollTo(0, 0); // Scroll to top of new section
-    }
-
-    // Original searchContent remains the same
-    function searchContent(type) {
-      const input = document.getElementById(type === 'series' ? 'seriesSearch' : 'movieSearch').value.toLowerCase();
-      const filtered = content[type].filter(item => item.title.toLowerCase().includes(input));
-      if (type === 'series') showSeriesList(filtered);
-      else showMovieList(filtered);
-      saveScrollPosition(); // Save scroll position after search
-    }
-
-    // Original showSeriesList remains the same, but we will call it during page load
-    function showSeriesList(list = content.series) {
-      const container = document.getElementById('seriesList');
-      container.innerHTML = '';
-      list.forEach((s, i) => {
-        const div = document.createElement('div');
-        div.className = 'series-item';
-        // Changed to use an anonymous function to pass 'i' directly to avoid immediate execution issues with loops
-        div.innerHTML = `
-          <img src="${s.image}" alt="${s.title}" />
-          <h4>${s.title}</h4>
-          <button onclick="showSeriesDetails(${i})">Video List</button>
-        `;
-        container.appendChild(div);
-      });
-      // Restore scroll only if this is the initial load for the main list
-      // We don't want to restore if a search filters the list
-      if (list === content.series && localStorage.getItem('lastActiveSection') === 'series' && !localStorage.getItem('lastDetailType')) {
-          restoreScrollPosition();
-      }
-    }
-
-    // Original showMovieList remains the same, but we will call it during page load
-    function showMovieList(list = content.movies) {
-      const container = document.getElementById('movieList');
-      container.innerHTML = '';
-      list.forEach((m, i) => {
-        const div = document.createElement('div');
-        div.className = 'series-item';
-        // Changed to use an anonymous function to pass 'i' directly to avoid immediate execution issues with loops
-        div.innerHTML = `
-          <img src="${m.image}" alt="${m.title}" />
-          <h4>${m.title}</h4>
-          <button onclick="showMovieDetails(${i})">Watch</button>
-        `;
-        container.appendChild(div);
-      });
-      // Restore scroll only if this is the initial load for the main list
-      if (list === content.movies && localStorage.getItem('lastActiveSection') === 'movies' && !localStorage.getItem('lastDetailType')) {
-          restoreScrollPosition();
-      }
-    }
-
-    // Modified showSeriesDetails to save the series index
-    function showSeriesDetails(i) {
-      const s = content.series[i];
-      const container = document.getElementById('seriesDetails');
-      container.innerHTML = `
-        <img src="${s.image}" alt="${s.title}" />
-        <h2>${s.title}</h2>
-        <p>${s.description}</p>
-        <div class="episode-buttons">
-          ${s.episodes.map(ep => `<button onclick="playEpisode('${ep.link}')">${ep.title}</button>`).join('')}
-        </div>
-        <button onclick="goBackToList('series')">Back to Series</button>
-      `;
-      document.getElementById('seriesList').innerHTML = '';
-      container.style.display = 'block';
-      saveState('series', 'series', i); // Save active section, detail type, and index
-      window.scrollTo(0, 0); // Scroll to top of details
-    }
-
-    // Modified showMovieDetails to save the movie index
-    function showMovieDetails(i) {
-      const m = content.movies[i];
-      const container = document.getElementById('movieDetails');
-      container.innerHTML = `
-        <img src="${m.image}" alt="${m.title}" />
-        <h2>${m.title}</h2>
-        <p>${m.description}</p>
-        <div class="episode-buttons">
-          <button onclick="playEpisode('${m.link}')">Watch Now</button>
-        </div>
-        <button onclick="goBackToList('movies')">Back to Movies</button>
-      `;
-      document.getElementById('movieList').innerHTML = '';
-      container.style.display = 'block';
-      saveState('movies', 'movie', i); // Save active section, detail type, and index
-      window.scrollTo(0, 0); // Scroll to top of details
-    }
-
-    // Modified goBackToList to clear detail state
-    function goBackToList(type) {
-      if (type === 'series') {
-        showSeriesList();
-        document.getElementById('seriesDetails').style.display = 'none';
-        saveState('series'); // Only save section, clear detail state
-      } else {
-        showMovieList();
-        document.getElementById('movieDetails').style.display = 'none';
-        saveState('movies'); // Only save section, clear detail state
-      }
-      window.scrollTo(0, 0); // Scroll to top of list
-    }
-
-    // Original playEpisode and closeFullScreen remain the same
-    function playEpisode(link) {
-      const player = document.getElementById('videoFullScreen');
-      player.querySelector('iframe').src = link;
-      player.style.display = 'flex';
-      // No need to save state here, as the video player is an overlay
-    }
-
-    function closeFullScreen() {
-      const player = document.getElementById('videoFullScreen');
-      player.querySelector('iframe').src = '';
-      player.style.display = 'none';
-      // Restore scroll position after closing video player
-      restoreScrollPosition();
-    }
-
-    // --- Initialize on DOM Content Loaded ---
-    document.addEventListener('DOMContentLoaded', function() {
-        const lastActiveSection = localStorage.getItem('lastActiveSection');
-        const lastDetailType = localStorage.getItem('lastDetailType');
-        const lastDetailIndex = localStorage.getItem('lastDetailIndex');
-
-        if (lastActiveSection) {
-            // First, load all lists (so content exists if details are to be shown)
-            showSeriesList();
-            showMovieList();
-
-            // Then, activate the remembered section
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(lastActiveSection).classList.add('active');
-
-            // If a specific detail was being viewed, show it
-            if (lastDetailType && lastDetailIndex !== null) {
-                if (lastDetailType === 'series') {
-                    showSeriesDetails(parseInt(lastDetailIndex, 10));
-                } else if (lastDetailType === 'movie') {
-                    showMovieDetails(parseInt(lastDetailIndex, 10));
-                }
-            } else {
-                // If only a section was remembered (not a specific detail view),
-                // ensure the detail display is hidden and restore general scroll.
-                if (lastActiveSection === 'series') {
-                    document.getElementById('seriesDetails').style.display = 'none';
-                } else if (lastActiveSection === 'movies') {
-                    document.getElementById('movieDetails').style.display = 'none';
-                }
-            }
-            restoreScrollPosition(); // Restore scroll position after everything else is set up
-        } else {
-            // If no state is remembered, default to 'home' and show lists
-            showSection('home');
-            showSeriesList();
-            showMovieList();
-        }
-
-        // Add a global scroll listener to save position periodically
-        // This handles general scrolling within a section (e.g., long lists)
-        let scrollTimer;
-        window.addEventListener('scroll', function() {
-            clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(() => {
-                saveScrollPosition();
-            }, 200); // Save scroll position after 200ms of no scrolling
-        });
-
-        // Save scroll position before the user leaves the page
-        window.addEventListener('beforeunload', saveScrollPosition);
-    });
-
-    // --- End of New/Modified JavaScript ---
-
-  </script>
+<script src="8611.js"></script>
+<script src="106.js"></script>
 </body>
 </html>
