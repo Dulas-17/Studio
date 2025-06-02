@@ -1,20 +1,11 @@
-// 8611.js
-// This file now acts as an index for your content data.
-// Ensure movies.js and series.js are loaded BEFORE this file in your HTML.
-
 const content = {
   series: seriesData, // seriesData is defined in series.js
   movies: movieData,   // movieData is defined in movies.js
 };
 
-
-
-
-// Const content = { ... } // This content data should be in 8611.js
-
-// Moved here for clarity, but this should be from 8611.js
-// Assuming content data is loaded from 8611.js before this script executes.
-// const content = { /* ... your data structure ... */ };
+// This script assumes 'content' object (with content.series and content.movies)
+// is globally available, loaded from 8611.js, which in turn loads data from
+// series.js and movies.js.
 
 // Function to save the current scroll position of the document
 function saveScrollPosition() {
@@ -29,20 +20,13 @@ function restoreScrollPosition() {
     }
 }
 
-// Function to save the active section, optional detail index, and active genre
-function saveState(sectionId, detailType = null, detailIndex = null, activeGenre = null) {
+// Function to save the active section and active genre
+function saveState(sectionId, activeGenre = null) {
     localStorage.setItem('lastActiveSection', sectionId);
-    if (detailType !== null && detailIndex !== null) {
-        localStorage.setItem('lastDetailType', detailType);
-        localStorage.setItem('lastDetailIndex', detailIndex);
-    } else {
-        localStorage.removeItem('lastDetailType');
-        localStorage.removeItem('lastDetailIndex');
-    }
     if (activeGenre !== null) {
         localStorage.setItem('activeGenre', activeGenre);
     } else {
-        localStorage.removeItem('activeGenre');
+        localStorage.removeItem('activeGenre'); // Clear genre if not specified
     }
     saveScrollPosition(); // Save scroll position whenever state changes
 }
@@ -51,43 +35,53 @@ function saveState(sectionId, detailType = null, detailIndex = null, activeGenre
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    saveState(id); // Save the active section and clear any specific genre
+    saveState(id); // Save the active section and clear any specific genre filter from UI/state for a fresh start
 
-    // Ensure nav and search are visible when switching sections normally
-    document.querySelector('nav').style.display = 'flex';
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'block');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'flex'); // Show genre buttons
+    // Ensure search and genre buttons visibility based on section
+    if (id === 'series' || id === 'movies') {
+        document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'block');
+        document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'flex');
+        
+        // Always reset search bar when switching sections
+        if (document.getElementById('seriesSearch')) document.getElementById('seriesSearch').value = '';
+        if (document.getElementById('movieSearch')) document.getElementById('movieSearch').value = '';
 
-    if (id === 'series') {
-        renderGenreButtons('series'); // Render genre buttons for series
-        showSeriesList();
-        document.getElementById('seriesDetails').style.display = 'none';
-    } else if (id === 'movies') {
-        renderGenreButtons('movies'); // Render genre buttons for movies
-        showMovieList();
-        document.getElementById('movieDetails').style.display = 'none';
+        // Re-render genre buttons and display content based on default 'All' or remembered genre
+        if (id === 'series') {
+            renderGenreButtons('series'); // Renders buttons, sets 'All' or remembered genre active
+            showSeriesList(); // Displays content based on the active genre
+            document.getElementById('seriesDetails').style.display = 'none'; // Ensure detail view is hidden
+        } else { // movies
+            renderGenreButtons('movies'); // Renders buttons, sets 'All' or remembered genre active
+            showMovieList(); // Displays content based on the active genre
+            document.getElementById('movieDetails').style.display = 'none'; // Ensure detail view is hidden
+        }
+    } else { // 'home' section
+        document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+        document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
     }
     window.scrollTo(0, 0); // Scroll to top of new section
 }
 
-// Original searchContent remains the same, but clears genre filter
+// Search content, clears active genre filter
 function searchContent(type) {
     const input = document.getElementById(type === 'series' ? 'seriesSearch' : 'movieSearch').value.toLowerCase();
     const filtered = content[type].filter(item => item.title.toLowerCase().includes(input));
 
-    // Clear active genre when searching
+    // When searching, always reset genre filter to 'All' in the UI and state
+    localStorage.setItem('activeGenre', 'All');
+    renderGenreButtons(type); // Re-render genre buttons to set 'All' as active
+
     if (type === 'series') {
-        filterContentByGenre('series', 'All'); // Reset genre filter
-        showSeriesList(filtered);
+        showSeriesList(filtered); // Display search results
     } else {
-        filterContentByGenre('movies', 'All'); // Reset genre filter
-        showMovieList(filtered);
+        showMovieList(filtered); // Display search results
     }
     saveScrollPosition(); // Save scroll position after search
 }
 
 
-// --- New/Modified Functions for Genre Filtering ---
+// --- Functions for Genre Filtering ---
 
 // Helper to get unique genres for a given content type
 function getUniqueGenres(type) {
@@ -95,10 +89,12 @@ function getUniqueGenres(type) {
     return ['All', ...new Set(allGenres)].sort(); // 'All' option first, then sorted unique genres
 }
 
-// Render genre buttons
+// Render genre buttons (used for initial setup or section switch)
 function renderGenreButtons(type) {
     const containerId = type === 'series' ? 'seriesGenreButtons' : 'movieGenreButtons';
     const container = document.getElementById(containerId);
+    if (!container) return;
+
     container.innerHTML = ''; // Clear existing buttons
 
     const genres = getUniqueGenres(type);
@@ -107,6 +103,7 @@ function renderGenreButtons(type) {
     genres.forEach(genre => {
         const button = document.createElement('button');
         button.textContent = genre;
+        // Call filterContentByGenre directly, passing the genre
         button.onclick = () => filterContentByGenre(type, genre);
         if (genre === activeGenre) {
             button.classList.add('active-genre');
@@ -117,6 +114,7 @@ function renderGenreButtons(type) {
 
 // Filter content by genre and update display
 function filterContentByGenre(type, genre) {
+    // 1. Update active class on buttons immediately
     const genreButtonsContainerId = type === 'series' ? 'seriesGenreButtons' : 'movieGenreButtons';
     const buttons = document.getElementById(genreButtonsContainerId).querySelectorAll('button');
     buttons.forEach(button => {
@@ -127,6 +125,17 @@ function filterContentByGenre(type, genre) {
         }
     });
 
+    // 2. Update localStorage for persistent state
+    localStorage.setItem('activeGenre', genre);
+    
+    // 3. Reset search input when a genre filter is applied
+    if (type === 'series') {
+        document.getElementById('seriesSearch').value = '';
+    } else {
+        document.getElementById('movieSearch').value = '';
+    }
+
+    // 4. Filter the content
     let filteredList;
     if (genre === 'All') {
         filteredList = content[type];
@@ -134,70 +143,85 @@ function filterContentByGenre(type, genre) {
         filteredList = content[type].filter(item => item.genres && item.genres.includes(genre));
     }
 
+    // 5. Display the filtered content
     if (type === 'series') {
         showSeriesList(filteredList);
     } else {
         showMovieList(filteredList);
     }
-    saveState(type, null, null, genre); // Save active section and active genre
+
+    // 6. Save section and genre state
+    saveState(type, genre);
     window.scrollTo(0, 0); // Scroll to top when applying filter
 }
 
-// Original showSeriesList modified to accept a list and check active genre
+// showSeriesList: Displays series, applying passed list or current genre filter
 function showSeriesList(list = null) {
-    const currentList = list || content.series;
+    const currentList = list || content.series; // Use passed list or full content
     const container = document.getElementById('seriesList');
     container.innerHTML = '';
 
-    const activeGenre = localStorage.getItem('activeGenre');
-    const displayList = (activeGenre && activeGenre !== 'All')
+    const activeGenre = localStorage.getItem('activeGenre'); // Get current active genre
+
+    // If a list was NOT explicitly passed (meaning it's a fresh load or genre change),
+    // then apply the active genre filter to the full content.series.
+    // If a list WAS passed (meaning it's already filtered by search/genre), use it directly.
+    const displayList = (list === null && activeGenre && activeGenre !== 'All')
         ? currentList.filter(s => s.genres && s.genres.includes(activeGenre))
         : currentList;
 
-    displayList.forEach((s, i) => {
+    displayList.forEach((s) => {
         const div = document.createElement('div');
         div.className = 'series-item';
+        const originalIndex = content.series.indexOf(s);
+        if (originalIndex === -1) return;
+
         div.innerHTML = `
           <img src="${s.image}" alt="${s.title}" />
           <h4>${s.title}</h4>
-          <button onclick="showSeriesDetails(${content.series.indexOf(s)})" class="btn">Open</button>
+          <button onclick="showSeriesDetails(${originalIndex})" class="btn">Open</button>
         `;
         container.appendChild(div);
     });
-    // Restore scroll only if this is the initial load for the main list and not a search/genre filter
-    if (list === null && localStorage.getItem('lastActiveSection') === 'series' && !localStorage.getItem('lastDetailType')) {
+    // Restore scroll only if this is for the main list and not a filtered list
+    // This check is now robust enough to restore scroll after initial load with genre.
+    if (list === null && localStorage.getItem('lastActiveSection') === 'series') {
         restoreScrollPosition();
     }
 }
 
-// Original showMovieList modified to accept a list and check active genre
+// showMovieList: Displays movies, applying passed list or current genre filter
 function showMovieList(list = null) {
-    const currentList = list || content.movies;
+    const currentList = list || content.movies; // Use passed list or full content
     const container = document.getElementById('movieList');
     container.innerHTML = '';
 
-    const activeGenre = localStorage.getItem('activeGenre');
-    const displayList = (activeGenre && activeGenre !== 'All')
+    const activeGenre = localStorage.getItem('activeGenre'); // Get current active genre
+
+    const displayList = (list === null && activeGenre && activeGenre !== 'All')
         ? currentList.filter(m => m.genres && m.genres.includes(activeGenre))
         : currentList;
 
-    displayList.forEach((m, i) => {
+    displayList.forEach((m) => {
         const div = document.createElement('div');
         div.className = 'series-item';
+        const originalIndex = content.movies.indexOf(m);
+        if (originalIndex === -1) return;
+
         div.innerHTML = `
           <img src="${m.image}" alt="${m.title}" />
           <h4>${m.title}</h4>
-          <button onclick="showMovieDetails(${content.movies.indexOf(m)})" class="btn">Watch </button>
+          <button onclick="showMovieDetails(${originalIndex})" class="btn">Watch </button>
         `;
         container.appendChild(div);
     });
-    // Restore scroll only if this is the initial load for the main list and not a search/genre filter
-    if (list === null && localStorage.getItem('lastActiveSection') === 'movies' && !localStorage.getItem('lastDetailType')) {
+    // Restore scroll only if this is for the main list and not a filtered list
+    if (list === null && localStorage.getItem('lastActiveSection') === 'movies') {
         restoreScrollPosition();
     }
 }
 
-// Modified showSeriesDetails to save the series index
+// showSeriesDetails: Shows details for a series item
 function showSeriesDetails(i) {
     const s = content.series[i];
     const container = document.getElementById('seriesDetails');
@@ -211,18 +235,12 @@ function showSeriesDetails(i) {
         <button onclick="goBackToList('series')" class="back">Back</button>
       `;
     document.getElementById('seriesList').innerHTML = '';
-    document.getElementById('seriesDetails').style.display = 'block'; // Ensure correct display property
-    saveState('series', 'series', i, localStorage.getItem('activeGenre')); // Save active section, detail type, index, and current genre
+    document.getElementById('seriesDetails').style.display = 'block';
+    // State is saved when section changes or genre filter is applied, not for individual details
     window.scrollTo(0, 0); // Scroll to top of details
-
-    // --- ADDED LOGIC: Hide navigation, search bar, and genre buttons ---
-    document.querySelector('nav').style.display = 'none';
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-    // --- END ADDED LOGIC ---
 }
 
-// Modified showMovieDetails to save the movie index
+// showMovieDetails: Shows details for a movie item
 function showMovieDetails(i) {
     const m = content.movies[i];
     const container = document.getElementById('movieDetails');
@@ -236,130 +254,88 @@ function showMovieDetails(i) {
         <button onclick="goBackToList('movies')" class="back">Back</button>
       `;
     document.getElementById('movieList').innerHTML = '';
-    document.getElementById('movieDetails').style.display = 'block'; // Ensure correct display property
-    saveState('movies', 'movie', i, localStorage.getItem('activeGenre')); // Save active section, detail type, index, and current genre
+    document.getElementById('movieDetails').style.display = 'block';
+    // State is saved when section changes or genre filter is applied, not for individual details
     window.scrollTo(0, 0); // Scroll to top of details
-
-    // --- ADDED LOGIC: Hide navigation, search bar, and genre buttons ---
-    document.querySelector('nav').style.display = 'none';
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-    // --- END ADDED LOGIC ---
 }
 
-// Modified goBackToList to clear detail state and restore genre buttons
+// goBackToList: Returns to the list view from a detail view
 function goBackToList(type) {
-    // Restore the current active genre filter when going back
-    const activeGenre = localStorage.getItem('activeGenre') || 'All';
-
+    const activeGenre = localStorage.getItem('activeGenre') || 'All'; // Get remembered genre
     if (type === 'series') {
-        filterContentByGenre('series', activeGenre); // Reapply the last active genre
         document.getElementById('seriesDetails').style.display = 'none';
-        saveState('series', null, null, activeGenre); // Only save section, clear detail state, retain genre
+        filterContentByGenre('series', activeGenre); // Re-apply genre to list
     } else {
-        filterContentByGenre('movies', activeGenre); // Reapply the last active genre
         document.getElementById('movieDetails').style.display = 'none';
-        saveState('movies', null, null, activeGenre); // Only save section, clear detail state, retain genre
+        filterContentByGenre('movies', activeGenre); // Re-apply genre to list
     }
+    // No explicit saveState needed here, as filterContentByGenre does it
     window.scrollTo(0, 0); // Scroll to top of list
-
-    // --- ADDED LOGIC: Show navigation, search bar, and genre buttons ---
-    document.querySelector('nav').style.display = 'flex';
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'block');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'flex');
-    // --- END ADDED LOGIC ---
 }
 
-// Original playEpisode and closeFullScreen remain the same
+// playEpisode: Opens video in full screen
 function playEpisode(link) {
     const player = document.getElementById('videoFullScreen');
     player.querySelector('iframe').src = link;
     player.style.display = 'flex';
-    // No need to save state here, as the video player is an overlay
 }
 
+// closeFullScreen: Closes full screen video
 function closeFullScreen() {
     const player = document.getElementById('videoFullScreen');
     player.querySelector('iframe').src = '';
     player.style.display = 'none';
-    // Restore scroll position after closing video player
-    restoreScrollPosition();
+    restoreScrollPosition(); // Restore scroll position after closing video player
 }
 
 // --- Initialize on DOM Content Loaded ---
 document.addEventListener('DOMContentLoaded', function() {
     const lastActiveSection = localStorage.getItem('lastActiveSection');
-    const lastDetailType = localStorage.getItem('lastDetailType');
-    const lastDetailIndex = localStorage.getItem('lastDetailIndex');
     const activeGenre = localStorage.getItem('activeGenre') || 'All'; // Get active genre on load
 
-    // Always render genre buttons initially, they will be hidden if in detail view
+    // Render genre buttons for both sections on initial load
+    // They will be displayed/hidden by showSection later
     renderGenreButtons('series');
     renderGenreButtons('movies');
 
     if (lastActiveSection) {
-        // First, load all lists (so content exists if details are to be shown)
-        showSeriesList();
-        showMovieList();
-
-        // Then, activate the remembered section
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(lastActiveSection).classList.add('active');
 
-        // Apply the remembered genre filter
-        if (lastActiveSection === 'series') {
-            filterContentByGenre('series', activeGenre);
-        } else if (lastActiveSection === 'movies') {
-            filterContentByGenre('movies', activeGenre);
-        }
-
-        // If a specific detail was being viewed, show it
-        if (lastDetailType && lastDetailIndex !== null) {
-            if (lastDetailType === 'series') {
-                showSeriesDetails(parseInt(lastDetailIndex, 10));
-            } else if (lastDetailType === 'movie') {
-                showMovieDetails(parseInt(lastDetailIndex, 10));
-            }
-            // --- ADDED: Ensure nav/search/genres are hidden if resuming into a detail view ---
-            document.querySelector('nav').style.display = 'none';
-            document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
-            document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-            // --- END ADDED ---
-        } else {
-            // If only a section was remembered (not a specific detail view),
-            // ensure the detail display is hidden and restore general scroll.
-            if (lastActiveSection === 'series') {
-                document.getElementById('seriesDetails').style.display = 'none';
-            } else if (lastActiveSection === 'movies') {
-                document.getElementById('movieDetails').style.display = 'none';
-            }
-            // --- ADDED: Ensure nav/search/genres are visible if resuming into a list view ---
-            document.querySelector('nav').style.display = 'flex';
+        // Show/hide search and genre buttons based on the last active section
+        if (lastActiveSection === 'series' || lastActiveSection === 'movies') {
             document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'block');
             document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'flex');
-            // --- END ADDED ---
+        } else { // 'home'
+            document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+            document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
         }
+
+        // Apply the remembered genre filter for the last active content section
+        if (lastActiveSection === 'series') {
+            filterContentByGenre('series', activeGenre); // This will also call showSeriesList and update UI
+            document.getElementById('seriesDetails').style.display = 'none'; // Ensure detail is hidden on load
+        } else if (lastActiveSection === 'movies') {
+            filterContentByGenre('movies', activeGenre); // This will also call showMovieList and update UI
+            document.getElementById('movieDetails').style.display = 'none'; // Ensure detail is hidden on load
+        } else {
+            // If home section, just show it
+            showSection('home'); // This will also handle its own button/search visibility
+        }
+
         restoreScrollPosition(); // Restore scroll position after everything else is set up
     } else {
-        // If no state is remembered, default to 'home' and show lists
+        // If no state is remembered, default to 'home'
         showSection('home');
-        showSeriesList(); // This will default to all series unless a genre is set
-        showMovieList(); // This will default to all movies unless a genre is set
-        // --- ADDED: Ensure nav/search/genres are visible on first load ---
-        document.querySelector('nav').style.display = 'flex';
-        document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'block');
-        document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'flex');
-        // --- END ADDED ---
     }
 
     // Add a global scroll listener to save position periodically
-    // This handles general scrolling within a section (e.g., long lists)
     let scrollTimer;
     window.addEventListener('scroll', function() {
         clearTimeout(scrollTimer);
         scrollTimer = setTimeout(() => {
             saveScrollPosition();
-        }, 200); // Save scroll position after 200ms of no scrolling
+        }, 200);
     });
 
     // Save scroll position before the user leaves the page
