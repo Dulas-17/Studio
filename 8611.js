@@ -1,3 +1,15 @@
+// 8611.js
+// This file now acts as an index for your content data.
+// Ensure movies.js and series.js are loaded BEFORE this file in your HTML.
+
+const content = {
+  series: seriesData, // seriesData is defined in series.js
+  movies: movieData,   // movieData is defined in movies.js
+};
+
+
+
+
 // Const content = { ... } // This content data should be in 8611.js
 
 // Moved here for clarity, but this should be from 8611.js
