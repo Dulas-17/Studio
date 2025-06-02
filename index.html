@@ -5,7 +5,7 @@
   <title>BayWatch</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="0834813844.css">
-  </head>
+</head>
 <body>
 
   <nav>
@@ -22,26 +22,20 @@
 
   <div id="series" class="section">
     <h2>Shows</h2>
-    <div id="seriesGenreBar" class="genre-bar">
-        </div>
     <div class="search-box">
       <input type="text" id="seriesSearch" placeholder="Search for a series..." onkeyup="searchContent('series')">
-      </div>
-
-    <div id="seriesList" class="series-grid"></div>
-
+    </div>
+    <div class="genre-buttons" id="seriesGenreButtons"></div> <div id="seriesList" class="series-grid"></div>
     <div id="seriesDetails" class="series-details" style="display: none;"></div>
   </div>
 
 
- <div id="movies" class="section">
+  <div id="movies" class="section">
     <h2>Movies</h2>
-    <div id="movieGenreBar" class="genre-bar">
-        </div>
     <div class="search-box">
       <input type="text" id="movieSearch" placeholder="Search for a movie..." onkeyup="searchContent('movies')">
     </div>
-    <div id="movieList" class="series-grid"></div>
+    <div class="genre-buttons" id="movieGenreButtons"></div> <div id="movieList" class="series-grid"></div>
     <div id="movieDetails" class="series-details" style="display: none;"></div>
   </div>
 
