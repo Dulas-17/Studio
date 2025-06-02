@@ -12,6 +12,7 @@
     <button onclick="showSection('home')">Home</button>
     <button onclick="showSection('movies')">Movies</button>
     <button onclick="showSection('series')">Series</button>
+    <button onclick="showWatchLater()">Watch Later</button>
   </nav>
 
   <div id="home" class="section active">
@@ -25,30 +26,35 @@
     <div class="search-box">
       <input type="text" id="seriesSearch" placeholder="Search for a series..." onkeyup="searchContent('series')">
     </div>
-    <div class="genre-buttons" id="seriesGenreButtons"></div> <div id="seriesList" class="series-grid"></div>
+    <div class="genre-buttons" id="seriesGenreButtons"></div>
+    <div id="seriesList" class="series-grid"></div>
     <div id="seriesDetails" class="series-details" style="display: none;"></div>
   </div>
-
 
   <div id="movies" class="section">
     <h2>Movies</h2>
     <div class="search-box">
       <input type="text" id="movieSearch" placeholder="Search for a movie..." onkeyup="searchContent('movies')">
     </div>
-    <div class="genre-buttons" id="movieGenreButtons"></div> <div id="movieList" class="series-grid"></div>
+    <div class="genre-buttons" id="movieGenreButtons"></div>
+    <div id="movieList" class="series-grid"></div>
     <div id="movieDetails" class="series-details" style="display: none;"></div>
   </div>
 
-
+  <div id="watchLater" class="section">
+      <h2>Your Watch Later List</h2>
+      <div id="watchLaterList" class="series-grid">
+          </div>
+  </div>
 
   <div id="videoFullScreen">
     <button onclick="closeFullScreen()">🔙</button>
     <iframe src="" allowfullscreen></iframe>
   </div>
 
-
 <script src="11.js"></script>
 <script src="12.js"></script>
 <script src="8611.js"></script>
+<script src="106.js"></script>
 </body>
 </html>
