@@ -13,6 +13,7 @@ body {
   background: #121212;
   color: #e5f5ff;
   line-height: 1.6;
+  touch-action: manipulation; /* Helps with mobile double-tap issues */
 }
 
 nav {
@@ -81,7 +82,7 @@ nav button:hover {
   background: #1c1c1c;
 }
 
-/* New CSS for Genre Buttons */
+/* Updated CSS for Genre Buttons - Bubble Style */
 .genre-buttons {
   margin: 1.5rem 0;
   text-align: center;
@@ -93,39 +94,40 @@ nav button:hover {
 
 .genre-buttons button {
   padding: 0.6rem 1.2rem;
-  background: #2b3c57;
+  background: #2b3c57; /* Base background for buttons */
   color: #d6ecff;
   border: 1px solid #4a6fa5;
-  border-radius: 8px;
+  border-radius: 25px; /* Makes them significantly rounded - "bubble" */
   font-size: 0.9rem;
   cursor: pointer;
   transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4); /* Subtle shadow for depth */
 }
 
 .genre-buttons button:hover {
   background: #5a9bd8;
   color: #fff;
   transform: scale(1.03);
-  box-shadow: 0 0 8px #5a9bd8;
+  box-shadow: 0 0 10px #5a9bd8; /* Enhanced shadow on hover */
 }
 
 .genre-buttons button.active-genre {
   background: #5a9bd8; /* Highlight for active genre */
   color: #fff;
   border-color: #d6ecff;
-  box-shadow: 0 0 12px #5a9bd8;
+  box-shadow: 0 0 15px #5a9bd8; /* Stronger shadow for active */
   transform: scale(1.05);
 }
 
-/* Updated series-grid for 3 columns on larger screens */
+/* Responsive Series/Movie Grid Layout */
 .series-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Default to 3 columns */
+  grid-template-columns: repeat(3, 1fr); /* Default: 3 columns for smaller phones */
   gap: 1rem;
 }
 
 p{
-
+  /* You had an empty p rule here, keeping it as is */
 }
 
 .series-item {
@@ -226,78 +228,66 @@ p{
   background: #f87171;
 }
 
+/* Responsive behavior for columns */
+/* Default (small phones): 3 columns, already set above */
 
-/* Responsive behavior */
-@media (max-width: 1024px) {
+@media (min-width: 481px) { /* Larger phones and up */
   .series-grid {
-    grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets and smaller desktops */
+    grid-template-columns: repeat(3, 1fr); /* Stay at 3 columns for slightly larger phones */
   }
-
-p{
-  font-size:clamp(1.2rem,2vw,2.2rem);
-}
 }
 
-
-@media (max-width: 768px) {
+@media (min-width: 768px) { /* Tablets */
   .series-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on most tablets */
+    grid-template-columns: repeat(4, 1fr); /* 4 columns on tablets */
   }
-
   nav {
-    flex-direction: row;
-    overflow-x: auto;
     justify-content: flex-start;
     padding: 0.8rem;
   }
-
   nav button {
-    flex-shrink: 0;
     margin-right: 0.5rem;
   }
-.h4{
-  font-size:1.3rem;
-}
+  .h4{
+    font-size:1.3rem;
+  }
 }
 
+@media (min-width: 1200px) { /* Desktops */
+  .series-grid {
+    grid-template-columns: repeat(5, 1fr); /* 5 columns on desktops */
+  }
+}
+
+/* General responsive text sizing (from previous versions) */
+@media (max-width: 1024px) {
+  p{
+    font-size:clamp(1.2rem,2vw,2.2rem);
+  }
+}
 
 @media (max-width: 480px) {
   html {
     font-size: 12px;
   }
-
-  .series-grid {
-    grid-template-columns: repeat(1, 1fr); /* 1 column on small phones */
-    gap: 0.5rem;
-  }
-
   .series-item {
     padding: 0.3rem;
   }
-
   .episode-buttons button {
     padding: 0.8rem;
     font-size: 0.9rem;
   }
-
-  nav {
-    flex-direction: row;
+  .h4{
+    font-size:1rem;
   }
-.h4{
-  font-size:1rem;
-}
-
   .genre-buttons {
     gap: 0.5rem;
   }
-
   .genre-buttons button {
     padding: 0.5rem 0.8rem;
     font-size: 0.8rem;
   }
 }
-
-
 
 .btn {
   padding: 0.4rem;
@@ -335,4 +325,44 @@ p{
   color: #000;
   transform: translateY(-3px);
   box-shadow: 0 0 8px #5a9bd8;
+}
+
+/* New style for the Watch Later button */
+.watch-later-btn {
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 10px;
+  background: #f39c12; /* A warm orange for watch later */
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-top: 0.5rem; /* Space from the "Open/Watch Now" button */
+}
+
+.watch-later-btn:hover {
+  background: #e67e22; /* Darker orange on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px #f39c12;
+}
+
+/* Style for the remove button in Watch Later list */
+.remove-watch-later-btn {
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 10px;
+  background: #e74c3c; /* Red for remove */
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.remove-watch-later-btn:hover {
+  background: #c0392b; /* Darker red on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px #e74c3c;
 }
