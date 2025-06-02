@@ -22,7 +22,7 @@ nav {
   justify-content: center;
   gap: 1rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-  flex-wrap: wrap; /* Changed to wrap for better responsiveness */
+  flex-wrap: wrap;
   width:100vw;
 }
 
@@ -117,15 +117,15 @@ nav button:hover {
   transform: scale(1.05);
 }
 
-
+/* Updated series-grid for 3 columns on larger screens */
 .series-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjusted for better flexibility */
+  grid-template-columns: repeat(3, 1fr); /* Default to 3 columns */
   gap: 1rem;
 }
 
 p{
-  /* You had an empty p rule here, keeping it as is */
+
 }
 
 .series-item {
@@ -230,7 +230,7 @@ p{
 /* Responsive behavior */
 @media (max-width: 1024px) {
   .series-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Adjusted for better flexibility */
+    grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets and smaller desktops */
   }
 
 p{
@@ -241,19 +241,19 @@ p{
 
 @media (max-width: 768px) {
   .series-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* Adjusted for better flexibility */
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on most tablets */
   }
 
   nav {
     flex-direction: row;
     overflow-x: auto;
-    justify-content: flex-start; /* Align buttons to start */
+    justify-content: flex-start;
     padding: 0.8rem;
   }
 
   nav button {
     flex-shrink: 0;
-    margin-right: 0.5rem; /* Small margin between buttons */
+    margin-right: 0.5rem;
   }
 .h4{
   font-size:1.3rem;
@@ -267,7 +267,7 @@ p{
   }
 
   .series-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Adjusted for better flexibility */
+    grid-template-columns: repeat(1, 1fr); /* 1 column on small phones */
     gap: 0.5rem;
   }
 
