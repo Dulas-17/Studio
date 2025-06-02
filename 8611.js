@@ -1,8 +1,6 @@
-// Const content = { ... } // This content data should be in 8611.js
-
-// Moved here for clarity, but this should be from 8611.js
-// Assuming content data is loaded from 8611.js before this script executes.
-// const content = { /* ... your data structure ... */ };
+// This script assumes 'content' object (with content.series and content.movies)
+// is globally available, loaded from 8611.js, which in turn loads data from
+// series.js and movies.js.
 
 // Function to save the current scroll position of the document
 function saveScrollPosition() {
@@ -48,12 +46,16 @@ function showSection(id) {
 
     if (id === 'series') {
         renderGenreButtons('series'); // Render genre buttons for series
-        showSeriesList();
+        showSeriesList(); // Display all series initially, or re-apply remembered genre
         document.getElementById('seriesDetails').style.display = 'none';
     } else if (id === 'movies') {
         renderGenreButtons('movies'); // Render genre buttons for movies
-        showMovieList();
+        showMovieList(); // Display all movies initially, or re-apply remembered genre
         document.getElementById('movieDetails').style.display = 'none';
+    } else { // For 'home' section
+        // Hide genre buttons and search for 'home'
+        document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+        document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
     }
     window.scrollTo(0, 0); // Scroll to top of new section
 }
@@ -65,11 +67,9 @@ function searchContent(type) {
 
     // Clear active genre when searching
     if (type === 'series') {
-        filterContentByGenre('series', 'All'); // Reset genre filter
-        showSeriesList(filtered);
+        filterContentByGenre('series', 'All', filtered); // Reset genre filter, apply search filter
     } else {
-        filterContentByGenre('movies', 'All'); // Reset genre filter
-        showMovieList(filtered);
+        filterContentByGenre('movies', 'All', filtered); // Reset genre filter, apply search filter
     }
     saveScrollPosition(); // Save scroll position after search
 }
@@ -87,6 +87,8 @@ function getUniqueGenres(type) {
 function renderGenreButtons(type) {
     const containerId = type === 'series' ? 'seriesGenreButtons' : 'movieGenreButtons';
     const container = document.getElementById(containerId);
+    if (!container) return; // Exit if container doesn't exist
+
     container.innerHTML = ''; // Clear existing buttons
 
     const genres = getUniqueGenres(type);
@@ -104,7 +106,8 @@ function renderGenreButtons(type) {
 }
 
 // Filter content by genre and update display
-function filterContentByGenre(type, genre) {
+// 'searchFilteredList' is an optional parameter to apply genre filter on top of a search result
+function filterContentByGenre(type, genre, searchFilteredList = null) {
     const genreButtonsContainerId = type === 'series' ? 'seriesGenreButtons' : 'movieGenreButtons';
     const buttons = document.getElementById(genreButtonsContainerId).querySelectorAll('button');
     buttons.forEach(button => {
@@ -115,40 +118,57 @@ function filterContentByGenre(type, genre) {
         }
     });
 
-    let filteredList;
+    let baseList = searchFilteredList || content[type];
+    let filteredByGenreList;
+
     if (genre === 'All') {
-        filteredList = content[type];
+        filteredByGenreList = baseList;
     } else {
-        filteredList = content[type].filter(item => item.genres && item.genres.includes(genre));
+        filteredByGenreList = baseList.filter(item => item.genres && item.genres.includes(genre));
     }
 
     if (type === 'series') {
-        showSeriesList(filteredList);
+        showSeriesList(filteredByGenreList);
     } else {
-        showMovieList(filteredList);
+        showMovieList(filteredByGenreList);
     }
-    saveState(type, null, null, genre); // Save active section and active genre
+    // Only save genre if not currently performing a search filter
+    if (!searchFilteredList) {
+        saveState(type, null, null, genre); // Save active section and active genre
+    } else {
+        // If search filtered, just update current genre state without affecting primary section state
+        localStorage.setItem('activeGenre', genre);
+    }
     window.scrollTo(0, 0); // Scroll to top when applying filter
 }
 
 // Original showSeriesList modified to accept a list and check active genre
 function showSeriesList(list = null) {
+    // If a list is explicitly passed (e.g., from search or genre filter), use it.
+    // Otherwise, start with the full content.series and then apply the active genre from storage.
     const currentList = list || content.series;
     const container = document.getElementById('seriesList');
     container.innerHTML = '';
 
     const activeGenre = localStorage.getItem('activeGenre');
-    const displayList = (activeGenre && activeGenre !== 'All')
+    // If a list was NOT passed, and an active genre is set, filter the full list by that genre.
+    // If a list WAS passed (meaning it's already filtered by search/genre), use it directly.
+    const displayList = (list === null && activeGenre && activeGenre !== 'All')
         ? currentList.filter(s => s.genres && s.genres.includes(activeGenre))
         : currentList;
 
-    displayList.forEach((s, i) => {
+
+    displayList.forEach((s) => {
         const div = document.createElement('div');
         div.className = 'series-item';
+        // Pass the original index from the 'content.series' array for consistency in detail view
+        const originalIndex = content.series.indexOf(s);
+        if (originalIndex === -1) return; // Skip if item not found in original list (shouldn't happen)
+
         div.innerHTML = `
           <img src="${s.image}" alt="${s.title}" />
           <h4>${s.title}</h4>
-          <button onclick="showSeriesDetails(${content.series.indexOf(s)})" class="btn">Open</button>
+          <button onclick="showSeriesDetails(${originalIndex})" class="btn">Open</button>
         `;
         container.appendChild(div);
     });
@@ -165,17 +185,21 @@ function showMovieList(list = null) {
     container.innerHTML = '';
 
     const activeGenre = localStorage.getItem('activeGenre');
-    const displayList = (activeGenre && activeGenre !== 'All')
+    const displayList = (list === null && activeGenre && activeGenre !== 'All')
         ? currentList.filter(m => m.genres && m.genres.includes(activeGenre))
         : currentList;
 
-    displayList.forEach((m, i) => {
+    displayList.forEach((m) => {
         const div = document.createElement('div');
         div.className = 'series-item';
+        // Pass the original index from the 'content.movies' array for consistency in detail view
+        const originalIndex = content.movies.indexOf(m);
+        if (originalIndex === -1) return; // Skip if item not found in original list (shouldn't happen)
+
         div.innerHTML = `
           <img src="${m.image}" alt="${m.title}" />
           <h4>${m.title}</h4>
-          <button onclick="showMovieDetails(${content.movies.indexOf(m)})" class="btn">Watch </button>
+          <button onclick="showMovieDetails(${originalIndex})" class="btn">Watch </button>
         `;
         container.appendChild(div);
     });
@@ -331,13 +355,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         // If no state is remembered, default to 'home' and show lists
         showSection('home');
-        showSeriesList(); // This will default to all series unless a genre is set
-        showMovieList(); // This will default to all movies unless a genre is set
-        // --- ADDED: Ensure nav/search/genres are visible on first load ---
-        document.querySelector('nav').style.display = 'flex';
-        document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'block');
-        document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'flex');
-        // --- END ADDED ---
+        // No need to explicitly call showSeriesList/showMovieList here, showSection does it.
+        // Also, showSection will handle showing nav/search/genre buttons.
     }
 
     // Add a global scroll listener to save position periodically
