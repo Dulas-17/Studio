@@ -206,10 +206,21 @@ function showMovieList(list = null) {
     }
 }
 
-// --- Detail View Functions ---
+// --- Detail View Functions (FIXED: Ensure parent section is active) ---
 function showSeriesDetails(i) {
     const s = content.series[i];
     const container = document.getElementById('seriesDetails');
+
+    // Step 1: Deactivate all sections first
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    // Then, make the parent section of series details active
+    document.getElementById('series').classList.add('active'); 
+
+    // Step 2: Hide the list and ensure detail container is block
+    document.getElementById('seriesList').innerHTML = ''; // Clear the list items
+    document.getElementById('seriesDetails').style.display = 'block'; // Show the details container
+
+    // Step 3: Populate details
     container.innerHTML = `
         <img src="${s.image}" alt="${s.title}" />
         <h2>${s.title}</h2>
@@ -219,8 +230,7 @@ function showSeriesDetails(i) {
         </div>
         <button onclick="goBackToList('series')" class="back">Back</button>
       `;
-    document.getElementById('seriesList').innerHTML = ''; // Hide list
-    document.getElementById('seriesDetails').style.display = 'block'; // Show detail
+
     saveState('series', 'series', i, localStorage.getItem('activeGenre')); // Save active section, detail type, index, and current genre
     window.scrollTo(0, 0); // Scroll to top of details
 
@@ -233,6 +243,17 @@ function showSeriesDetails(i) {
 function showMovieDetails(i) {
     const m = content.movies[i];
     const container = document.getElementById('movieDetails');
+
+    // Step 1: Deactivate all sections first
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    // Then, make the parent section of movie details active
+    document.getElementById('movies').classList.add('active'); 
+
+    // Step 2: Hide the list and ensure detail container is block
+    document.getElementById('movieList').innerHTML = ''; // Clear the list items
+    document.getElementById('movieDetails').style.display = 'block'; // Show the details container
+
+    // Step 3: Populate details
     container.innerHTML = `
         <img src="${m.image}" alt="${m.title}" />
         <h2>${m.title}</h2>
@@ -242,8 +263,6 @@ function showMovieDetails(i) {
         </div>
         <button onclick="goBackToList('movies')" class="back">Back</button>
       `;
-    document.getElementById('movieList').innerHTML = ''; // Hide list
-    document.getElementById('movieDetails').style.display = 'block'; // Show detail
     saveState('movies', 'movie', i, localStorage.getItem('activeGenre')); // Save active section, detail type, index, and current genre
     window.scrollTo(0, 0); // Scroll to top of details
 
@@ -397,8 +416,8 @@ document.addEventListener('DOMContentLoaded', function() {
     renderGenreButtons('movies');
 
     if (lastActiveSection) {
+        // Deactivate all sections first for a clean state
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(lastActiveSection).classList.add('active');
 
         if (lastDetailType && lastDetailIndex !== null) {
             // If in detail view, hide standard UI elements
@@ -406,10 +425,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
             document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
 
-            // Show the specific detail
+            // Show the specific detail (and its parent section will be activated by showSeriesDetails/showMovieDetails)
             if (lastDetailType === 'series') {
                 document.getElementById('seriesList').innerHTML = ''; // Hide list for details
-                showSeriesDetails(parseInt(lastDetailIndex, 10));
+                showSeriesDetails(parseInt(lastDetailIndex, 10)); 
             } else if (lastDetailType === 'movie') {
                 document.getElementById('movieList').innerHTML = ''; // Hide list for details
                 showMovieDetails(parseInt(lastDetailIndex, 10));
@@ -418,6 +437,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // If not in a detail view, ensure UI elements are visible and lists are rendered
             document.querySelector('nav').style.display = 'flex';
             
+            // Activate the last active section
+            document.getElementById(lastActiveSection).classList.add('active');
+
             if (lastActiveSection === 'series') {
                 document.getElementById('seriesSearch').style.display = 'block';
                 document.getElementById('seriesGenreButtons').style.display = 'flex';
