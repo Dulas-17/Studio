@@ -17,44 +17,37 @@
 
   <div id="home" class="section active">
     <h1>Baywatch</h1>
-    <p>NB:The page is still under development</p>
-    <p>we currently only have 2 uploads </p>
+    <p>NB: The page is still under development</p>
+    <p>We currently only have 2 uploads</p>
   </div>
 
   <div id="series" class="section">
     <h2>Shows</h2>
-    <div class="search-box">
-      <input type="text" id="seriesSearch" placeholder="Search for a series..." onkeyup="searchContent('series')">
+    <div class="search-box" id="seriesSearch" style="display:none;">
+      <input type="text" placeholder="Search for a series..." onkeyup="searchContent('series')">
     </div>
-    <div class="genre-buttons" id="seriesGenreButtons"></div>
+    <div class="genre-buttons" id="seriesGenreButtons" style="display:none;"></div>
     <div id="seriesList" class="series-grid"></div>
     <div id="seriesDetails" class="series-details" style="display: none;"></div>
   </div>
 
   <div id="movies" class="section">
     <h2>Movies</h2>
-    <div class="search-box">
-      <input type="text" id="movieSearch" placeholder="Search for a movie..." onkeyup="searchContent('movies')">
+    <div class="search-box" id="movieSearch" style="display:none;">
+      <input type="text" placeholder="Search for a movie..." onkeyup="searchContent('movies')">
     </div>
-    <div class="genre-buttons" id="movieGenreButtons"></div>
+    <div class="genre-buttons" id="movieGenreButtons" style="display:none;"></div>
     <div id="movieList" class="series-grid"></div>
     <div id="movieDetails" class="series-details" style="display: none;"></div>
   </div>
 
-  <div id="watchLater" class="section">
-      <h2>Your Watch Later List</h2>
-      <div id="watchLaterList" class="series-grid">
-          </div>
-  </div>
-
-  <div id="videoFullScreen">
-    <button onclick="closeFullScreen()">🔙</button>
+  <div id="watchLater    <button onclick="closeFullScreen()">🔙</button>
     <iframe src="" allowfullscreen></iframe>
   </div>
 
-<script src="11.js"></script>
-<script src="12.js"></script>
-<script src="8611.js"></script>
-<script src="106.js"></script>
+  <!-- Your JavaScript files (order matters if there are dependencies) -->
+  <script src="11.js"></script>
+  <script src="12.js"></script>
+  <script src="8611.js"></script>
 </body>
 </html>
