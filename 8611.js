@@ -1,4 +1,4 @@
-Const content = {
+const content = {
   series: seriesData, // seriesData is defined in series.js
   movies: movieData,   // movieData is defined in movies.js
 };
@@ -446,8 +446,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const lastActiveSection = localStorage.getItem('lastActiveSection');
     const lastDetailType = localStorage.getItem('lastDetailType');
     const lastDetailIndex = localStorage.getItem('lastDetailIndex');
-    const activeGenre = localStorage.getItem('activeGenre'); // No default here, let filterContentByGenre handle it
-    const originSection = localStorage.getItem('originSection'); // Get origin if exists
+    const activeGenre = localStorage.getItem('activeGenre');
+    const originSection = localStorage.getItem('originSection');
 
     // Render genre buttons initially for both series and movies
     renderGenreButtons('series');
@@ -470,11 +470,19 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // If restoring to a regular section list, use showSection which handles everything
             showSection(lastActiveSection);
+
+            // Also ensure content is loaded for these sections if not a detail view
+            if (lastActiveSection === 'movies') {
+                showMovieList();
+            } else if (lastActiveSection === 'series') {
+                showSeriesList();
+            }
         }
         restoreScrollPosition(); // Restore scroll position after content is loaded
     } else {
         // If no state is remembered, default to 'movies'
-        showSection('movies'); // <--- CHANGED FROM 'home' to 'movies'
+        showSection('movies');
+        showMovieList(); // ADDED: Call showMovieList to display content when defaulting to 'movies'
     }
 
     // Add a global scroll listener to save position periodically
