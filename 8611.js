@@ -441,7 +441,7 @@ function showWatchLater() {
 }
 
 
-// --- Initialize on DOM Content Loaded (Simplified and Robust) ---
+// --- Initialize on DOM Content Loaded ---
 document.addEventListener('DOMContentLoaded', function() {
     const lastActiveSection = localStorage.getItem('lastActiveSection');
     const lastDetailType = localStorage.getItem('lastDetailType');
@@ -469,20 +469,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             // If restoring to a regular section list, use showSection which handles everything
+            // showSection will handle loading the content (via filterContentByGenre)
+            // and showing/hiding the search bar/genre buttons.
             showSection(lastActiveSection);
-
-            // Also ensure content is loaded for these sections if not a detail view
-            if (lastActiveSection === 'movies') {
-                showMovieList();
-            } else if (lastActiveSection === 'series') {
-                showSeriesList();
-            }
         }
         restoreScrollPosition(); // Restore scroll position after content is loaded
     } else {
         // If no state is remembered, default to 'movies'
+        // showSection('movies') will now correctly display the search bar and content.
         showSection('movies');
-        showMovieList(); // ADDED: Call showMovieList to display content when defaulting to 'movies'
     }
 
     // Add a global scroll listener to save position periodically
