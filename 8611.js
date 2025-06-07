@@ -39,10 +39,7 @@ function saveState(sectionId, detailType = null, detailIndex = null, activeGenre
     } else {
         localStorage.removeItem('originSection');
     }
-    // Only save scroll position if not in a video playback state
-    if (document.getElementById('videoFullScreen').style.display !== 'flex') {
-        saveScrollPosition(); // Save scroll position whenever state changes, if not playing video
-    }
+    // Scroll position is handled by global listeners, not directly in saveState.
 }
 
 // --- New Playback State Utilities ---
@@ -64,6 +61,7 @@ function clearPlaybackState() {
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+
     // When showing a section directly (not detail view), clear detail specific state
     // Ensure originSection is also cleared when navigating to a main section
     saveState(id, null, null, localStorage.getItem('activeGenre'), null);
@@ -84,11 +82,15 @@ function showSection(id) {
         document.getElementById('seriesSearch').style.display = 'block'; // Show search for series
         document.getElementById('seriesGenreButtons').style.display = 'flex'; // Show genre for series
         renderGenreButtons('series');
+        // Ensure content list is also visible and populated
+        document.getElementById('seriesList').style.display = 'flex';
         filterContentByGenre('series', localStorage.getItem('activeGenre') || 'All');
     } else if (id === 'movies') {
         document.getElementById('movieSearch').style.display = 'block'; // Show search for movies
         document.getElementById('movieGenreButtons').style.display = 'flex'; // Show genre for movies
         renderGenreButtons('movies');
+        // Ensure content list is also visible and populated
+        document.getElementById('movieList').style.display = 'flex';
         filterContentByGenre('movies', localStorage.getItem('activeGenre') || 'All');
     } else if (id === 'watchLater') {
         // No search or genre filter for watch later section
@@ -112,7 +114,6 @@ function searchContent(type) {
     } else {
         showMovieList(filtered);
     }
-    // No need for saveScrollPosition here, as showSection or filterContentByGenre handles it.
 }
 
 // --- Genre Filtering ---
@@ -175,6 +176,7 @@ function showSeriesList(list = null) {
     const currentList = list || content.series;
     const container = document.getElementById('seriesList');
     container.innerHTML = '';
+    container.style.display = 'flex'; // Ensure list is visible
 
     const activeGenre = localStorage.getItem('activeGenre');
     const displayList = (list === null && activeGenre && activeGenre !== 'All')
@@ -195,7 +197,8 @@ function showSeriesList(list = null) {
         `;
         container.appendChild(div);
     });
-    if (list === null && localStorage.getItem('lastActiveSection') === 'series' && !localStorage.getItem('lastDetailType') && document.getElementById('videoFullScreen').style.display !== 'flex') {
+    // Only restore scroll if we are definitely showing the list and not in video playback
+    if (document.getElementById('series').classList.contains('active') && !localStorage.getItem('lastDetailType') && document.getElementById('videoFullScreen').style.display !== 'flex') {
         restoreScrollPosition();
     }
 }
@@ -204,6 +207,7 @@ function showMovieList(list = null) {
     const currentList = list || content.movies;
     const container = document.getElementById('movieList');
     container.innerHTML = '';
+    container.style.display = 'flex'; // Ensure list is visible
 
     const activeGenre = localStorage.getItem('activeGenre');
     const displayList = (list === null && activeGenre && activeGenre !== 'All')
@@ -224,18 +228,18 @@ function showMovieList(list = null) {
         `;
         container.appendChild(div);
     });
-    if (list === null && localStorage.getItem('lastActiveSection') === 'movies' && !localStorage.getItem('lastDetailType') && document.getElementById('videoFullScreen').style.display !== 'flex') {
+    // Only restore scroll if we are definitely showing the list and not in video playback
+    if (document.getElementById('movies').classList.contains('active') && !localStorage.getItem('lastDetailType') && document.getElementById('videoFullScreen').style.display !== 'flex') {
         restoreScrollPosition();
     }
 }
 
-// --- Detail View Functions (FIXED: Ensure parent section is active AND accepts originSection) ---
+// --- Detail View Functions ---
 function showSeriesDetails(i, originSection = null) {
     const s = content.series[i];
     if (!s) { // Defensive check: if item not found, log error and go back
         console.error("Error: Series item not found at index:", i);
         alert("Could not load series details. Data might be missing or corrupted.");
-        // Try to go back to the original section, or default to home/series
         if (originSection === 'watchLater') {
             showSection('watchLater');
         } else {
@@ -251,7 +255,7 @@ function showSeriesDetails(i, originSection = null) {
     document.getElementById('series').classList.add('active');
 
     // Step 2: Hide the list and ensure detail container is block
-    document.getElementById('seriesList').innerHTML = ''; // Clear the list items
+    document.getElementById('seriesList').style.display = 'none'; // Hide the list items
     document.getElementById('seriesDetails').style.display = 'block'; // Show the details container
 
     // Step 3: Populate details
@@ -295,7 +299,7 @@ function showMovieDetails(i, originSection = null) {
     document.getElementById('movies').classList.add('active');
 
     // Step 2: Hide the list and ensure detail container is block
-    document.getElementById('movieList').innerHTML = ''; // Clear the list items
+    document.getElementById('movieList').style.display = 'none'; // Hide the list items
     document.getElementById('movieDetails').style.display = 'block'; // Show the details container
 
     // Step 3: Populate details
@@ -318,17 +322,14 @@ function showMovieDetails(i, originSection = null) {
     document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
 }
 
-// --- Go Back to List Function (FIXED: Uses originSection to determine return path) ---
+// --- Go Back to List Function ---
 function goBackToList(type) {
     const activeGenre = localStorage.getItem('activeGenre') || 'All';
     const originSection = localStorage.getItem('originSection'); // Retrieve origin section
 
     // Hide the current detail view
-    if (type === 'series') {
-        document.getElementById('seriesDetails').style.display = 'none';
-    } else {
-        document.getElementById('movieDetails').style.display = 'none';
-    }
+    document.getElementById('seriesDetails').style.display = 'none';
+    document.getElementById('movieDetails').style.display = 'none';
 
     // Determine where to go back to based on origin
     let targetSectionId;
@@ -345,31 +346,51 @@ function goBackToList(type) {
 }
 
 // --- Video Player Functions ---
-// Moved playEpisode definition to top with new parameters
-// Original definition of playEpisode has been moved and modified.
+function playEpisode(link, type, index, title) { // <-- Added type, index, title parameters
+    const player = document.getElementById('videoFullScreen');
+    player.querySelector('iframe').src = link;
+    player.style.display = 'flex';
+
+    // Save the state of the currently playing video
+    savePlaybackState(link, type, index, title);
+
+    // Hide navigation while playing
+    document.querySelector('nav').style.display = 'none';
+}
 
 function closeFullScreen() {
     const player = document.getElementById('videoFullScreen');
     player.querySelector('iframe').src = '';
     player.style.display = 'none';
 
-    clearPlaybackState(); // <-- Clear the playback state here
+    clearPlaybackState(); // <-- Ensure this is called to clear video state
 
-    restoreScrollPosition();
+    // Now, restore the UI based on the last saved section/detail
+    const lastActiveSection = localStorage.getItem('lastActiveSection');
+    const lastDetailType = localStorage.getItem('lastDetailType');
+    const lastDetailIndex = localStorage.getItem('lastDetailIndex');
+    const originSection = localStorage.getItem('originSection'); // Get original origin
 
-    // Re-show Navigation, Search Bar, and Genre Buttons based on the last active section
-    document.querySelector('nav').style.display = 'flex';
-    const currentSectionId = localStorage.getItem('lastActiveSection');
-    if (currentSectionId === 'series') {
-        document.getElementById('seriesSearch').style.display = 'block';
-        document.getElementById('seriesGenreButtons').style.display = 'flex';
-    } else if (currentSectionId === 'movies') {
-        document.getElementById('movieSearch').style.display = 'block';
-        document.getElementById('movieGenreButtons').style.display = 'flex';
+    // Prioritize restoring the UI state that was active *before* the video player opened
+    if (lastDetailType && lastDetailIndex !== null && (lastActiveSection === 'series' || lastActiveSection === 'movies')) {
+        // If we were in a detail view, go back to it
+        if (lastDetailType === 'series') {
+            showSeriesDetails(parseInt(lastDetailIndex, 10), originSection);
+        } else if (lastDetailType === 'movie') {
+            showMovieDetails(parseInt(lastDetailIndex, 10), originSection);
+        }
+        // The showDetails functions already handle showing/hiding nav/search/genre
+    } else if (lastActiveSection) {
+        // Otherwise, go back to the general section
+        showSection(lastActiveSection);
+    } else {
+        // Default if no section was active (shouldn't happen if saveState works)
+        showSection('movies');
     }
+    restoreScrollPosition(); // Restore scroll position after returning to UI
 }
 
-// --- Watch Later Functionality (FIXED: Pass originSection to detail view) ---
+// --- Watch Later Functionality ---
 function getWatchLaterList() {
     const watchLaterJson = localStorage.getItem('watchLater');
     return watchLaterJson ? JSON.parse(watchLaterJson) : [];
@@ -425,6 +446,7 @@ function showWatchLater() {
 
     const container = document.getElementById('watchLaterList');
     container.innerHTML = ''; // Clear previous content
+    container.style.display = 'flex'; // Ensure watch later list is visible
 
     const watchLaterItems = getWatchLaterList();
 
@@ -469,15 +491,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (lastPlayedVideoLink && lastPlayedVideoContentType && lastPlayedVideoContentIndex !== null) {
         // --- RESTORE VIDEO PLAYBACK STATE ---
-        console.log(`Resuming playback of: ${lastPlayedVideoContentTitle || 'last watched video'}`);
+        console.log(`DOMContentLoaded: Restoring Playback State for: ${lastPlayedVideoContentTitle || 'last watched video'}`);
 
-        // First, ensure the correct detail view is active in the background
-        // This makes sure the "Back" button functions correctly and the context is right.
+        // Ensure the correct detail view is active in the background
         if (lastPlayedVideoContentType === 'series') {
-            // We pass null for originSection as this is a direct restoration to a detail view
-            showSeriesDetails(parseInt(lastPlayedVideoContentIndex, 10), null);
+            showSeriesDetails(parseInt(lastPlayedVideoContentIndex, 10), null); // null origin for direct restoration
         } else if (lastPlayedVideoContentType === 'movie') {
-            showMovieDetails(parseInt(lastPlayedVideoContentIndex, 10), null);
+            showMovieDetails(parseInt(lastPlayedVideoContentIndex, 10), null); // null origin for direct restoration
         }
 
         // Now, display the video player on top
@@ -494,21 +514,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // alert(`Resuming: ${lastPlayedVideoContentTitle || 'Your last video'}`);
     } else {
         // --- RESTORE REGULAR UI STATE (if no video was playing) ---
+        console.log('DOMContentLoaded: No active video playback. Restoring UI State.');
         const lastActiveSection = localStorage.getItem('lastActiveSection');
         const lastDetailType = localStorage.getItem('lastDetailType');
         const lastDetailIndex = localStorage.getItem('lastDetailIndex');
-        const activeGenre = localStorage.getItem('activeGenre');
-        const originSection = localStorage.getItem('originSection');
+        const originSection = localStorage.getItem('originSection'); // Keep this for existing logic
 
         if (lastActiveSection) {
-            // If restoring to a detail view
             if (lastDetailType && lastDetailIndex !== null) {
-                // Hide standard UI elements immediately
-                document.querySelector('nav').style.display = 'none';
-                document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
-                document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-
-                // Call detail view functions, passing the origin if it was saved
+                // If restoring to a detail view
+                // showDetails functions already handle showing/hiding nav/search/genre
                 if (lastDetailType === 'series') {
                     showSeriesDetails(parseInt(lastDetailIndex, 10), originSection);
                 } else if (lastDetailType === 'movie') {
@@ -525,10 +540,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add a global scroll listener to save position periodically
+    // Global scroll listener (only save if player is not active)
     let scrollTimer;
     window.addEventListener('scroll', function() {
-        // Only save scroll position if the full-screen player is NOT active
         if (document.getElementById('videoFullScreen').style.display !== 'flex') {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -537,11 +551,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Save scroll position before the user leaves the page, but only if player is not active
+    // Save scroll position before the user leaves the page (only if player is not active)
     window.addEventListener('beforeunload', function() {
         if (document.getElementById('videoFullScreen').style.display !== 'flex') {
             saveScrollPosition();
         }
-        // If the player is active on unload, its state should already be saved by `playEpisode`
     });
 });
