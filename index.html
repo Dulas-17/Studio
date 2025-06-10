@@ -67,26 +67,32 @@ nav button:hover {
   display: block;
 }
 
-.search-box {
-  margin: 2rem auto 0.5rem auto; /* Adjusted margin for suggestion box */
+.search-container { /* New wrapper for search input + button + suggestions */
+  margin: 2rem auto 0.5rem auto;
   width: 90%;
   max-width: 500px;
+  position: relative;
+  z-index: 10; /* Ensure search-related elements are on top */
+}
+
+.search-box { /* Now specifically for the input and button */
   display: flex;
-  flex-direction: column; /* Changed to column for stacking input and suggestions */
-  position: relative; /* For positioning suggestions */
-  justify-content: center;
+  width: 100%;
 }
 
 .search-box input {
-  width: 100%;
-  padding: 1rem;
+  flex-grow: 1; /* Allows input to take up available space */
+  padding: 1rem 1rem 1rem 2.8rem; /* Increased left padding for icon */
   font-size: 1rem;
-  border-radius: 8px;
+  border-radius: 8px 0 0 8px; /* Rounded left corners, sharp right */
   border: 2px solid #4a6fa5;
   background: #121212;
   color: #d6ecff;
   transition: all 0.3s ease;
-  z-index: 2; /* Ensure input is above suggestions initially */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d6ecff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  background-size: 20px;
 }
 
 .search-box input:focus {
@@ -94,6 +100,26 @@ nav button:hover {
   border-color: #5a9bd8;
   background: #1c1c1c;
   box-shadow: 0 0 10px rgba(90, 155, 216, 0.5);
+}
+
+.search-button {
+  padding: 0.8rem 1.2rem;
+  background: #5a9bd8;
+  color: #121212;
+  border: 2px solid #5a9bd8;
+  border-radius: 0 8px 8px 0; /* Rounded right corners, sharp left */
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  white-space: nowrap; /* Prevent button text from wrapping */
+}
+
+.search-button:hover {
+  background: #81b6ec;
+  border-color: #81b6ec;
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px #5a9bd8;
 }
 
 /* Styles for the suggestions container */
@@ -109,7 +135,7 @@ nav button:hover {
   border-top: none; /* No top border, blends with input */
   border-radius: 0 0 8px 8px; /* Rounded corners only at the bottom */
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
-  z-index: 1; /* Below the input */
+  z-index: 9; /* Below the input, but above other content */
   display: none; /* Hidden by default */
 }
 
@@ -336,6 +362,15 @@ nav button:hover {
     padding: 0.5rem 0.8rem;
     font-size: 0.8rem;
   }
+  /* Adjust search button for smaller screens */
+  .search-button {
+    padding: 0.8rem; /* Smaller padding */
+    font-size: 0.9rem;
+  }
+  .search-box input {
+    padding-left: 2.2rem; /* Adjust padding for icon */
+    background-position: 10px center; /* Adjust icon position */
+  }
 }
 
 .btn {
@@ -432,9 +467,11 @@ nav button:hover {
 
   <div id="series" class="section">
     <h2>Shows</h2>
-    <div class="search-box">
-      <input type="text" id="seriesSearch" placeholder="Search for a series...">
-      <div id="seriesSuggestions" class="suggestions-container"></div>
+    <div class="search-container"> <div class="search-box">
+            <input type="text" id="seriesSearch" placeholder="Search for a series...">
+            <button class="search-button" onclick="searchContent('series')">Search</button>
+        </div>
+        <div id="seriesSuggestions" class="suggestions-container"></div>
     </div>
     <div class="genre-buttons" id="seriesGenreButtons"></div>
     <div id="seriesList" class="series-grid"></div>
@@ -443,9 +480,11 @@ nav button:hover {
 
   <div id="movies" class="section">
     <h2>Movies</h2>
-    <div class="search-box">
-      <input type="text" id="movieSearch" placeholder="Search for a movie...">
-      <div id="movieSuggestions" class="suggestions-container"></div>
+    <div class="search-container"> <div class="search-box">
+            <input type="text" id="movieSearch" placeholder="Search for a movie...">
+            <button class="search-button" onclick="searchContent('movies')">Search</button>
+        </div>
+        <div id="movieSuggestions" class="suggestions-container"></div>
     </div>
     <div class="genre-buttons" id="movieGenreButtons"></div>
     <div id="movieList" class="series-grid"></div>
@@ -470,9 +509,9 @@ const content = {
   movies: movieData,  // Assumes movieData is loaded from 12.js
 };
 
-// Global variable for debouncing search
-let searchTimeout;
-let suggestionTimeout; // New: for debouncing suggestions
+// Global variables for debouncing
+let searchDebounceTimeout;   // For the actual search triggered by enter/button
+let suggestionDebounceTimeout; // For displaying suggestions as user types
 
 // --- Video Position Tracking ---
 function saveVideoPosition(videoId, currentTime, duration) {
@@ -594,7 +633,8 @@ function showSection(id) {
     document.getElementById('movieDetails').style.display = 'none';
     document.querySelector('nav').style.display = 'flex';
 
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+    // Use .search-container instead of .search-box for display control
+    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
     document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
 
     // Clear search input and hide suggestions when changing sections to prevent stale searches
@@ -608,12 +648,12 @@ function showSection(id) {
     }
 
     if (id === 'series') {
-        document.querySelector('#series .search-box').style.display = 'flex';
+        document.querySelector('#series .search-container').style.display = 'block'; // Or 'flex' if you want it aligned
         document.getElementById('seriesGenreButtons').style.display = 'flex';
         renderGenreButtons('series');
         filterContentByGenre('series', localStorage.getItem('activeGenre') || 'All');
     } else if (id === 'movies') {
-        document.querySelector('#movies .search-box').style.display = 'flex';
+        document.querySelector('#movies .search-container').style.display = 'block'; // Or 'flex'
         document.getElementById('movieGenreButtons').style.display = 'flex';
         renderGenreButtons('movies');
         filterContentByGenre('movies', localStorage.getItem('activeGenre') || 'All');
@@ -664,21 +704,26 @@ function performSearch(type) {
     saveScrollPosition();
 }
 
-// Debounced search handler (already well-implemented)
-function handleSearchInput(type) {
+// Explicit search trigger (from button or Enter key)
+function searchContent(type) {
+    clearTimeout(searchDebounceTimeout); // Clear any pending debounced search
+    clearTimeout(suggestionDebounceTimeout); // Clear any pending suggestion update
+    performSearch(type);
+}
+
+// Debounced handler for *suggestions only* (called on input)
+function handleSearchInputForSuggestions(type) {
     const inputElement = document.getElementById(type === 'series' ? 'seriesSearch' : 'movieSearch');
     const query = inputElement.value.toLowerCase().trim();
 
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        performSearch(type);
-    }, 300); // Wait 300ms after the last keypress
-
-    // Debounce suggestions as well
-    clearTimeout(suggestionTimeout);
-    suggestionTimeout = setTimeout(() => {
-        showSuggestions(type, query);
-    }, 100); // Show suggestions a bit faster
+    clearTimeout(suggestionDebounceTimeout);
+    if (query.length > 0) { // Show suggestions even for 1 char, but only if query isn't empty
+        suggestionDebounceTimeout = setTimeout(() => {
+            showSuggestions(type, query);
+        }, 100); // Show suggestions relatively quickly
+    } else {
+        hideSuggestions(type); // Hide if input is empty
+    }
 }
 
 // --- Search Suggestions ---
@@ -686,7 +731,7 @@ function showSuggestions(type, query) {
     const suggestionsContainer = document.getElementById(type === 'series' ? 'seriesSuggestions' : 'movieSuggestions');
     suggestionsContainer.innerHTML = '';
 
-    if (query.length < 2) { // Only show suggestions if query is at least 2 characters
+    if (query.length === 0) { // Only show suggestions if query is not empty
         hideSuggestions(type);
         return;
     }
@@ -703,6 +748,7 @@ function showSuggestions(type, query) {
             // Highlight the matching part
             const highlightedText = item.title.replace(new RegExp(query, 'gi'), match => `<span style="background-color: #5a9bd8; color: #121212; border-radius: 3px; padding: 0 2px;">${match}</span>`);
             suggestionItem.innerHTML = highlightedText;
+            // Use an anonymous function for click to avoid immediate execution
             suggestionItem.onclick = () => selectSuggestion(type, item.title);
             suggestionsContainer.appendChild(suggestionItem);
         });
@@ -722,7 +768,8 @@ function selectSuggestion(type, title) {
 function hideSuggestions(type) {
     const suggestionsContainer = document.getElementById(type === 'series' ? 'seriesSuggestions' : 'movieSuggestions');
     suggestionsContainer.classList.remove('active');
-    suggestionsContainer.innerHTML = ''; // Clear suggestions
+    // We don't clear innerHTML immediately on blur, in case user clicks a suggestion
+    // It will be cleared before new suggestions are shown or when section changes.
 }
 
 // --- Genre Filtering ---
@@ -801,10 +848,14 @@ function showSeriesList(list = null, query = '') {
         ? currentList.filter(s => s.genres && s.genres.includes(activeGenre))
         : currentList;
 
-    if (displayList.length === 0) {
+    if (displayList.length === 0 && query !== '') {
+        container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No results found for "${query}".</p>`;
+        return;
+    } else if (displayList.length === 0) {
         container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No items to display here.</p>`;
         return;
     }
+
 
     displayList.forEach((s) => {
         const div = document.createElement('div');
@@ -848,7 +899,10 @@ function showMovieList(list = null, query = '') {
         ? currentList.filter(m => m.genres && m.genres.includes(activeGenre))
         : currentList;
 
-    if (displayList.length === 0) {
+    if (displayList.length === 0 && query !== '') {
+        container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No results found for "${query}".</p>`;
+        return;
+    } else if (displayList.length === 0) {
         container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No items to display here.</p>`;
         return;
     }
@@ -922,7 +976,7 @@ function showSeriesDetails(i, originSection = null) {
     window.scrollTo(0, 0);
 
     document.querySelector('nav').style.display = 'none';
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
     document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
 }
 
@@ -963,7 +1017,7 @@ function showMovieDetails(i, originSection = null) {
     window.scrollTo(0, 0);
 
     document.querySelector('nav').style.display = 'none';
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
     document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
 }
 
@@ -1046,7 +1100,7 @@ function removeFromWatchLater(type, originalIndex) {
 }
 
 function showWatchLater() {
-    document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
     document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
     document.getElementById('seriesDetails').style.display = 'none';
     document.getElementById('movieDetails').style.display = 'none';
@@ -1095,29 +1149,46 @@ document.addEventListener('DOMContentLoaded', function() {
     renderGenreButtons('series');
     renderGenreButtons('movies');
 
-    // Attach the debounced handler to the search inputs
+    // Attach event listeners for search inputs
     const seriesSearchInput = document.getElementById('seriesSearch');
     if (seriesSearchInput) {
-        seriesSearchInput.onkeyup = () => handleSearchInput('series');
+        // Trigger suggestions on 'input' event (real-time typing)
+        seriesSearchInput.addEventListener('input', () => handleSearchInputForSuggestions('series'));
+        // Trigger search on 'Enter' key press
+        seriesSearchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent default form submission if input is part of a form
+                searchContent('series');
+            }
+        });
         // Hide suggestions when input loses focus (with a small delay for click events to register)
         seriesSearchInput.addEventListener('blur', () => setTimeout(() => hideSuggestions('series'), 100));
         // Show suggestions again if user focuses on the input with text already present
         seriesSearchInput.addEventListener('focus', (event) => {
             const query = event.target.value.toLowerCase().trim();
-            if (query.length >= 2) {
+            if (query.length > 0) { // Show on focus if there's text
                 showSuggestions('series', query);
             }
         });
     }
+
     const movieSearchInput = document.getElementById('movieSearch');
     if (movieSearchInput) {
-        movieSearchInput.onkeyup = () => handleSearchInput('movies');
+        // Trigger suggestions on 'input' event (real-time typing)
+        movieSearchInput.addEventListener('input', () => handleSearchInputForSuggestions('movies'));
+        // Trigger search on 'Enter' key press
+        movieSearchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent default form submission
+                searchContent('movies');
+            }
+        });
         // Hide suggestions when input loses focus (with a small delay for click events to register)
         movieSearchInput.addEventListener('blur', () => setTimeout(() => hideSuggestions('movies'), 100));
         // Show suggestions again if user focuses on the input with text already present
         movieSearchInput.addEventListener('focus', (event) => {
             const query = event.target.value.toLowerCase().trim();
-            if (query.length >= 2) {
+            if (query.length > 0) { // Show on focus if there's text
                 showSuggestions('movies', query);
             }
         });
@@ -1126,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (lastActiveSection) {
         if (lastDetailType && lastDetailIndex !== null) {
             document.querySelector('nav').style.display = 'none';
-            document.querySelectorAll('.search-box').forEach(sb => sb.style.display = 'none');
+            document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
             document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
 
             if (lastDetailType === 'series') {
