@@ -1,1441 +1,863 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>BayWatch</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-/* Home Section Styles */
-.featured-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DLS Video Player</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --success: #3fb950;
+            --danger: #f85149;
+            --radius: 10px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.5);
+            --font: -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 960px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.2rem;
+        }
+        h1 small { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
+        .subhead { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 0.8rem;
+        }
+        .card-header h2 { font-size: 1.1rem; font-weight: 500; }
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 0.7rem 0.8rem;
+            background: var(--surface2);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+        }
+        input[type="file"]:hover { border-color: var(--accent); background: #1f2937; }
+        input[type="file"]::file-selector-button {
+            background: var(--accent);
+            color: #0d1117;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 0.8rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s, opacity 0.2s;
+            background: var(--accent);
+            color: #0d1117;
+        }
+        .btn:hover:not(:disabled) { background: var(--accent-hover); transform: scale(1.01); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-success { background: var(--success); color: #0d1117; }
+        .btn-success:hover:not(:disabled) { background: #4cda64; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover:not(:disabled) { background: #ff6b6b; }
+        .btn-sm { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
+        .file-input-wrap { position: relative; }
+        .file-input-wrap input[type="file"] { padding: 0.7rem 0.8rem; }
+        .drag-over { border-color: var(--accent) !important; background: #1f2937 !important; }
+        .empty-state {
+            padding: 1rem 0.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .empty-state .icon { font-size: 2rem; margin-bottom: 0.2rem; opacity: 0.4; }
 
-.featured-item {
-  background: #1f1f1f;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #4a6fa5;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
+        /* Playlist */
+        .playlist {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.4rem 0.7rem;
+            background: var(--surface2);
+            border-radius: 6px;
+            border-left: 3px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .playlist-item:hover { background: #2d3545; }
+        .playlist-item.active { border-left-color: var(--accent); background: #2d3545; }
+        .playlist-item .name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+        }
+        .playlist-item .meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .playlist-item .status-badge {
+            font-size: 0.7rem;
+            padding: 0.05rem 0.4rem;
+            border-radius: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+        .playlist-item .status-badge.locked { border-color: #d29922; color: #d29922; }
+        .playlist-item .status-badge.unlocked { border-color: var(--success); color: var(--success); }
 
-.featured-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(90, 155, 216, 0.3);
-}
+        /* Video player area */
+        .player-area {
+            background: #000;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            margin-top: 0.8rem;
+            display: none;
+        }
+        .player-area.visible { display: block; }
+        .player-area video {
+            width: 100%;
+            display: block;
+            background: #000;
+            max-height: 70vh;
+        }
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(0,0,0,0.8);
+            flex-wrap: wrap;
+        }
+        .player-controls .btn {
+            background: transparent;
+            color: #fff;
+            padding: 0.2rem 0.6rem;
+            font-size: 1.2rem;
+        }
+        .player-controls .btn:hover { background: rgba(255,255,255,0.1); }
+        .player-controls .file-name {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .player-controls .progress-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
 
-.featured-item img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
+        .password-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 10;
+            padding: 2rem;
+        }
+        .password-overlay input[type="password"] {
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 1rem;
+            width: 80%;
+            max-width: 300px;
+        }
+        .password-overlay .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            display: none;
+        }
+        .password-overlay .error-msg.visible { display: block; }
+        .password-overlay .btn { font-size: 1rem; padding: 0.5rem 2rem; }
 
-.featured-content {
-  padding: 1rem;
-}
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-weight: 500;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
+            pointer-events: none;
+            z-index: 999;
+            max-width: 90%;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .toast.error { border-color: var(--danger); }
+        .toast.success { border-color: var(--success); }
 
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.news-item {
-  background: #1f1f1f;
-  border-radius: 12px;
-  padding: 1rem;
-  border: 1px solid #4a6fa5;
-  transition: transform 0.3s;
-}
-
-.news-item:hover {
-  transform: translateY(-3px);
-}
-
-.news-item img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-
-.news-date {
-  color: #5a9bd8;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.news-type {
-  display: inline-block;
-  background: #5a9bd8;
-  color: #121212;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
-
-@media (max-width: 768px) {
-  .featured-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .news-grid {
-    grid-template-columns: 1fr;
-  }
-}
-/* Blue-themed version */
-* {
-  box-sizing: border-box;
-}
-
-html {
-  font-size: 16px;
-}
-
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #121212;
-  color: #e5f5ff;
-  line-height: 1.6;
-  touch-action: manipulation;
-}
-
-nav {
-  background: #1c1c1c;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-  flex-wrap: wrap;
-  width: 100vw;
-}
-
-nav button {
-  padding: 0.8rem 1.4rem;
-  background: #2b3c57;
-  color: #d6ecff;
-  border: 1px solid #4a6fa5;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-nav button:hover {
-  background: #5a9bd8;
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 0 0 8px #5a9bd8;
-}
-
-.section {
-  display: none;
-  padding: 1rem;
-  max-width: 1100px;
-  margin: auto;
-  background: #1a1a1a;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(90, 155, 216, 0.15);
-}
-
-.active {
-  display: block;
-}
-
-.search-container { /* New wrapper for search input + button + suggestions */
-  margin: 2rem auto 0.5rem auto;
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  z-index: 10; /* Ensure search-related elements are on top */
-}
-
-.search-box { /* Now specifically for the input and button */
-  display: flex;
-  width: 100%;
-}
-
-.search-box input {
-  flex-grow: 1; /* Allows input to take up available space */
-  padding: 1rem 1rem 1rem 2.8rem; /* Increased left padding for icon */
-  font-size: 1rem;
-  border-radius: 8px 0 0 8px; /* Rounded left corners, sharp right */
-  border: 2px solid #4a6fa5;
-  background: #121212;
-  color: #d6ecff;
-  transition: all 0.3s ease;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d6ecff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
-  background-repeat: no-repeat;
-  background-position: 15px center;
-  background-size: 20px;
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: #5a9bd8;
-  background: #1c1c1c;
-  box-shadow: 0 0 10px rgba(90, 155, 216, 0.5);
-}
-
-.search-button {
-  padding: 0.8rem 1.2rem;
-  background: #5a9bd8;
-  color: #121212;
-  border: 2px solid #5a9bd8;
-  border-radius: 0 8px 8px 0; /* Rounded right corners, sharp left */
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-  white-space: nowrap; /* Prevent button text from wrapping */
-}
-
-.search-button:hover {
-  background: #81b6ec;
-  border-color: #81b6ec;
-  transform: translateY(-2px);
-  box-shadow: 0 0 8px #5a9bd8;
-}
-
-/* Styles for the suggestions container */
-.suggestions-container {
-  position: absolute;
-  top: 100%; /* Position right below the input */
-  left: 0;
-  right: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  background: #1c1c1c; /* Same as nav for consistency */
-  border: 1px solid #4a6fa5;
-  border-top: none; /* No top border, blends with input */
-  border-radius: 0 0 8px 8px; /* Rounded corners only at the bottom */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
-  z-index: 9; /* Below the input, but above other content */
-  display: none; /* Hidden by default */
-}
-
-.suggestions-container.active {
-  display: block; /* Show when active */
-}
-
-.suggestion-item {
-  padding: 0.8rem 1rem;
-  font-size: 0.95rem;
-  color: #d6ecff;
-  cursor: pointer;
-  border-bottom: 1px solid #2b3c57; /* Separator for items */
-}
-
-.suggestion-item:last-child {
-  border-bottom: none; /* No border for the last item */
-}
-
-.suggestion-item:hover,
-.suggestion-item.highlighted { /* Optional: for keyboard navigation */
-  background: #2b3c57;
-  color: #fff;
-}
-
-.genre-buttons {
-  margin: 1.5rem 0;
-  text-align: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.7rem;
-}
-
-.genre-buttons button {
-  padding: 0.6rem 1.2rem;
-  background: #2b3c57;
-  color: #d6ecff;
-  border: 1px solid #4a6fa5;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-}
-
-.genre-buttons button:hover {
-  background: #5a9bd8;
-  color: #fff;
-  transform: scale(1.03);
-  box-shadow: 0 0 10px #5a9bd8;
-}
-
-.genre-buttons button.active-genre {
-  background: #5a9bd8;
-  color: #fff;
-  border-color: #d6ecff;
-  box-shadow: 0 0 15px #5a9bd8;
-  transform: scale(1.05);
-}
-
-.series-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.series-item {
-  background: #1f1f1f;
-  padding: 0.5rem;
-  border-radius: 10px;
-  text-align: center;
-  border: 1px solid #4a6fa5;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
-}
-
-.series-item:hover {
-  background: #2b3c57;
-  transform: scale(1.09);
-  box-shadow: 0 0 10px rgba(90, 155, 216, 0.5);
-}
-
-.series-item img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-.series-details {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.series-details img {
-  width: 100%;
-  max-height: 500px;
-  object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.episode-buttons {
-  margin-top: 1rem;
-}
-
-.episode-buttons button {
-  display: block;
-  width: 100%;
-  margin: 0.5rem auto;
-  padding: 1.3rem;
-  background: #2d486a;
-  color: #d6ecff;
-  border: 1px solid #5a9bd8;
-  border-radius: 8px;
-  font-size: 2.5rem;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-.episode-buttons button:hover {
-  background: #5a9bd8;
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px #5a9bd8;
-}
-
-#videoFullScreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  z-index: 9999;
-  display: none;
-  flex-direction: column;
-}
-
-#videoFullScreen iframe {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-#videoFullScreen button {
-  padding: 0.5rem;
-  background: #dc2626;
-  color: white;
-  border: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-  width: 50px;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-
-#videoFullScreen button:hover {
-  background: #f87171;
-}
-
-.resume-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  z-index: 1;
-}
-
-@media (min-width: 481px) {
-  .series-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .series-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  nav {
-    justify-content: flex-start;
-    padding: 0.8rem;
-  }
-  nav button {
-    margin-right: 0.5rem;
-  }
-  .h4 {
-    font-size: 1.3rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .series-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  html {
-    font-size: 12px;
-  }
-  .series-item {
-    padding: 0.3rem;
-  }
-  .episode-buttons button {
-    padding: 0.8rem;
-    font-size: 0.9rem;
-  }
-  .h4 {
-    font-size: 1rem;
-  }
-  .genre-buttons {
-    gap: 0.5rem;
-  }
-  .genre-buttons button {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  /* Adjust search button for smaller screens */
-  .search-button {
-    padding: 0.8rem; /* Smaller padding */
-    font-size: 0.9rem;
-  }
-  .search-box input {
-    padding-left: 2.2rem; /* Adjust padding for icon */
-    background-position: 10px center; /* Adjust icon position */
-  }
-}
-
-.btn {
-  padding: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: 10px;
-  background: #5a9bd8;
-  color: #000;
-  border: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: #81b6ec;
-  color: #000;
-  transform: translateY(-2px);
-  box-shadow: 0 0 8px #5a9bd8;
-}
-
-.back {
-  padding: 1rem 1.8rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 10px;
-  background: red;
-  color: black;
-  border: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.back:hover {
-  background: #81b6ec;
-  color: #000;
-  transform: translateY(-3px);
-  box-shadow: 0 0 8px #5a9bd8;
-}
-
-.watch-later-btn {
-  padding: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: 10px;
-  background: #f39c12;
-  color: #fff;
-  border: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
-
-.watch-later-btn:hover {
-  background: #e67e22;
-  transform: translateY(-2px);
-  box-shadow: 0 0 8px #f39c12;
-}
-
-.remove-watch-later-btn {
-  padding: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: 10px;
-  background: #e74c3c;
-  color: #fff;
-  border: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
-
-.remove-watch-later-btn:hover {
-  background: #c0392b;
-  transform: translateY(-2px);
-  box-shadow: 0 0 8px #e74c3c;
-}
-</style>
+        @media (max-width: 600px) {
+            body { padding: 0.8rem; }
+            .card { padding: 0.8rem 1rem; }
+            h1 { font-size: 1.4rem; }
+            .playlist-item { flex-wrap: wrap; }
+            .player-controls .file-name { max-width: 120px; }
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    </style>
 </head>
 <body>
 
-  <nav>
-    <button onclick="showSection('home')">Home</button>
-    <button onclick="showSection('movies')">Movies</button>
-    <button onclick="showSection('series')">Series</button>
-    <button onclick="showWatchLater()">Watch Later</button>
-  </nav>
+    <div class="container">
+        <header style="margin-bottom:1.2rem;">
+            <h1>🎬 DLS Player <small>· decrypt & play</small></h1>
+            <p class="subhead">Load <strong>.dls</strong> files, decrypt if needed, and play them directly.</p>
+        </header>
 
-  <div id="home" class="section">
-  <h1>Baywatch</h1>
-  <div class="search-container">
-    <div class="search-box">
-      <input type="text" id="homeSearch" placeholder="Search news...">
-      <button class="search-button" onclick="searchContent('home')">Search</button>
-    </div>
-    <div id="homeSuggestions" class="suggestions-container"></div>
-  </div>
-  <div id="featuredContent" class="featured-container"></div>
-  <div id="newsFeed" class="news-grid"></div>
-</div>
-
-  <div id="series" class="section">
-    <h2>Shows</h2>
-    <div class="search-container"> <div class="search-box">
-            <input type="text" id="seriesSearch" placeholder="Search for a series...">
-            <button class="search-button" onclick="searchContent('series')">Search</button>
-        </div>
-        <div id="seriesSuggestions" class="suggestions-container"></div>
-    </div>
-    <div class="genre-buttons" id="seriesGenreButtons"></div>
-    <div id="seriesList" class="series-grid"></div>
-    <div id="seriesDetails" class="series-details" style="display: none;"></div>
-  </div>
-
-  <div id="movies" class="section">
-    <h2>Movies</h2>
-    <div class="search-container"> <div class="search-box">
-            <input type="text" id="movieSearch" placeholder="Search for a movie...">
-            <button class="search-button" onclick="searchContent('movies')">Search</button>
-        </div>
-        <div id="movieSuggestions" class="suggestions-container"></div>
-    </div>
-    <div class="genre-buttons" id="movieGenreButtons"></div>
-    <div id="movieList" class="series-grid"></div>
-    <div id="movieDetails" class="series-details" style="display: none;"></div>
-  </div>
-
-  <div id="watchLater" class="section">
-    <h2>Your Watch Later List</h2>
-    <div id="watchLaterList" class="series-grid"></div>
-  </div>
-
-  <div id="videoFullScreen">
-    <button onclick="closeFullScreen()">🔙</button>
-    <iframe src="" allowfullscreen></iframe>
-  </div>
-<script src="106.js"></script>
-<script src="11.js"></script>
-<script src="12.js"></script>
-<script>
-// Ensure seriesData and movieData are loaded before this script runs.
-const content = {
-  series: seriesData, // From 11.js
-  movies: movieData,  // From 12.js
-  home: homeData      // From 10.js
-};
-
-// Global variables for debouncing
-let searchDebounceTimeout;
-let suggestionDebounceTimeout;
-
-// --- Video Position Tracking ---
-function saveVideoPosition(videoId, currentTime, duration) {
-    const videoProgress = JSON.parse(localStorage.getItem('videoProgress') || '{}');
-    videoProgress[videoId] = {
-        currentTime: currentTime,
-        duration: duration,
-        timestamp: Date.now()
-    };
-    localStorage.setItem('videoProgress', JSON.stringify(videoProgress));
-}
-
-function getVideoPosition(videoId) {
-    const videoProgress = JSON.parse(localStorage.getItem('videoProgress') || '{}');
-    return videoProgress[videoId] || null;
-}
-
-function clearVideoPosition(videoId) {
-    const videoProgress = JSON.parse(localStorage.getItem('videoProgress') || '{}');
-    delete videoProgress[videoId];
-    localStorage.setItem('videoProgress', JSON.stringify(videoProgress));
-}
-
-function playEpisode(link, episodeTitle = null) {
-    const player = document.getElementById('videoFullScreen');
-    const iframe = player.querySelector('iframe');
-    const videoId = episodeTitle ? `${link}-${episodeTitle}` : link;
-    const savedPosition = getVideoPosition(videoId);
-    const startTime = savedPosition ? savedPosition.currentTime : 0;
-
-    let videoUrl = link;
-    if (startTime > 0) {
-        const separator = link.includes('?') ? '&' : '?';
-        videoUrl = `${link}${separator}t=${Math.floor(startTime)}`;
-    }
-
-    iframe.src = videoUrl;
-    player.style.display = 'flex';
-
-    window.addEventListener('message', function videoProgressListener(event) {
-        if (event.source !== iframe.contentWindow) return;
-        try {
-            const data = JSON.parse(event.data);
-            if (data.currentTime && data.duration) {
-                saveVideoPosition(videoId, data.currentTime, data.duration);
-            }
-        } catch (e) {
-            console.log('Received non-progress message from iframe');
-        }
-    });
-
-    iframe._progressListener = videoProgressListener;
-}
-
-function closeFullScreen() {
-    const player = document.getElementById('videoFullScreen');
-    const iframe = player.querySelector('iframe');
-
-    if (iframe._progressListener) {
-        window.removeEventListener('message', iframe._progressListener);
-        delete iframe._progressListener;
-    }
-
-    iframe.src = '';
-    player.style.display = 'none';
-    restoreScrollPosition();
-}
-
-// --- Local Storage Utilities ---
-function saveScrollPosition() {
-    localStorage.setItem('scrollPosition', window.scrollY);
-}
-
-function restoreScrollPosition() {
-    const storedScrollY = localStorage.getItem('scrollPosition');
-    if (storedScrollY) {
-        window.scrollTo(0, parseInt(storedScrollY, 10));
-    }
-}
-
-function saveState(sectionId, detailType = null, detailIndex = null, originSection = null) {
-    console.log(`saveState called: sectionId=${sectionId}, detailType=${detailType}, detailIndex=${detailIndex}, originSection=${originSection}`);
-    localStorage.setItem('lastActiveSection', sectionId);
-
-    if (detailType !== null && detailIndex !== null) {
-        localStorage.setItem('lastDetailType', detailType);
-        localStorage.setItem('lastDetailIndex', detailIndex);
-    } else {
-        localStorage.removeItem('lastDetailType');
-        localStorage.removeItem('lastDetailIndex');
-    }
-
-    localStorage.removeItem('activeGenre');
-
-    if (originSection !== null) {
-        localStorage.setItem('originSection', originSection);
-    } else {
-        localStorage.removeItem('originSection');
-    }
-    saveScrollPosition();
-}
-
-// --- Home Section Functions ---
-function renderHomeContent() {
-    renderFeaturedContent();
-    renderNewsFeed();
-}
-
-function renderFeaturedContent() {
-    const container = document.getElementById('featuredContent');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    content.home.featuredContent.forEach(item => {
-        const contentItem = item.type === 'movie' ? content.movies[item.id] : content.series[item.id];
-        if (!contentItem) return;
-        
-        const div = document.createElement('div');
-        div.className = 'featured-item';
-        div.innerHTML = `
-            <img src="${contentItem.image}" alt="${contentItem.title}">
-            <div class="featured-content">
-                <h3>${item.title}</h3>
-                <h4>${contentItem.title}</h4>
-                <button onclick="${item.type === 'movie' ? `showMovieDetails(${item.id})` : `showSeriesDetails(${item.id})`}" class="btn">
-                    View ${item.type === 'movie' ? 'Movie' : 'Series'}
-                </button>
+        <div class="card">
+            <div class="card-header">
+                <h2>📂 Load DLS Files</h2>
+                <span class="text-muted" id="fileCount">0 files</span>
             </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function renderNewsFeed(filteredItems = null) {
-    const container = document.getElementById('newsFeed');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    const itemsToRender = filteredItems || content.home.newsFeed;
-    
-    if (itemsToRender.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #aaa;">No news items found.</p>';
-        return;
-    }
-    
-    itemsToRender.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'news-item';
-        div.innerHTML = `
-            <span class="news-type">${item.type.toUpperCase()}</span>
-            <span class="news-date">${item.date}</span>
-            ${item.image ? `<img src="${item.image}" alt="${item.title}">` : ''}
-            <h3>${item.title}</h3>
-            <p>${item.content}</p>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function searchHomeContent(query) {
-    const filtered = content.home.newsFeed.filter(item => 
-        item.title.toLowerCase().includes(query) || 
-        item.content.toLowerCase().includes(query) ||
-        item.type.toLowerCase().includes(query)
-    );
-    renderNewsFeed(filtered);
-}
-
-// --- Section Management ---
-function showSection(id) {
-    console.log(`showSection called for: ${id}`);
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-
-    saveState(id); 
-
-    document.getElementById('seriesDetails').style.display = 'none';
-    document.getElementById('movieDetails').style.display = 'none';
-    document.querySelector('nav').style.display = 'flex'; 
-
-    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-
-    if (document.getElementById('seriesSearch')) {
-        document.getElementById('seriesSearch').value = '';
-        hideSuggestions('series');
-    }
-    if (document.getElementById('movieSearch')) {
-        document.getElementById('movieSearch').value = '';
-        hideSuggestions('movies');
-    }
-    if (document.getElementById('homeSearch')) {
-        document.getElementById('homeSearch').value = '';
-        hideSuggestions('home');
-    }
-
-    if (id === 'home') {
-        document.querySelector('#home .search-container').style.display = 'block';
-        renderHomeContent();
-    } else if (id === 'series') {
-        document.querySelector('#series .search-container').style.display = 'block';
-        document.getElementById('seriesGenreButtons').style.display = 'flex';
-        const activeGenreSeries = localStorage.getItem('activeGenre_series') || 'All';
-        console.log(`Series section active. Stored genre: ${activeGenreSeries}`);
-        renderGenreButtons('series');
-        filterContentByGenre('series', activeGenreSeries); 
-    } else if (id === 'movies') {
-        document.querySelector('#movies .search-container').style.display = 'block';
-        document.getElementById('movieGenreButtons').style.display = 'flex';
-        const activeGenreMovies = localStorage.getItem('activeGenre_movies') || 'All';
-        console.log(`Movies section active. Stored genre: ${activeGenreMovies}`);
-        renderGenreButtons('movies');
-        filterContentByGenre('movies', activeGenreMovies); 
-    } else if (id === 'watchLater') {
-        showWatchLater();
-    }
-    window.scrollTo(0, 0);
-}
-
-// --- Search Functionality ---
-function performSearch(type) {
-    if (type === 'home') {
-        const inputElement = document.getElementById('homeSearch');
-        const query = inputElement.value.toLowerCase().trim();
-        searchHomeContent(query);
-        return;
-    }
-
-    const inputElement = document.getElementById(type === 'series' ? 'seriesSearch' : 'movieSearch');
-    const query = inputElement.value.toLowerCase().trim();
-    console.log(`Performing search for ${type} with query: "${query}"`);
-
-    hideSuggestions(type);
-
-    const filtered = content[type].filter(item => {
-        if (item.title.toLowerCase().includes(query)) return true;
-        if (item.description && item.description.toLowerCase().includes(query)) return true;
-        if (item.genres && item.genres.some(genre => genre.toLowerCase().includes(query))) return true;
-        return false;
-    });
-
-    localStorage.setItem(`activeGenre_${type}`, 'All');
-    console.log(`Search performed, activeGenre_${type} set to 'All'.`);
-    renderGenreButtons(type); 
-
-    const listContainer = document.getElementById(type === 'series' ? 'seriesList' : 'movieList');
-    if (filtered.length === 0 && query !== '') {
-        listContainer.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No results found for "${query}".</p>`;
-    } else {
-        if (type === 'series') {
-            showSeriesList(filtered, query);
-        } else {
-            showMovieList(filtered, query);
-        }
-    }
-    saveScrollPosition();
-}
-
-function searchContent(type) {
-    clearTimeout(searchDebounceTimeout);
-    clearTimeout(suggestionDebounceTimeout);
-    performSearch(type);
-}
-
-function handleSearchInputForSuggestions(type) {
-    const inputElement = document.getElementById(type === 'series' ? 'seriesSearch' : type === 'movies' ? 'movieSearch' : 'homeSearch');
-    const query = inputElement.value.toLowerCase().trim();
-
-    clearTimeout(suggestionDebounceTimeout);
-    if (query.length > 0) {
-        suggestionDebounceTimeout = setTimeout(() => {
-            showSuggestions(type, query);
-        }, 100);
-    } else {
-        hideSuggestions(type);
-    }
-}
-
-// --- Search Suggestions ---
-function showSuggestions(type, query) {
-    if (type === 'home') {
-        hideSuggestions(type);
-        return;
-    }
-
-    const suggestionsContainer = document.getElementById(type === 'series' ? 'seriesSuggestions' : 'movieSuggestions');
-    suggestionsContainer.innerHTML = '';
-
-    if (query.length === 0) {
-        hideSuggestions(type);
-        return;
-    }
-
-    const relevantContent = content[type];
-    const matchingSuggestions = relevantContent.filter(item =>
-        item.title.toLowerCase().includes(query)
-    ).slice(0, 5);
-
-    if (matchingSuggestions.length > 0) {
-        matchingSuggestions.forEach(item => {
-            const suggestionItem = document.createElement('div');
-            suggestionItem.className = 'suggestion-item';
-            const highlightedText = item.title.replace(new RegExp(query, 'gi'), match => `<span style="background-color: #5a9bd8; color: #121212; border-radius: 3px; padding: 0 2px;">${match}</span>`);
-            suggestionItem.innerHTML = highlightedText;
-            suggestionItem.onclick = () => selectSuggestion(type, item.title);
-            suggestionsContainer.appendChild(suggestionItem);
-        });
-        suggestionsContainer.classList.add('active');
-    } else {
-        hideSuggestions(type);
-    }
-}
-
-function selectSuggestion(type, title) {
-    const inputElement = document.getElementById(type === 'series' ? 'seriesSearch' : 'movieSearch');
-    inputElement.value = title;
-    hideSuggestions(type);
-    performSearch(type);
-}
-
-function hideSuggestions(type) {
-    const suggestionsContainer = document.getElementById(type === 'series' ? 'seriesSuggestions' : type === 'movies' ? 'movieSuggestions' : 'homeSuggestions');
-    suggestionsContainer?.classList.remove('active');
-}
-
-// --- Genre Filtering ---
-function getUniqueGenres(type) {
-    const allGenres = content[type].flatMap(item => item.genres || []);
-    return ['All', ...new Set(allGenres)].sort();
-}
-
-function renderGenreButtons(type) {
-    const containerId = type === 'series' ? 'seriesGenreButtons' : 'movieGenreButtons';
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    container.innerHTML = '';
-    const genres = getUniqueGenres(type);
-    const activeGenre = localStorage.getItem(`activeGenre_${type}`) || 'All';
-    console.log(`Rendering genre buttons for ${type}. Active genre from storage: ${activeGenre}`);
-
-    genres.forEach(genre => {
-        const button = document.createElement('button');
-        button.textContent = genre;
-        button.onclick = () => filterContentByGenre(type, genre);
-        if (genre === activeGenre) {
-            button.classList.add('active-genre');
-        }
-        container.appendChild(button);
-    });
-}
-
-function filterContentByGenre(type, genre) { 
-    console.log(`filterContentByGenre called for ${type} with genre: ${genre}`);
-    const genreButtonsContainerId = type === 'series' ? 'seriesGenreButtons' : 'movieGenreButtons';
-    const buttons = document.getElementById(genreButtonsContainerId).querySelectorAll('button');
-
-    buttons.forEach(button => {
-        button.classList.toggle('active-genre', button.textContent === genre);
-    });
-
-    let filteredList;
-    if (genre === 'All') {
-        filteredList = content[type];
-    } else {
-        filteredList = content[type].filter(item => item.genres && item.genres.includes(genre));
-    }
-
-    if (type === 'series') {
-        document.getElementById('seriesSearch').value = '';
-        hideSuggestions('series');
-    } else if (type === 'movies') {
-        document.getElementById('movieSearch').value = '';
-        hideSuggestions('movies');
-    }
-
-    if (type === 'series') {
-        showSeriesList(filteredList);
-    } else {
-        showMovieList(filteredList);
-    }
-
-    localStorage.setItem(`activeGenre_${type}`, genre);
-    console.log(`activeGenre_${type} saved as: ${genre}`);
-    window.scrollTo(0, 0);
-}
-
-// --- Display List Functions ---
-function showSeriesList(list = null, query = '') {
-    const currentList = list || content.series;
-    const container = document.getElementById('seriesList');
-    container.innerHTML = '';
-
-    const activeGenre = localStorage.getItem('activeGenre_series');
-    console.log(`showSeriesList called. Active series genre: ${activeGenre}. Query: "${query}"`);
-
-    const displayList = (list === null && activeGenre && activeGenre !== 'All')
-        ? currentList.filter(s => s.genres && s.genres.includes(activeGenre))
-        : currentList;
-
-    if (displayList.length === 0 && query !== '') {
-        container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No results found for "${query}".</p>`;
-        return;
-    } else if (displayList.length === 0 && (list === null || query === '')) {
-        container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No items to display here.</p>`;
-        return;
-    }
-
-    displayList.forEach((s) => {
-        const div = document.createElement('div');
-        div.className = 'series-item';
-        const originalIndex = content.series.indexOf(s);
-        if (originalIndex === -1) return;
-
-        const hasProgress = s.episodes && s.episodes.some(ep => {
-            const videoId = `${ep.link}-${ep.title}`;
-            return getVideoPosition(videoId);
-        });
-
-        const highlightedTitle = query ? s.title.replace(new RegExp(query, 'gi'), match => `<span style="background-color: #5a9bd8; color: #121212; border-radius: 3px; padding: 0 2px;">${match}</span>`) : s.title;
-
-        div.innerHTML = `
-          <img src="${s.image}" alt="${s.title}" />
-          <h4>${highlightedTitle}</h4>
-          ${hasProgress ? '<div class="resume-badge">Continue Watching</div>' : ''}
-          <button onclick="showSeriesDetails(${originalIndex})" class="btn">Open</button>
-          <button onclick="addToWatchLater('series', ${originalIndex})" class="watch-later-btn">Watch Later</button>
-        `;
-        container.appendChild(div);
-    });
-
-    if (list === null && localStorage.getItem('lastActiveSection') === 'series' && !localStorage.getItem('lastDetailType')) {
-        restoreScrollPosition();
-    }
-}
-
-function showMovieList(list = null, query = '') {
-    const currentList = list || content.movies;
-    const container = document.getElementById('movieList');
-    container.innerHTML = '';
-
-    const activeGenre = localStorage.getItem('activeGenre_movies');
-    console.log(`showMovieList called. Active movie genre: ${activeGenre}. Query: "${query}"`);
-
-    const displayList = (list === null && activeGenre && activeGenre !== 'All')
-        ? currentList.filter(m => m.genres && m.genres.includes(activeGenre))
-        : currentList;
-
-    if (displayList.length === 0 && query !== '') {
-        container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem; justify-content:center; font-size:1.5rem;">No results found for "${query}".</p>`;
-        return;
-    } else if (displayList.length === 0 && (list === null || query === '')) {
-        container.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 2rem;">No items to display here.</p>`;
-        return;
-    }
-
-    displayList.forEach((m) => {
-        const div = document.createElement('div');
-        div.className = 'series-item';
-        const originalIndex = content.movies.indexOf(m);
-        if (originalIndex === -1) return;
-
-        const videoId = m.link;
-        const hasProgress = getVideoPosition(videoId);
-
-        const highlightedTitle = query ? m.title.replace(new RegExp(query, 'gi'), match => `<span style="background-color: #5a9bd8; color: #121212; border-radius: 3px; padding: 0 2px;">${match}</span>`) : m.title;
-
-        div.innerHTML = `
-          <img src="${m.image}" alt="${m.title}" />
-          <h4>${highlightedTitle}</h4>
-          ${hasProgress ? '<div class="resume-badge">Continue Watching</div>' : ''}
-          <button onclick="showMovieDetails(${originalIndex})" class="btn">Open</button>
-          <button onclick="addToWatchLater('movie', ${originalIndex})" class="watch-later-btn">Watch Later</button>
-        `;
-        container.appendChild(div);
-    });
-
-    if (list === null && localStorage.getItem('lastActiveSection') === 'movies' && !localStorage.getItem('lastDetailType')) {
-        restoreScrollPosition();
-    }
-}
-
-// --- Share Functionality ---
-function generateShareLink(type, index) {
-    const baseUrl = window.location.origin + window.location.pathname;
-    return `${baseUrl}?type=${type}&id=${index}`;
-}
-
-async function shareContent(type, index) {
-    const item = type === 'series' ? content.series[index] : content.movies[index];
-    if (!item) {
-        console.error('Item not found for sharing:', type, index);
-        alert('Could not find item to share.');
-        return;
-    }
-
-    const shareUrl = generateShareLink(type, index);
-    const shareData = {
-        title: `Stream ${item.title} on BayWatch!`,
-        text: item.description ? `"${item.description}"` : '',
-        url: shareUrl,
-    };
-
-    console.log("Attempting to share:", shareData);
-
-    try {
-        if (navigator.share) {
-            await navigator.share(shareData);
-            console.log('Content shared successfully via Web Share API!');
-        } else {
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.title + '\n' + shareData.text + '\n' + shareData.url)}`;
-            window.open(whatsappUrl, '_blank');
-            console.log('Opened WhatsApp for sharing.');
-        }
-    } catch (error) {
-        console.error('Error sharing content:', error);
-        if (error.name !== 'AbortError') { 
-            alert('Failed to share. Please try again or copy the link directly.');
-        }
-    }
-}
-
-function copyLinkToClipboard(type, index) {
-    const shareUrl = generateShareLink(type, index);
-    navigator.clipboard.writeText(shareUrl)
-        .then(() => {
-            alert('Link copied to clipboard!');
-            console.log('Link copied:', shareUrl);
-        })
-        .catch(err => {
-            console.error('Failed to copy link:', err);
-            alert('Failed to copy link. Please try again.');
-        });
-}
-
-// --- Detail View Functions ---
-function showSeriesDetails(i, originSection = null) {
-    console.log(`showSeriesDetails called for index: ${i}, origin: ${originSection}`);
-    const s = content.series[i];
-    if (!s) {
-        console.error("Error: Series item not found at index:", i);
-        alert("Could not load series details. Data might be missing or corrupted.");
-        showSection(originSection === 'watchLater' ? 'watchLater' : 'series');
-        return;
-    }
-    const container = document.getElementById('seriesDetails');
-
-    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-    document.getElementById('series').classList.add('active');
-
-    document.getElementById('seriesList').innerHTML = '';
-    document.getElementById('seriesDetails').style.display = 'block';
-
-    document.querySelector('nav').style.display = 'none'; 
-    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-
-    container.innerHTML = `
-        <img src="${s.image}" alt="${s.title}" />
-        <h2>${s.title}</h2>
-        <p>${s.description}</p>
-        <div class="episode-buttons">
-          ${s.episodes.map(ep => {
-              const videoId = `${ep.link}-${ep.title}`;
-              const progress = getVideoPosition(videoId);
-              const progressText = progress ? ` (${formatTime(progress.currentTime)}/${formatTime(progress.duration)})` : '';
-              return `<button onclick="playEpisode('${ep.link}', '${ep.title.replace(/'/g, "\\'")}')">${ep.title}${progressText}</button>`;
-          }).join('')}
+            <div class="file-input-wrap">
+                <input type="file" id="fileInput" multiple accept=".dls" />
+            </div>
         </div>
-        <div class="detail-bottom-actions"> 
-            <button onclick="shareContent('series', ${i})" class="btn share-btn">Share</button>
-            <button onclick="goBackToList('series')" class="back">Back</button>
-            <button onclick="copyLinkToClipboard('series', ${i})" class="btn copy-link-btn">Copy Link</button>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>📋 Playlist</h2>
+                <span class="text-muted" id="playlistCount">0</span>
+            </div>
+            <div id="playlistContainer">
+                <div class="empty-state"><div class="icon">📭</div><p>No .dls files loaded.</p></div>
+            </div>
         </div>
-      `;
 
-    saveState('series', 'series', i, originSection);
-    window.scrollTo(0, 0);
-}
-
-function showMovieDetails(i, originSection = null) {
-    console.log(`showMovieDetails called for index: ${i}, origin: ${originSection}`);
-    const m = content.movies[i];
-    if (!m) {
-        console.error("Error: Movie item not found at index:", i);
-        alert("Could not load movie details. Data might be missing or corrupted.");
-        showSection(originSection === 'watchLater' ? 'watchLater' : 'movies');
-        return;
-    }
-    const container = document.getElementById('movieDetails');
-
-    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-    document.getElementById('movies').classList.add('active');
-
-    document.getElementById('movieList').innerHTML = '';
-    document.getElementById('movieDetails').style.display = 'block';
-
-    document.querySelector('nav').style.display = 'none';
-    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-
-    const videoId = m.link;
-    const progress = getVideoPosition(videoId);
-    const progressText = progress ? ` (${formatTime(progress.currentTime)}/${formatTime(progress.duration)})` : '';
-
-    container.innerHTML = `
-        <img src="${m.image}" alt="${m.title}" />
-        <h2>${m.title}</h2>
-        <p>${m.description}</p>
-        <div class="episode-buttons">
-          <button onclick="playEpisode('${m.link}', '${m.title.replace(/'/g, "\\'")}')">Watch Now${progressText}</button>
+        <div class="card" id="playerCard">
+            <div class="card-header">
+                <h2>▶️ Now Playing</h2>
+                <span class="text-muted" id="nowPlaying">—</span>
+            </div>
+            <div class="player-area" id="playerArea">
+                <video id="videoPlayer" controls style="width:100%;background:#000;"></video>
+                <div class="player-controls">
+                    <button class="btn" id="prevBtn" title="Previous">⏮️</button>
+                    <button class="btn" id="playPauseBtn" title="Play/Pause">⏸️</button>
+                    <button class="btn" id="nextBtn" title="Next">⏭️</button>
+                    <span class="file-name" id="currentFileName">—</span>
+                    <span class="progress-text" id="timeDisplay">0:00 / 0:00</span>
+                    <button class="btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+                </div>
+                <div class="password-overlay" id="passwordOverlay" style="display:none;">
+                    <h3 style="color:var(--text);">🔐 This file is encrypted</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;">Enter the password to play</p>
+                    <input type="password" id="pwdInput" placeholder="Password" autocomplete="new-password" />
+                    <button class="btn btn-success" id="pwdSubmitBtn">▶️ Play</button>
+                    <div class="error-msg" id="pwdError">❌ Incorrect password. Please try again.</div>
+                </div>
+            </div>
         </div>
-        <div class="detail-bottom-actions">  
-            <button onclick="goBackToList('movies')" class="back">Back</button>
-            <button onclick="shareContent('movie', ${i})" class="btn share-btn">Share</button>
-            <button onclick="copyLinkToClipboard('movie', ${i})" class="btn copy-link-btn">Copy Link</button>
-        </div>
-      `;
-    saveState('movies', 'movie', i, originSection);
-    window.scrollTo(0, 0);
-}
 
-function formatTime(seconds) {
-    if (!seconds) return "0:00";
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-}
+        <footer style="margin-top:1.5rem;font-size:0.75rem;color:var(--text-muted);text-align:center;border-top:1px solid var(--border);padding-top:1rem;">
+            DLS Player v1 · client‑side · decryption & playback in your browser
+        </footer>
+    </div>
 
-function goBackToList(type) {
-    console.log(`goBackToList called for: ${type}`);
-    if (type === 'series') {
-        document.getElementById('seriesSearch').value = '';
-    } else if (type === 'movies') {
-        document.getElementById('movieSearch').value = '';
-    }
+    <div class="toast" id="toast"></div>
 
-    const originSection = localStorage.getItem('originSection');
+    <script>
+        (() => {
+            'use strict';
 
-    if (type === 'series') {
-        document.getElementById('seriesDetails').style.display = 'none';
-    } else {
-        document.getElementById('movieDetails').style.display = 'none';
-    }
+            // ─── DOM refs ──────────────────────────────────────────────
+            const fileInput = document.getElementById('fileInput');
+            const playlistContainer = document.getElementById('playlistContainer');
+            const fileCount = document.getElementById('fileCount');
+            const playlistCount = document.getElementById('playlistCount');
+            const playerArea = document.getElementById('playerArea');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const currentFileName = document.getElementById('currentFileName');
+            const timeDisplay = document.getElementById('timeDisplay');
+            const nowPlaying = document.getElementById('nowPlaying');
+            const toast = document.getElementById('toast');
+            const passwordOverlay = document.getElementById('passwordOverlay');
+            const pwdInput = document.getElementById('pwdInput');
+            const pwdSubmitBtn = document.getElementById('pwdSubmitBtn');
+            const pwdError = document.getElementById('pwdError');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    let targetSectionId = originSection === 'watchLater' ? 'watchLater' : type;
-    showSection(targetSectionId); 
-    window.scrollTo(0, 0);
-}
+            // ─── State ──────────────────────────────────────────────────
+            let playlist = []; // Array of { file, container, meta, password, status, blobUrl }
+            let currentIndex = -1;
+            let isDecrypting = false;
 
-// --- Watch Later Functionality ---
-function getWatchLaterList() {
-    const watchLaterJson = localStorage.getItem('watchLater');
-    return watchLaterJson ? JSON.parse(watchLaterJson) : [];
-}
-
-function saveWatchLaterList(list) {
-    localStorage.setItem('watchLater', JSON.stringify(list));
-}
-
-function addToWatchLater(type, index) {
-    const item = type === 'series' ? content.series[index] : content.movies[index];
-    const watchLaterList = getWatchLaterList();
-    const itemId = `${type}-${index}`;
-
-    const isAlreadyAdded = watchLaterList.some(
-        (wlItem) => wlItem.uniqueId === itemId
-    );
-
-    if (!isAlreadyAdded) {
-        watchLaterList.push({ uniqueId: itemId, type: type, originalIndex: index, itemData: item });
-        saveWatchLaterList(watchLaterList);
-        alert(`${item.title} added to Watch Later!`);
-    } else {
-        alert(`${item.title} is already in your Watch Later list.`);
-    }
-}
-
-function removeFromWatchLater(type, originalIndex) {
-    let watchLaterList = getWatchLaterList();
-    const initialLength = watchLaterList.length;
-    const itemIdToRemove = `${type}-${originalIndex}`;
-    watchLaterList = watchLaterList.filter(
-        (wlItem) => wlItem.uniqueId !== itemIdToRemove
-    );
-
-    if (watchLaterList.length < initialLength) {
-        saveWatchLaterList(watchLaterList);
-        alert('Item removed from Watch Later!');
-        showWatchLater();
-    }
-}
-
-function showWatchLater() {
-    console.log('showWatchLater called');
-    document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
-    document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
-    document.querySelector('nav').style.display = 'flex'; 
-    document.getElementById('seriesDetails').style.display = 'none';
-    document.getElementById('movieDetails').style.display = 'none';
-
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById('watchLater').classList.add('active');
-
-    const container = document.getElementById('watchLaterList');
-    container.innerHTML = '';
-
-    const watchLaterItems = getWatchLaterList();
-
-    if (watchLaterItems.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #aaa;">Your Watch Later list is empty. Add some series or movies!</p>';
-    } else {
-        watchLaterItems.forEach((wlItem) => {
-            const item = wlItem.itemData;
-            const div = document.createElement('div');
-            div.className = 'series-item';
-
-            const detailFunctionCall = wlItem.type === 'series'
-                ? `showSeriesDetails(${wlItem.originalIndex}, 'watchLater')`
-                : `showMovieDetails(${wlItem.originalIndex}, 'watchLater')`;
-
-            div.innerHTML = `
-                <img src="${item.image}" alt="${item.title}" />
-                <h4>${item.title}</h4>
-                <button onclick="${detailFunctionCall}" class="btn">View Details</button>
-                <button onclick="removeFromWatchLater('${wlItem.type}', ${wlItem.originalIndex})" class="remove-watch-later-btn">Remove</button>
-            `;
-            container.appendChild(div);
-        });
-    }
-    saveState('watchLater');
-    window.scrollTo(0, 0);
-}
-
-// --- Initialize on DOM Content Loaded ---
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded. Initializing...');
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramType = urlParams.get('type');
-    const paramId = urlParams.get('id');
-
-    if (paramType && paramId !== null) {
-        const id = parseInt(paramId, 10);
-        if (!isNaN(id)) {
-            console.log(`Direct link detected: type=${paramType}, id=${id}`);
-            localStorage.removeItem('lastActiveSection');
-            localStorage.removeItem('lastDetailType');
-            localStorage.removeItem('lastDetailIndex');
-            localStorage.removeItem('originSection');
-
-            if (paramType === 'series' && content.series[id]) {
-                showSeriesDetails(id);
-            } else if (paramType === 'movie' && content.movies[id]) {
-                showMovieDetails(id);
-            } else {
-                console.warn('Direct link item not found or invalid type. Loading home.');
-                showSection('home');
+            // ─── Helpers ──────────────────────────────────────────────
+            function showToast(msg, type = 'info', duration = 3000) {
+                const t = toast;
+                if (window._toastTimer) { clearTimeout(window._toastTimer); t.classList.remove('show','error','success'); }
+                t.textContent = msg;
+                t.className = 'toast';
+                if (type === 'error') t.classList.add('error');
+                if (type === 'success') t.classList.add('success');
+                void t.offsetWidth;
+                t.classList.add('show');
+                window._toastTimer = setTimeout(() => { t.classList.remove('show'); window._toastTimer = null; }, duration);
             }
-        } else {
-            console.warn('Invalid ID in direct link. Loading home.');
-            showSection('home');
-        }
-    } else {
-        const lastActiveSection = localStorage.getItem('lastActiveSection');
-        const lastDetailType = localStorage.getItem('lastDetailType');
-        const lastDetailIndex = localStorage.getItem('lastDetailIndex');
-        const originSection = localStorage.getItem('originSection');
 
-        if (lastActiveSection) {
-            console.log(`Restoring last active section: ${lastActiveSection}`);
-            if (lastDetailType && lastDetailIndex !== null) {
-                console.log(`Restoring detail view: ${lastDetailType} at index ${lastDetailIndex}`);
-                document.querySelector('nav').style.display = 'none';
-                document.querySelectorAll('.search-container').forEach(sc => sc.style.display = 'none');
-                document.querySelectorAll('.genre-buttons').forEach(gb => gb.style.display = 'none');
+            function formatSize(bytes) {
+                if (bytes === 0) return '0 MB';
+                const mb = bytes / (1024 * 1024);
+                if (mb < 0.01) return '< 0.01 MB';
+                return mb.toFixed(2) + ' MB';
+            }
 
-                if (lastDetailType === 'series') {
-                    showSeriesDetails(parseInt(lastDetailIndex, 10), originSection);
-                } else if (lastDetailType === 'movie') {
-                    showMovieDetails(parseInt(lastDetailIndex, 10), originSection);
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function getFileExtension(filename) {
+                const i = filename.lastIndexOf('.');
+                return i > 0 ? filename.slice(i + 1) : '';
+            }
+            function getBaseName(filename) {
+                const i = filename.lastIndexOf('.');
+                return i > 0 ? filename.slice(0, i) : filename;
+            }
+
+            // ─── Core library (same as decoder) ──────────────────────
+
+            function arrayBufferToBase64(buffer) {
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                const chunkSize = 8192;
+                for (let i = 0; i < bytes.length; i += chunkSize) {
+                    const chunk = bytes.slice(i, Math.min(i + chunkSize, bytes.length));
+                    binary += String.fromCharCode.apply(null, chunk);
                 }
-            } else {
-                showSection(lastActiveSection);
+                return btoa(binary);
             }
-            restoreScrollPosition();
-        } else {
-            console.log('No last active section found. Defaulting to "home".');
-            showSection('home');
-        }
-    }
 
-    renderGenreButtons('series');
-    renderGenreButtons('movies');
+            function base64ToArrayBuffer(base64) {
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                return bytes.buffer;
+            }
 
-    // Setup search inputs
-    const setupSearchInput = (type) => {
-        const inputElement = document.getElementById(`${type}Search`);
-        if (inputElement) {
-            inputElement.addEventListener('input', () => handleSearchInputForSuggestions(type));
-            inputElement.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    searchContent(type);
+            async function decompressChunk(arrayBuffer) {
+                if (!window.DecompressionStream) return arrayBuffer;
+                try {
+                    const blob = new Blob([arrayBuffer]);
+                    const stream = blob.stream().pipeThrough(new DecompressionStream('gzip'));
+                    const decompressedBlob = await new Response(stream).blob();
+                    return await decompressedBlob.arrayBuffer();
+                } catch (_) { return arrayBuffer; }
+            }
+
+            const PBKDF2_ITERATIONS = 600000;
+
+            async function deriveKey(password, salt) {
+                const enc = new TextEncoder();
+                const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+                return crypto.subtle.deriveKey({
+                    name: 'PBKDF2',
+                    salt: salt,
+                    iterations: PBKDF2_ITERATIONS,
+                    hash: 'SHA-256'
+                }, keyMaterial, { name: 'AES-CBC', length: 256 }, false, ['encrypt', 'decrypt']);
+            }
+
+            async function decryptData(encryptedBase64, password, saltBase64, ivBase64) {
+                const encrypted = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+                const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
+                const salt = Uint8Array.from(atob(saltBase64), c => c.charCodeAt(0));
+                const key = await deriveKey(password, salt);
+                const decrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, encrypted);
+                return decrypted;
+            }
+
+            // ─── Parse DLS (legacy + new) ─────────────────────────────
+
+            async function parseDLSFile(file) {
+                const text = await file.text();
+                let container;
+                try { container = JSON.parse(text); } catch (_) { throw new Error('Invalid DLS format'); }
+                if (!container.version || container.version !== '1.0') throw new Error('Unsupported DLS version');
+
+                // New format (chunked)
+                if (container.chunked === true && Array.isArray(container.chunks) && container.chunks.length > 0) {
+                    for (const chunk of container.chunks) {
+                        if (!chunk.data) throw new Error('Chunk missing data');
+                        if (chunk.encrypted && (!chunk.salt || !chunk.iv)) throw new Error('Encrypted chunk missing salt/iv');
+                    }
+                    if (container.encryptedMeta === true) {
+                        if (!container.metaSalt || !container.metaIv || !container.metaData)
+                            throw new Error('Encrypted metadata missing salt/iv/data');
+                    } else {
+                        if (!container.metaData) throw new Error('Metadata missing');
+                    }
+                    return container;
+                }
+
+                // Legacy format (single chunk)
+                if (container.data && container.fileName !== undefined) {
+                    const encrypted = container.encrypted || false;
+                    const salt = container.salt || '';
+                    const iv = container.iv || '';
+                    const chunks = [{ index: 0, encrypted, salt, iv, data: container.data }];
+                    const metaObj = {
+                        fileName: container.fileName,
+                        fileType: container.fileType || 'application/octet-stream',
+                        fileSize: container.fileSize || 0
+                    };
+                    const metaJson = JSON.stringify(metaObj);
+                    const metaBuffer = new TextEncoder().encode(metaJson).buffer;
+                    const metaData = arrayBufferToBase64(metaBuffer);
+                    return {
+                        version: '1.0',
+                        chunked: true,
+                        chunkSize: 0,
+                        chunks: chunks,
+                        encryptedMeta: false,
+                        metaSalt: '',
+                        metaIv: '',
+                        metaData: metaData
+                    };
+                }
+                throw new Error('Invalid container: unrecognized format');
+            }
+
+            // ─── Decrypt metadata ──────────────────────────────────────
+
+            async function decryptMetadata(container, password) {
+                let metaJson;
+                if (container.encryptedMeta === true) {
+                    const decryptedMeta = await decryptData(container.metaData, password, container.metaSalt, container.metaIv);
+                    metaJson = new TextDecoder().decode(decryptedMeta);
+                } else {
+                    const raw = base64ToArrayBuffer(container.metaData);
+                    metaJson = new TextDecoder().decode(raw);
+                }
+                return JSON.parse(metaJson);
+            }
+
+            // ─── Decrypt and decompress full file ─────────────────────
+
+            async function decryptFile(container, password) {
+                const chunks = container.chunks;
+                const decryptedChunks = [];
+                for (const chunk of chunks) {
+                    let chunkBuffer = base64ToArrayBuffer(chunk.data);
+                    if (chunk.encrypted) {
+                        chunkBuffer = await decryptData(chunk.data, password, chunk.salt, chunk.iv);
+                    }
+                    const decompressed = await decompressChunk(chunkBuffer);
+                    decryptedChunks.push(decompressed);
+                }
+                const totalLength = decryptedChunks.reduce((sum, buf) => sum + buf.byteLength, 0);
+                const combined = new Uint8Array(totalLength);
+                let offset = 0;
+                for (const buf of decryptedChunks) {
+                    combined.set(new Uint8Array(buf), offset);
+                    offset += buf.byteLength;
+                }
+                return combined.buffer;
+            }
+
+            // ─── Playlist rendering ────────────────────────────────────
+
+            function renderPlaylist() {
+                const container = playlistContainer;
+                if (playlist.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No .dls files loaded.</p></div>`;
+                    fileCount.textContent = '0 files';
+                    playlistCount.textContent = '0';
+                    return;
+                }
+                let html = '<div class="playlist">';
+                playlist.forEach((item, idx) => {
+                    const isActive = idx === currentIndex;
+                    const statusText = item.status === 'decrypted' ? '🔓' : (item.status === 'error' ? '❌' : '🔒');
+                    const statusClass = item.status === 'decrypted' ? 'unlocked' : 'locked';
+                    const displayName = item.meta ? getBaseName(item.meta.fileName) : 'Unknown';
+                    const size = item.meta ? formatSize(item.meta.fileSize) : '?';
+                    html += `
+                        <div class="playlist-item${isActive ? ' active' : ''}" data-index="${idx}">
+                            <span class="name" title="${item.file.name}">${escapeHtml(displayName)}</span>
+                            <span class="meta">
+                                <span>${size}</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                fileCount.textContent = `${playlist.length} files`;
+                playlistCount.textContent = `${playlist.length}`;
+
+                // Click on playlist item
+                container.querySelectorAll('.playlist-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const idx = parseInt(el.dataset.index, 10);
+                        if (!isNaN(idx)) playItem(idx);
+                    });
+                });
+            }
+
+            // ─── Play item ─────────────────────────────────────────────
+
+            async function playItem(index) {
+                if (index < 0 || index >= playlist.length) return;
+                if (isDecrypting) return;
+
+                const item = playlist[index];
+                // If already decrypted and has blobUrl, just load it
+                if (item.status === 'decrypted' && item.blobUrl) {
+                    loadVideo(item.blobUrl, item.meta);
+                    currentIndex = index;
+                    renderPlaylist();
+                    return;
+                }
+
+                // Check if encrypted
+                const isEncrypted = item.container.encryptedMeta === true ||
+                    item.container.chunks.some(ch => ch.encrypted === true);
+
+                if (isEncrypted && !item.password) {
+                    // Show password overlay for this item
+                    showPasswordOverlay(item, index);
+                    return;
+                }
+
+                // If password is already set (or not encrypted), decrypt
+                await decryptAndPlay(item, index);
+            }
+
+            function showPasswordOverlay(item, index) {
+                passwordOverlay.style.display = 'flex';
+                pwdInput.value = '';
+                pwdError.classList.remove('visible');
+                pwdSubmitBtn.disabled = false;
+                pwdSubmitBtn.textContent = '▶️ Play';
+
+                // Remove previous listeners
+                const newSubmit = pwdSubmitBtn.cloneNode(true);
+                pwdSubmitBtn.parentNode.replaceChild(newSubmit, pwdSubmitBtn);
+                const newInput = pwdInput.cloneNode(true);
+                pwdInput.parentNode.replaceChild(newInput, pwdInput);
+
+                // Set new listeners
+                const submitBtn = document.getElementById('pwdSubmitBtn');
+                const inputField = document.getElementById('pwdInput');
+                const errorMsg = document.getElementById('pwdError');
+
+                const attemptDecrypt = async () => {
+                    const password = inputField.value;
+                    if (!password) { errorMsg.textContent = 'Please enter a password.'; errorMsg.classList.add('visible'); return; }
+                    errorMsg.classList.remove('visible');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '⏳ Decrypting…';
+                    try {
+                        const meta = await decryptMetadata(item.container, password);
+                        const fileBuffer = await decryptFile(item.container, password);
+                        // Store password and metadata
+                        item.password = password;
+                        item.meta = meta;
+                        item.status = 'decrypted';
+                        const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+                        item.blobUrl = url;
+                        passwordOverlay.style.display = 'none';
+                        loadVideo(url, meta);
+                        currentIndex = index;
+                        renderPlaylist();
+                        showToast(`✅ Playing: ${meta.fileName}`, 'success', 2000);
+                    } catch (err) {
+                        console.error('Decryption error', err);
+                        errorMsg.textContent = '❌ ' + (err.message || 'Incorrect password or corrupted file.');
+                        errorMsg.classList.add('visible');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '▶️ Play';
+                    }
+                };
+
+                submitBtn.addEventListener('click', attemptDecrypt);
+                inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptDecrypt(); });
+                // Focus input
+                setTimeout(() => inputField.focus(), 100);
+            }
+
+            async function decryptAndPlay(item, index) {
+                isDecrypting = true;
+                try {
+                    let meta = item.meta;
+                    let password = item.password || '';
+                    // If we have no metadata, try to decrypt with stored password or empty
+                    if (!meta) {
+                        try {
+                            meta = await decryptMetadata(item.container, password);
+                        } catch (_) {
+                            // If password is empty and metadata is encrypted, ask for password
+                            if (item.container.encryptedMeta === true) {
+                                // Show password overlay
+                                showPasswordOverlay(item, index);
+                                isDecrypting = false;
+                                return;
+                            }
+                            throw new Error('Unable to decrypt metadata');
+                        }
+                        item.meta = meta;
+                    }
+                    const fileBuffer = await decryptFile(item.container, password);
+                    const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    item.blobUrl = url;
+                    item.status = 'decrypted';
+                    loadVideo(url, meta);
+                    currentIndex = index;
+                    renderPlaylist();
+                    showToast(`▶️ Playing: ${meta.fileName}`, 'success', 1500);
+                } catch (err) {
+                    showToast('Failed to play: ' + err.message, 'error', 3000);
+                    item.status = 'error';
+                    renderPlaylist();
+                }
+                isDecrypting = false;
+            }
+
+            function loadVideo(blobUrl, meta) {
+                // Set video source
+                videoPlayer.src = blobUrl;
+                videoPlayer.load();
+                // Update UI
+                playerArea.classList.add('visible');
+                const displayName = getBaseName(meta.fileName);
+                currentFileName.textContent = displayName + '.' + getFileExtension(meta.fileName);
+                nowPlaying.textContent = displayName;
+                // Play automatically
+                videoPlayer.play().catch(() => {});
+                // Update time display
+                videoPlayer.addEventListener('timeupdate', updateTime);
+                videoPlayer.addEventListener('loadedmetadata', updateTime);
+                // Update play/pause button
+                updatePlayPauseButton();
+            }
+
+            function updateTime() {
+                if (!videoPlayer.duration) return;
+                const current = videoPlayer.currentTime;
+                const total = videoPlayer.duration;
+                const fmt = (t) => {
+                    const m = Math.floor(t / 60);
+                    const s = Math.floor(t % 60);
+                    return `${m}:${s.toString().padStart(2,'0')}`;
+                };
+                timeDisplay.textContent = `${fmt(current)} / ${fmt(total)}`;
+            }
+
+            function updatePlayPauseButton() {
+                if (videoPlayer.paused) {
+                    playPauseBtn.textContent = '▶️';
+                } else {
+                    playPauseBtn.textContent = '⏸️';
+                }
+            }
+
+            // ─── Video controls ───────────────────────────────────────
+
+            videoPlayer.addEventListener('play', updatePlayPauseButton);
+            videoPlayer.addEventListener('pause', updatePlayPauseButton);
+
+            playPauseBtn.addEventListener('click', () => {
+                if (videoPlayer.paused) {
+                    videoPlayer.play().catch(() => {});
+                } else {
+                    videoPlayer.pause();
                 }
             });
-            inputElement.addEventListener('blur', () => setTimeout(() => hideSuggestions(type), 100));
-            inputElement.addEventListener('focus', (event) => {
-                const query = event.target.value.toLowerCase().trim();
-                if (query.length > 0) {
-                    showSuggestions(type, query);
+
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) playItem(currentIndex - 1);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < playlist.length - 1) playItem(currentIndex + 1);
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.getElementById('playerCard').requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
                 }
             });
-        }
-    };
 
-    setupSearchInput('series');
-    setupSearchInput('movies');
-    setupSearchInput('home');
+            // ─── File selection ────────────────────────────────────────
 
-    let scrollTimer;
-    window.addEventListener('scroll', function() {
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(() => {
-            saveScrollPosition();
-        }, 200);
-    });
+            fileInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files).filter(f => f.name.toLowerCase().endsWith('.dls'));
+                if (files.length === 0) {
+                    showToast('Please select .dls files only.', 'error', 2000);
+                    fileInput.value = '';
+                    return;
+                }
 
-    window.addEventListener('beforeunload', saveScrollPosition);
-});
-</script>
+                let added = 0;
+                for (const file of files) {
+                    try {
+                        const container = await parseDLSFile(file);
+                        // Try to read metadata if unencrypted
+                        let meta = null;
+                        if (!container.encryptedMeta) {
+                            try { meta = await decryptMetadata(container, ''); } catch (_) {}
+                        }
+                        playlist.push({
+                            file: file,
+                            container: container,
+                            meta: meta,
+                            password: '',
+                            status: meta ? 'decrypted' : 'encrypted',
+                            blobUrl: null
+                        });
+                        added++;
+                    } catch (err) {
+                        console.error('Parse error', file.name, err);
+                        showToast(`Failed to load ${file.name}: ${err.message}`, 'error', 3000);
+                    }
+                }
+                if (added > 0) {
+                    showToast(`✅ Added ${added} file(s) to playlist`, 'success', 1500);
+                    // Auto-play first unencrypted item
+                    renderPlaylist();
+                    // Find first decrypted item and play
+                    const firstDecrypted = playlist.findIndex(item => item.status === 'decrypted');
+                    if (firstDecrypted !== -1) {
+                        playItem(firstDecrypted);
+                    } else if (playlist.length > 0) {
+                        // First encrypted item – will prompt password
+                        playItem(0);
+                    }
+                }
+                fileInput.value = '';
+            });
+
+            // drag & drop
+            const inputWrap = document.querySelector('.file-input-wrap');
+            ['dragover','dragenter'].forEach(evt => {
+                inputWrap.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    inputWrap.querySelector('input').classList.add('drag-over');
+                });
+            });
+            ['dragleave','drop'].forEach(evt => {
+                inputWrap.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    inputWrap.querySelector('input').classList.remove('drag-over');
+                });
+            });
+            inputWrap.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.dls'));
+                if (files.length === 0) { showToast('Please drop .dls files only.', 'error', 2000); return; }
+                const dt = new DataTransfer();
+                files.forEach(f => dt.items.add(f));
+                fileInput.files = dt.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            // ─── Init ──────────────────────────────────────────────────
+            renderPlaylist();
+            // Hide player area initially
+            playerArea.classList.remove('visible');
+
+            console.log('🎬 DLS Player ready');
+        })();
+    </script>
 </body>
 </html>
