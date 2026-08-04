@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DLS Video Player</title>
     <style>
-        *,
-        *::before,
-        *::after {
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -33,22 +31,18 @@
             color: var(--text);
             font-family: var(--font);
             min-height: 100vh;
-            padding: 1.5rem 1rem;
+            padding: 2rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .container {
-            max-width: 960px;
-            width: 100%;
-        }
+        .container { max-width: 900px; width: 100%; }
         h1 {
-            font-size: 1.7rem;
+            font-size: 1.8rem;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            flex-wrap: wrap;
             margin-bottom: 0.2rem;
         }
         h1 small { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
@@ -57,8 +51,8 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.2rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
             box-shadow: var(--shadow);
         }
         .card-header {
@@ -66,121 +60,57 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 0.3rem;
-            margin-bottom: 0.8rem;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-        .card-header h2 { font-size: 1.1rem; font-weight: 500; }
-        input[type="file"] {
+        .card-header h2 { font-size: 1.2rem; font-weight: 500; }
+        .file-input-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .file-input-wrap input[type="file"] {
             display: block;
             width: 100%;
-            padding: 0.7rem 0.8rem;
+            padding: 0.8rem;
             background: var(--surface2);
-            border: 1px dashed var(--border);
+            border: 2px dashed var(--border);
             border-radius: var(--radius);
             color: var(--text);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: border-color 0.25s, background 0.25s;
         }
-        input[type="file"]:hover { border-color: var(--accent); background: #1f2937; }
-        input[type="file"]::file-selector-button {
+        .file-input-wrap input[type="file"]:hover {
+            border-color: var(--accent);
+            background: #1f2937;
+        }
+        .file-input-wrap input[type="file"]::file-selector-button {
             background: var(--accent);
             color: #0d1117;
             border: none;
-            padding: 0.3rem 1rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-right: 0.8rem;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.4rem 1rem;
-            border: none;
+            padding: 0.4rem 1.2rem;
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s, opacity 0.2s;
-            background: var(--accent);
-            color: #0d1117;
+            margin-right: 1rem;
         }
-        .btn:hover:not(:disabled) { background: var(--accent-hover); transform: scale(1.01); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-success { background: var(--success); color: #0d1117; }
-        .btn-success:hover:not(:disabled) { background: #4cda64; }
-        .btn-danger { background: var(--danger); color: #fff; }
-        .btn-danger:hover:not(:disabled) { background: #ff6b6b; }
-        .btn-sm { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
-        .file-input-wrap { position: relative; }
-        .file-input-wrap input[type="file"] { padding: 0.7rem 0.8rem; }
-        .drag-over { border-color: var(--accent) !important; background: #1f2937 !important; }
-        .empty-state {
-            padding: 1rem 0.5rem;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        .file-input-wrap input[type="file"]::file-selector-button:hover {
+            background: var(--accent-hover);
         }
-        .empty-state .icon { font-size: 2rem; margin-bottom: 0.2rem; opacity: 0.4; }
+        .drag-over {
+            border-color: var(--accent) !important;
+            background: #1f2937 !important;
+        }
 
-        /* Playlist */
-        .playlist {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            margin-top: 0.8rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .playlist-item {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.4rem 0.7rem;
-            background: var(--surface2);
-            border-radius: 6px;
-            border-left: 3px solid var(--border);
-            cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .playlist-item:hover { background: #2d3545; }
-        .playlist-item.active { border-left-color: var(--accent); background: #2d3545; }
-        .playlist-item .name {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.9rem;
-        }
-        .playlist-item .meta {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            display: flex;
-            gap: 0.4rem;
-            flex-shrink: 0;
-        }
-        .playlist-item .status-badge {
-            font-size: 0.7rem;
-            padding: 0.05rem 0.4rem;
-            border-radius: 12px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-        }
-        .playlist-item .status-badge.locked { border-color: #d29922; color: #d29922; }
-        .playlist-item .status-badge.unlocked { border-color: var(--success); color: var(--success); }
-
-        /* Video player area */
+        /* Player area */
         .player-area {
             background: #000;
             border-radius: var(--radius);
             overflow: hidden;
-            position: relative;
-            margin-top: 0.8rem;
             display: none;
+            margin-top: 0.5rem;
+            position: relative;
         }
         .player-area.visible { display: block; }
         .player-area video {
@@ -194,16 +124,9 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.4rem 0.8rem;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             flex-wrap: wrap;
         }
-        .player-controls .btn {
-            background: transparent;
-            color: #fff;
-            padding: 0.2rem 0.6rem;
-            font-size: 1.2rem;
-        }
-        .player-controls .btn:hover { background: rgba(255,255,255,0.1); }
         .player-controls .file-name {
             flex: 1;
             font-size: 0.85rem;
@@ -212,11 +135,24 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .player-controls .progress-text {
+        .player-controls .time-display {
             font-size: 0.75rem;
             color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
         }
+        .player-controls .btn {
+            background: transparent;
+            color: #fff;
+            border: none;
+            padding: 0.2rem 0.6rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .player-controls .btn:hover { background: rgba(255,255,255,0.1); }
 
+        /* Password overlay */
         .password-overlay {
             position: absolute;
             top: 0;
@@ -224,31 +160,75 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.85);
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 1rem;
             z-index: 10;
             padding: 2rem;
+            border-radius: var(--radius);
+        }
+        .password-overlay.visible { display: flex; }
+        .password-overlay h3 {
+            color: var(--text);
+            font-size: 1.2rem;
+        }
+        .password-overlay p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
         }
         .password-overlay input[type="password"] {
-            padding: 0.6rem 1rem;
+            padding: 0.7rem 1rem;
             border-radius: 6px;
             border: 1px solid var(--border);
             background: var(--surface);
             color: var(--text);
             font-size: 1rem;
             width: 80%;
-            max-width: 300px;
+            max-width: 320px;
+            text-align: center;
         }
+        .password-overlay input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88,166,255,0.2);
+        }
+        .password-overlay .btn {
+            font-size: 1rem;
+            padding: 0.6rem 2.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--accent);
+            color: #0d1117;
+        }
+        .password-overlay .btn:hover { background: var(--accent-hover); }
+        .password-overlay .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .password-overlay .error-msg {
             color: var(--danger);
             font-size: 0.85rem;
             display: none;
         }
         .password-overlay .error-msg.visible { display: block; }
-        .password-overlay .btn { font-size: 1rem; padding: 0.5rem 2rem; }
+
+        .status-bar {
+            margin-top: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            background: var(--surface2);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            min-height: 2.5rem;
+        }
+        .status-bar .status-text { color: var(--text-muted); }
+        .status-bar .status-text strong { color: var(--text); }
 
         .toast {
             position: fixed;
@@ -273,11 +253,11 @@
         .toast.success { border-color: var(--success); }
 
         @media (max-width: 600px) {
-            body { padding: 0.8rem; }
-            .card { padding: 0.8rem 1rem; }
+            body { padding: 1rem; }
+            .card { padding: 1rem; }
             h1 { font-size: 1.4rem; }
-            .playlist-item { flex-wrap: wrap; }
             .player-controls .file-name { max-width: 120px; }
+            .password-overlay input { width: 90%; }
         }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -288,58 +268,50 @@
 <body>
 
     <div class="container">
-        <header style="margin-bottom:1.2rem;">
-            <h1>🎬 DLS Player <small>· decrypt & play</small></h1>
-            <p class="subhead">Load <strong>.dls</strong> files, decrypt if needed, and play them directly.</p>
+        <header>
+            <h1>🎬 DLS Player <small>· watch without downloading</small></h1>
+            <p class="subhead">Load a <strong>.dls</strong> file, enter password if needed, and watch instantly.</p>
         </header>
 
         <div class="card">
             <div class="card-header">
-                <h2>📂 Load DLS Files</h2>
-                <span class="text-muted" id="fileCount">0 files</span>
+                <h2>📂 Load a DLS file</h2>
+                <span class="text-muted" id="fileInfo">No file loaded</span>
             </div>
             <div class="file-input-wrap">
-                <input type="file" id="fileInput" multiple accept=".dls" />
+                <input type="file" id="fileInput" accept=".dls" />
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="playerCard" style="position:relative;">
             <div class="card-header">
-                <h2>📋 Playlist</h2>
-                <span class="text-muted" id="playlistCount">0</span>
-            </div>
-            <div id="playlistContainer">
-                <div class="empty-state"><div class="icon">📭</div><p>No .dls files loaded.</p></div>
-            </div>
-        </div>
-
-        <div class="card" id="playerCard">
-            <div class="card-header">
-                <h2>▶️ Now Playing</h2>
+                <h2>▶️ Player</h2>
                 <span class="text-muted" id="nowPlaying">—</span>
             </div>
             <div class="player-area" id="playerArea">
                 <video id="videoPlayer" controls style="width:100%;background:#000;"></video>
                 <div class="player-controls">
-                    <button class="btn" id="prevBtn" title="Previous">⏮️</button>
                     <button class="btn" id="playPauseBtn" title="Play/Pause">⏸️</button>
-                    <button class="btn" id="nextBtn" title="Next">⏭️</button>
                     <span class="file-name" id="currentFileName">—</span>
-                    <span class="progress-text" id="timeDisplay">0:00 / 0:00</span>
+                    <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
                     <button class="btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
                 </div>
-                <div class="password-overlay" id="passwordOverlay" style="display:none;">
-                    <h3 style="color:var(--text);">🔐 This file is encrypted</h3>
-                    <p style="color:var(--text-muted);font-size:0.9rem;">Enter the password to play</p>
+                <div class="password-overlay" id="passwordOverlay">
+                    <h3>🔐 This file is encrypted</h3>
+                    <p>Enter the password to unlock and play</p>
                     <input type="password" id="pwdInput" placeholder="Password" autocomplete="new-password" />
-                    <button class="btn btn-success" id="pwdSubmitBtn">▶️ Play</button>
+                    <button class="btn" id="pwdSubmitBtn">▶️ Play</button>
                     <div class="error-msg" id="pwdError">❌ Incorrect password. Please try again.</div>
                 </div>
+            </div>
+            <div class="status-bar">
+                <span class="status-text" id="statusText">Ready</span>
+                <span class="status-text" id="statusDetail">—</span>
             </div>
         </div>
 
         <footer style="margin-top:1.5rem;font-size:0.75rem;color:var(--text-muted);text-align:center;border-top:1px solid var(--border);padding-top:1rem;">
-            DLS Player v1 · client‑side · decryption & playback in your browser
+            DLS Player v3 · client‑side · decryption & playback in your browser
         </footer>
     </div>
 
@@ -351,42 +323,41 @@
 
             // ─── DOM refs ──────────────────────────────────────────────
             const fileInput = document.getElementById('fileInput');
-            const playlistContainer = document.getElementById('playlistContainer');
-            const fileCount = document.getElementById('fileCount');
-            const playlistCount = document.getElementById('playlistCount');
+            const fileInfo = document.getElementById('fileInfo');
             const playerArea = document.getElementById('playerArea');
             const videoPlayer = document.getElementById('videoPlayer');
             const currentFileName = document.getElementById('currentFileName');
             const timeDisplay = document.getElementById('timeDisplay');
             const nowPlaying = document.getElementById('nowPlaying');
+            const statusText = document.getElementById('statusText');
+            const statusDetail = document.getElementById('statusDetail');
             const toast = document.getElementById('toast');
             const passwordOverlay = document.getElementById('passwordOverlay');
             const pwdInput = document.getElementById('pwdInput');
             const pwdSubmitBtn = document.getElementById('pwdSubmitBtn');
             const pwdError = document.getElementById('pwdError');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
             const playPauseBtn = document.getElementById('playPauseBtn');
             const fullscreenBtn = document.getElementById('fullscreenBtn');
 
             // ─── State ──────────────────────────────────────────────────
-            let playlist = []; // Array of { file, container, meta, password, status, blobUrl }
-            let currentIndex = -1;
+            let currentFile = null;      // { container, meta, blobUrl, fileName, password }
             let isDecrypting = false;
 
-            // ─── Helpers ──────────────────────────────────────────────
+            // ─── Toast ──────────────────────────────────────────────────
+            let toastTimer = null;
+
             function showToast(msg, type = 'info', duration = 3000) {
-                const t = toast;
-                if (window._toastTimer) { clearTimeout(window._toastTimer); t.classList.remove('show','error','success'); }
-                t.textContent = msg;
-                t.className = 'toast';
-                if (type === 'error') t.classList.add('error');
-                if (type === 'success') t.classList.add('success');
-                void t.offsetWidth;
-                t.classList.add('show');
-                window._toastTimer = setTimeout(() => { t.classList.remove('show'); window._toastTimer = null; }, duration);
+                if (toastTimer) { clearTimeout(toastTimer); toast.classList.remove('show','error','success'); }
+                toast.textContent = msg;
+                toast.className = 'toast';
+                if (type === 'error') toast.classList.add('error');
+                if (type === 'success') toast.classList.add('success');
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => { toast.classList.remove('show'); toastTimer = null; }, duration);
             }
 
+            // ─── Helpers ──────────────────────────────────────────────
             function formatSize(bytes) {
                 if (bytes === 0) return '0 MB';
                 const mb = bytes / (1024 * 1024);
@@ -408,8 +379,6 @@
                 const i = filename.lastIndexOf('.');
                 return i > 0 ? filename.slice(0, i) : filename;
             }
-
-            // ─── Core library (same as decoder) ──────────────────────
 
             function arrayBufferToBase64(buffer) {
                 const bytes = new Uint8Array(buffer);
@@ -461,7 +430,7 @@
                 return decrypted;
             }
 
-            // ─── Parse DLS (legacy + new) ─────────────────────────────
+            // ─── Parse DLS ─────────────────────────────────────────────
 
             async function parseDLSFile(file) {
                 const text = await file.text();
@@ -549,183 +518,91 @@
                 return combined.buffer;
             }
 
-            // ─── Playlist rendering ────────────────────────────────────
+            // ─── Load and play ─────────────────────────────────────────
 
-            function renderPlaylist() {
-                const container = playlistContainer;
-                if (playlist.length === 0) {
-                    container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No .dls files loaded.</p></div>`;
-                    fileCount.textContent = '0 files';
-                    playlistCount.textContent = '0';
-                    return;
+            async function loadDLSFile(file) {
+                // Reset state
+                if (currentFile && currentFile.blobUrl) {
+                    URL.revokeObjectURL(currentFile.blobUrl);
                 }
-                let html = '<div class="playlist">';
-                playlist.forEach((item, idx) => {
-                    const isActive = idx === currentIndex;
-                    const statusText = item.status === 'decrypted' ? '🔓' : (item.status === 'error' ? '❌' : '🔒');
-                    const statusClass = item.status === 'decrypted' ? 'unlocked' : 'locked';
-                    const displayName = item.meta ? getBaseName(item.meta.fileName) : 'Unknown';
-                    const size = item.meta ? formatSize(item.meta.fileSize) : '?';
-                    html += `
-                        <div class="playlist-item${isActive ? ' active' : ''}" data-index="${idx}">
-                            <span class="name" title="${item.file.name}">${escapeHtml(displayName)}</span>
-                            <span class="meta">
-                                <span>${size}</span>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                            </span>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-                container.innerHTML = html;
-                fileCount.textContent = `${playlist.length} files`;
-                playlistCount.textContent = `${playlist.length}`;
+                currentFile = null;
+                // Hide player, but we'll show it if needed
+                playerArea.classList.remove('visible');
+                passwordOverlay.classList.remove('visible');
+                videoPlayer.src = '';
+                videoPlayer.load();
+                statusText.textContent = 'Loading…';
+                statusDetail.textContent = file.name;
+                fileInfo.textContent = `${file.name} (${formatSize(file.size)}) – loading…`;
 
-                // Click on playlist item
-                container.querySelectorAll('.playlist-item').forEach(el => {
-                    el.addEventListener('click', () => {
-                        const idx = parseInt(el.dataset.index, 10);
-                        if (!isNaN(idx)) playItem(idx);
-                    });
-                });
-            }
-
-            // ─── Play item ─────────────────────────────────────────────
-
-            async function playItem(index) {
-                if (index < 0 || index >= playlist.length) return;
-                if (isDecrypting) return;
-
-                const item = playlist[index];
-                // If already decrypted and has blobUrl, just load it
-                if (item.status === 'decrypted' && item.blobUrl) {
-                    loadVideo(item.blobUrl, item.meta);
-                    currentIndex = index;
-                    renderPlaylist();
-                    return;
-                }
-
-                // Check if encrypted
-                const isEncrypted = item.container.encryptedMeta === true ||
-                    item.container.chunks.some(ch => ch.encrypted === true);
-
-                if (isEncrypted && !item.password) {
-                    // Show password overlay for this item
-                    showPasswordOverlay(item, index);
-                    return;
-                }
-
-                // If password is already set (or not encrypted), decrypt
-                await decryptAndPlay(item, index);
-            }
-
-            function showPasswordOverlay(item, index) {
-                passwordOverlay.style.display = 'flex';
-                pwdInput.value = '';
-                pwdError.classList.remove('visible');
-                pwdSubmitBtn.disabled = false;
-                pwdSubmitBtn.textContent = '▶️ Play';
-
-                // Remove previous listeners
-                const newSubmit = pwdSubmitBtn.cloneNode(true);
-                pwdSubmitBtn.parentNode.replaceChild(newSubmit, pwdSubmitBtn);
-                const newInput = pwdInput.cloneNode(true);
-                pwdInput.parentNode.replaceChild(newInput, pwdInput);
-
-                // Set new listeners
-                const submitBtn = document.getElementById('pwdSubmitBtn');
-                const inputField = document.getElementById('pwdInput');
-                const errorMsg = document.getElementById('pwdError');
-
-                const attemptDecrypt = async () => {
-                    const password = inputField.value;
-                    if (!password) { errorMsg.textContent = 'Please enter a password.'; errorMsg.classList.add('visible'); return; }
-                    errorMsg.classList.remove('visible');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = '⏳ Decrypting…';
-                    try {
-                        const meta = await decryptMetadata(item.container, password);
-                        const fileBuffer = await decryptFile(item.container, password);
-                        // Store password and metadata
-                        item.password = password;
-                        item.meta = meta;
-                        item.status = 'decrypted';
-                        const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
-                        const url = URL.createObjectURL(blob);
-                        item.blobUrl = url;
-                        passwordOverlay.style.display = 'none';
-                        loadVideo(url, meta);
-                        currentIndex = index;
-                        renderPlaylist();
-                        showToast(`✅ Playing: ${meta.fileName}`, 'success', 2000);
-                    } catch (err) {
-                        console.error('Decryption error', err);
-                        errorMsg.textContent = '❌ ' + (err.message || 'Incorrect password or corrupted file.');
-                        errorMsg.classList.add('visible');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = '▶️ Play';
-                    }
-                };
-
-                submitBtn.addEventListener('click', attemptDecrypt);
-                inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptDecrypt(); });
-                // Focus input
-                setTimeout(() => inputField.focus(), 100);
-            }
-
-            async function decryptAndPlay(item, index) {
-                isDecrypting = true;
                 try {
-                    let meta = item.meta;
-                    let password = item.password || '';
-                    // If we have no metadata, try to decrypt with stored password or empty
-                    if (!meta) {
-                        try {
-                            meta = await decryptMetadata(item.container, password);
-                        } catch (_) {
-                            // If password is empty and metadata is encrypted, ask for password
-                            if (item.container.encryptedMeta === true) {
-                                // Show password overlay
-                                showPasswordOverlay(item, index);
-                                isDecrypting = false;
-                                return;
-                            }
-                            throw new Error('Unable to decrypt metadata');
-                        }
-                        item.meta = meta;
+                    // 1. Parse container
+                    const container = await parseDLSFile(file);
+
+                    // 2. Try to read metadata if unencrypted
+                    let meta = null;
+                    if (!container.encryptedMeta) {
+                        try { meta = await decryptMetadata(container, ''); } catch (_) {}
                     }
-                    const fileBuffer = await decryptFile(item.container, password);
+
+                    // 3. Check if encrypted
+                    const isEncrypted = container.encryptedMeta === true ||
+                        container.chunks.some(ch => ch.encrypted === true);
+
+                    if (isEncrypted) {
+                        // Show password overlay – make sure player area is visible
+                        playerArea.classList.add('visible');
+                        passwordOverlay.classList.add('visible');
+                        pwdInput.value = '';
+                        pwdError.classList.remove('visible');
+                        pwdSubmitBtn.disabled = false;
+                        pwdSubmitBtn.textContent = '▶️ Play';
+                        // Store container for later
+                        currentFile = { container, meta, file, password: '' };
+                        statusText.textContent = '🔐 Encrypted';
+                        statusDetail.textContent = 'Enter password to play';
+                        fileInfo.textContent = `${file.name} (${formatSize(file.size)}) – 🔐 encrypted`;
+                        // Focus input
+                        setTimeout(() => pwdInput.focus(), 200);
+                        return;
+                    }
+
+                    // 4. Unencrypted – decrypt (though no encryption) and play
+                    if (!meta) {
+                        // Try to decrypt metadata with empty password (should work)
+                        meta = await decryptMetadata(container, '');
+                    }
+                    const fileBuffer = await decryptFile(container, '');
                     const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
                     const url = URL.createObjectURL(blob);
-                    item.blobUrl = url;
-                    item.status = 'decrypted';
-                    loadVideo(url, meta);
-                    currentIndex = index;
-                    renderPlaylist();
-                    showToast(`▶️ Playing: ${meta.fileName}`, 'success', 1500);
+                    currentFile = { container, meta, file, blobUrl: url, password: '' };
+                    playVideo(url, meta);
+                    statusText.textContent = '✅ Playing';
+                    statusDetail.textContent = meta.fileName;
+                    fileInfo.textContent = `${file.name} (${formatSize(file.size)}) – ▶️ playing`;
+                    showToast(`▶️ Playing: ${meta.fileName}`, 'success', 2000);
                 } catch (err) {
-                    showToast('Failed to play: ' + err.message, 'error', 3000);
-                    item.status = 'error';
-                    renderPlaylist();
+                    console.error('Load error', err);
+                    statusText.textContent = '❌ Error';
+                    statusDetail.textContent = err.message || 'Failed to load';
+                    fileInfo.textContent = `${file.name} – ❌ error`;
+                    showToast('Failed to load: ' + err.message, 'error', 4000);
                 }
-                isDecrypting = false;
             }
 
-            function loadVideo(blobUrl, meta) {
-                // Set video source
+            function playVideo(blobUrl, meta) {
                 videoPlayer.src = blobUrl;
                 videoPlayer.load();
-                // Update UI
                 playerArea.classList.add('visible');
-                const displayName = getBaseName(meta.fileName);
-                currentFileName.textContent = displayName + '.' + getFileExtension(meta.fileName);
-                nowPlaying.textContent = displayName;
-                // Play automatically
+                passwordOverlay.classList.remove('visible');
+                const displayName = getBaseName(meta.fileName) + '.' + getFileExtension(meta.fileName);
+                currentFileName.textContent = displayName;
+                nowPlaying.textContent = meta.fileName;
+                // Start playing
                 videoPlayer.play().catch(() => {});
-                // Update time display
+                // Update time
                 videoPlayer.addEventListener('timeupdate', updateTime);
                 videoPlayer.addEventListener('loadedmetadata', updateTime);
-                // Update play/pause button
                 updatePlayPauseButton();
             }
 
@@ -742,11 +619,58 @@
             }
 
             function updatePlayPauseButton() {
-                if (videoPlayer.paused) {
-                    playPauseBtn.textContent = '▶️';
-                } else {
-                    playPauseBtn.textContent = '⏸️';
+                playPauseBtn.textContent = videoPlayer.paused ? '▶️' : '⏸️';
+            }
+
+            // ─── Password submission ───────────────────────────────────
+
+            async function handlePasswordSubmit() {
+                if (!currentFile || !currentFile.container) return;
+                if (isDecrypting) return;
+                const password = pwdInput.value;
+                if (!password) {
+                    pwdError.textContent = 'Please enter a password.';
+                    pwdError.classList.add('visible');
+                    return;
                 }
+                pwdError.classList.remove('visible');
+                isDecrypting = true;
+                pwdSubmitBtn.disabled = true;
+                pwdSubmitBtn.textContent = '⏳ Decrypting…';
+                statusText.textContent = '⏳ Decrypting…';
+
+                try {
+                    // Decrypt metadata
+                    let meta;
+                    try {
+                        meta = await decryptMetadata(currentFile.container, password);
+                    } catch (err) {
+                        throw new Error('Metadata decryption failed: ' + err.message);
+                    }
+                    // Decrypt file chunks
+                    const fileBuffer = await decryptFile(currentFile.container, password);
+                    // Create blob URL
+                    const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    currentFile.meta = meta;
+                    currentFile.blobUrl = url;
+                    currentFile.password = password;
+                    // Hide overlay and play
+                    playVideo(url, meta);
+                    statusText.textContent = '✅ Playing';
+                    statusDetail.textContent = meta.fileName;
+                    fileInfo.textContent = `${currentFile.file.name} (${formatSize(currentFile.file.size)}) – ▶️ playing`;
+                    showToast(`✅ Playing: ${meta.fileName}`, 'success', 2000);
+                } catch (err) {
+                    console.error('Decryption error', err);
+                    pwdError.textContent = '❌ ' + (err.message || 'Incorrect password or corrupted file.');
+                    pwdError.classList.add('visible');
+                    pwdSubmitBtn.disabled = false;
+                    pwdSubmitBtn.textContent = '▶️ Play';
+                    statusText.textContent = '❌ Decryption failed';
+                    showToast('Decryption failed: ' + err.message, 'error', 3000);
+                }
+                isDecrypting = false;
             }
 
             // ─── Video controls ───────────────────────────────────────
@@ -762,14 +686,6 @@
                 }
             });
 
-            prevBtn.addEventListener('click', () => {
-                if (currentIndex > 0) playItem(currentIndex - 1);
-            });
-
-            nextBtn.addEventListener('click', () => {
-                if (currentIndex < playlist.length - 1) playItem(currentIndex + 1);
-            });
-
             fullscreenBtn.addEventListener('click', () => {
                 if (!document.fullscreenElement) {
                     document.getElementById('playerCard').requestFullscreen().catch(() => {});
@@ -780,50 +696,17 @@
 
             // ─── File selection ────────────────────────────────────────
 
-            fileInput.addEventListener('change', async (e) => {
-                const files = Array.from(e.target.files).filter(f => f.name.toLowerCase().endsWith('.dls'));
-                if (files.length === 0) {
-                    showToast('Please select .dls files only.', 'error', 2000);
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length === 0) return;
+                const file = files[0];
+                if (!file.name.toLowerCase().endsWith('.dls')) {
+                    showToast('Please select a .dls file.', 'error', 3000);
                     fileInput.value = '';
                     return;
                 }
-
-                let added = 0;
-                for (const file of files) {
-                    try {
-                        const container = await parseDLSFile(file);
-                        // Try to read metadata if unencrypted
-                        let meta = null;
-                        if (!container.encryptedMeta) {
-                            try { meta = await decryptMetadata(container, ''); } catch (_) {}
-                        }
-                        playlist.push({
-                            file: file,
-                            container: container,
-                            meta: meta,
-                            password: '',
-                            status: meta ? 'decrypted' : 'encrypted',
-                            blobUrl: null
-                        });
-                        added++;
-                    } catch (err) {
-                        console.error('Parse error', file.name, err);
-                        showToast(`Failed to load ${file.name}: ${err.message}`, 'error', 3000);
-                    }
-                }
-                if (added > 0) {
-                    showToast(`✅ Added ${added} file(s) to playlist`, 'success', 1500);
-                    // Auto-play first unencrypted item
-                    renderPlaylist();
-                    // Find first decrypted item and play
-                    const firstDecrypted = playlist.findIndex(item => item.status === 'decrypted');
-                    if (firstDecrypted !== -1) {
-                        playItem(firstDecrypted);
-                    } else if (playlist.length > 0) {
-                        // First encrypted item – will prompt password
-                        playItem(0);
-                    }
-                }
+                loadDLSFile(file);
+                // Reset input so same file can be re-selected
                 fileInput.value = '';
             });
 
@@ -843,20 +726,38 @@
             });
             inputWrap.addEventListener('drop', (e) => {
                 e.preventDefault();
-                const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.dls'));
-                if (files.length === 0) { showToast('Please drop .dls files only.', 'error', 2000); return; }
+                const files = e.dataTransfer.files;
+                if (files.length === 0) return;
+                const file = files[0];
+                if (!file.name.toLowerCase().endsWith('.dls')) {
+                    showToast('Please drop a .dls file.', 'error', 3000);
+                    return;
+                }
+                // Set file input to trigger change
                 const dt = new DataTransfer();
-                files.forEach(f => dt.items.add(f));
+                dt.items.add(file);
                 fileInput.files = dt.files;
                 fileInput.dispatchEvent(new Event('change', { bubbles: true }));
             });
 
-            // ─── Init ──────────────────────────────────────────────────
-            renderPlaylist();
-            // Hide player area initially
-            playerArea.classList.remove('visible');
+            // ─── Password submit listeners ────────────────────────────
 
-            console.log('🎬 DLS Player ready');
+            pwdSubmitBtn.addEventListener('click', handlePasswordSubmit);
+            pwdInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handlePasswordSubmit();
+            });
+
+            // ─── Init ──────────────────────────────────────────────────
+
+            // Reset file input on page load to avoid weird state
+            fileInput.value = '';
+            // Show ready state
+            statusText.textContent = 'Ready';
+            statusDetail.textContent = 'Load a .dls file to play';
+            playerArea.classList.remove('visible');
+            passwordOverlay.classList.remove('visible');
+
+            console.log('🎬 DLS Player v3 ready');
         })();
     </script>
 </body>
