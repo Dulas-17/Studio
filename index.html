@@ -1,853 +1,1014 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DLS Player</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --surface2: #1c2333;
-            --border: #30363d;
-            --text: #e6edf3;
-            --text-muted: #8b949e;
-            --accent: #58a6ff;
-            --accent-hover: #79c0ff;
-            --success: #3fb950;
-            --danger: #f85149;
-            --radius: 10px;
-            --shadow: 0 8px 24px rgba(0,0,0,0.5);
-            --font: -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-        html { scroll-behavior: smooth; }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font);
-            min-height: 100vh;
-            padding: 2rem 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container { max-width: 900px; width: 100%; }
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.2rem;
-        }
-        h1 small { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
-        .subhead { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .card-header h2 { font-size: 1.2rem; font-weight: 500; }
-        .file-input-wrap {
-            position: relative;
-            width: 100%;
-        }
-        .file-input-wrap input[type="file"] {
-            display: block;
-            width: 100%;
-            padding: 0.8rem;
-            background: var(--surface2);
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            color: var(--text);
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: border-color 0.25s, background 0.25s;
-        }
-        .file-input-wrap input[type="file"]:hover {
-            border-color: var(--accent);
-            background: #1f2937;
-        }
-        .file-input-wrap input[type="file"]::file-selector-button {
-            background: var(--accent);
-            color: #0d1117;
-            border: none;
-            padding: 0.4rem 1.2rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-right: 1rem;
-        }
-        .file-input-wrap input[type="file"]::file-selector-button:hover {
-            background: var(--accent-hover);
-        }
-        .drag-over {
-            border-color: var(--accent) !important;
-            background: #1f2937 !important;
-        }
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Web OS 3</title>
+<style>
+:root{--accent:#a9c7ff;--text:#f5f6ff;--muted:#aab3c8;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:#080c15;color:var(--text);font:14px Arial,Helvetica,sans-serif;display:flex;justify-content:center;align-items:center}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer}
+#phone{width:100%;height:100%;max-width:430px;max-height:920px;position:relative;overflow:hidden;background:linear-gradient(150deg,#1a2a52,#171c37 55%,#0c1424)}
+@media(min-width:500px){#phone{height:min(900px,calc(100% - 30px));border-radius:36px;border:5px solid #293043}}
+.st{height:36px;padding:10px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:bold;position:relative;z-index:40;cursor:pointer}
+#home{position:absolute;inset:36px 0 52px;padding:10px 20px;overflow:auto}
+.clk{text-align:center;margin:20px 0 28px;font-size:64px;font-weight:300}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 6px}
+.ic{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:7px;font-size:11px;padding:0}
+.ic i{font-style:normal;width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font-size:25px;background:var(--c)}
+.win{position:absolute;inset:36px 0 52px;background:#111827;display:none;flex-direction:column;z-index:10}.win.on{display:flex}
+.hd{padding:12px 18px;border-bottom:1px solid #ffffff14}.hd h2{margin:0;font-size:17px}
+.body{flex:1;overflow:auto;padding:14px}
+.nav{position:absolute;bottom:0;left:0;right:0;height:52px;display:flex;justify-content:space-around;background:#0a0f1c;z-index:50}
+.nav button{border:0;background:none;font-size:20px;width:80px}
+.card{background:#ffffff0d;border:1px solid #ffffff12;border-radius:16px;padding:12px;margin-bottom:10px}
+.btn{border:0;background:var(--accent);color:#15213a;border-radius:12px;padding:10px 13px;font-weight:bold}
+.btn.secondary{background:#ffffff16;color:#fff}.btn.danger{background:#9d4052;color:#fff}
+.field{width:100%;padding:11px 12px;background:#ffffff0f;border:1px solid #ffffff24;border-radius:12px;margin:6px 0 10px;outline:0}
+textarea.field{min-height:200px}select option{background:#182136}
+.small{font-size:12px;color:var(--muted)}.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.grow{flex:1}
+h3{margin:12px 0}
+.modal{position:absolute;inset:0;z-index:120;background:#000a;display:grid;place-items:center;padding:20px}
+.dlg{background:#1b2438;border-radius:22px;padding:20px;width:100%;text-align:center;display:flex;flex-direction:column;gap:8px}
+.ov{position:absolute;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0b1020;padding:20px;text-align:center}
+.shade{position:absolute;inset:36px 0 52px;z-index:45;background:#0a0f1cf5;padding:16px;overflow:auto}
+.pad{display:grid;grid-template-columns:repeat(3,64px);gap:12px;margin-top:20px}.pad button{height:64px;border-radius:50%;border:0;background:#ffffff14;font-size:22px}
+.term{background:#050a0a;color:#9df5b0;font:12px monospace;padding:10px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;min-height:240px;margin-bottom:8px}
+.cam{width:100%;aspect-ratio:3/4;background:#000;border-radius:16px;object-fit:cover}
+#toast{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:130;background:#f1f3fa;color:#192136;padding:10px 16px;border-radius:18px;font-size:13px;max-width:90%;text-align:center}
+#dim{position:absolute;inset:0;background:#000;pointer-events:none;z-index:200;opacity:0}
+#home,.nav,#st,#dock{touch-action:none}#home{padding-bottom:110px}
+.win{animation:up .2s ease-out}@keyframes up{from{transform:translateY(40px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.srch{display:flex;gap:8px;background:#ffffff1c;border:1px solid #ffffff2c;border-radius:24px;padding:11px 14px;margin-bottom:22px}.srch input{flex:1;background:none;border:0;outline:0;min-width:0}
+.dock{position:absolute;left:14px;right:14px;bottom:62px;z-index:5;background:#ffffff1c;backdrop-filter:blur(18px);border:1px solid #ffffff18;border-radius:26px;padding:11px 6px;display:flex;justify-content:space-around}
+.drawer{position:absolute;inset:36px 0 52px;z-index:44;background:#0c1220f2;backdrop-filter:blur(22px);padding:16px;overflow:auto;animation:up .2s}
+.qg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.q{border:0;border-radius:18px;background:#ffffff12;padding:14px 10px;text-align:left;min-height:74px;font-size:12px}.q.on{background:var(--accent);color:#17223a}.q i{font-style:normal;display:block;font-size:20px;margin-bottom:6px}
+.sw{width:42px;height:24px;border-radius:14px;border:0;background:#434c60;padding:3px;text-align:left}.sw::after{content:"";display:block;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}.sw.on{background:var(--accent)}.sw.on::after{transform:translateX(18px);background:#25324b}
+.rc{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}.rcard{flex:0 0 70%;scroll-snap-align:center;background:#1a2338;border-radius:20px;padding:14px;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}.cal span{padding:8px 0;border-radius:10px;font-size:13px}.cal .t{background:var(--accent);color:#17223a}.cal .r{border:1px solid var(--accent)}
+.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cg button{border:0;border-radius:14px;background:#ffffff14;height:56px;font-size:19px}.cg .o{background:#293957}.cg .e{background:var(--accent);color:#17223a}.nm *{animation:none!important;transition:none!important}
+.win{animation:zin .3s cubic-bezier(.2,.8,.2,1);transform-origin:var(--ox,50%) var(--oy,90%)}
+@keyframes zin{from{transform:scale(.25);opacity:0;border-radius:40px}to{transform:none;opacity:1}}
+.win.out{display:flex!important;animation:zout .2s ease-in forwards;pointer-events:none}
+@keyframes zout{to{transform:scale(.25);opacity:0;border-radius:40px}}
+#home:not([hidden]),#dock:not([hidden]){animation:hin .3s ease-out}
+@keyframes hin{from{transform:scale(1.07);opacity:.5}to{transform:none;opacity:1}}
+.ic{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.ic i{transition:transform .15s}.ic:active i{transform:scale(.86)}
+.shade{animation:sd .2s ease-out}@keyframes sd{from{transform:translateY(-24px);opacity:0}to{transform:none;opacity:1}}
+.dlg{animation:pop .18s ease-out}@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}#toast{animation:pop .18s}
+.dlg{max-height:100%;overflow:auto}
+.ic{position:relative}.xb{position:absolute;top:-6px;left:calc(50% - 38px);width:22px;height:22px;border-radius:50%;background:#9d4052;color:#fff;font-size:16px;line-height:1;display:grid;place-items:center;border:2px solid #0b1020;z-index:2}
+.edit .ic{animation:wig .22s infinite alternate}@keyframes wig{from{transform:rotate(-2.2deg)}to{transform:rotate(2.2deg)}}
+.ic.sel i{outline:2px solid var(--accent);outline-offset:3px}.ic.new i{animation:newp .6s 3}@keyframes newp{50%{transform:scale(1.2)}}
+.lr{display:flex;align-items:center;gap:12px;padding:13px;border-radius:16px;background:#ffffff0d;margin-bottom:8px;cursor:pointer}.lr .i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#ffffff18;font-size:18px}
+.seg{display:flex;background:#ffffff12;border-radius:10px;padding:2px}.seg button{border:0;background:none;padding:6px 9px;border-radius:8px;font-size:12px}.seg button.on{background:var(--accent);color:#17223a}
+.bar{height:6px;background:#ffffff1c;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent);animation:fill .9s ease-out forwards}@keyframes fill{from{width:0}to{width:100%}}
+.rcard{flex:0 0 72%;scroll-snap-align:center;background:#1a2338;background:linear-gradient(170deg,color-mix(in srgb,var(--c) 45%,#1a2338),#141b2e);border:1px solid #ffffff1c;border-radius:26px;padding:14px;animation:cin .35s cubic-bezier(.2,.8,.2,1) backwards;touch-action:pan-x;transition:transform .2s,opacity .2s}
+.rh{display:flex;gap:10px;align-items:center}.rp{height:230px;display:grid;place-items:center;border-radius:18px;background:#00000030;margin:12px 0}.rcard.gone{transform:translateY(-130%);opacity:0}@keyframes cin{from{transform:translateX(60px) scale(.9);opacity:0}}
+/* frosted glass + fluid motion */
+.win{background:rgba(14,20,36,.62);backdrop-filter:blur(28px) saturate(1.6);-webkit-backdrop-filter:blur(28px) saturate(1.6);animation-duration:.38s;animation-timing-function:cubic-bezier(.22,1.1,.36,1)}
+.hd{background:#ffffff0d}
+.card,.lr{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 24px rgba(0,0,0,.18);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4)}
+.nav{background:rgba(10,15,28,.45);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-top:1px solid #ffffff14}
+.st{text-shadow:0 1px 6px #0006}
+.dock{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(26px) saturate(1.7);-webkit-backdrop-filter:blur(26px) saturate(1.7);box-shadow:inset 0 1px 0 #ffffff33,0 14px 30px #0004}
+.shade,.drawer{background:rgba(10,16,30,.5)!important;backdrop-filter:blur(34px) saturate(1.6);-webkit-backdrop-filter:blur(34px) saturate(1.6)}
+.dlg{background:rgba(30,40,64,.62);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border:1px solid #ffffff2a;box-shadow:inset 0 1px 0 #ffffff2a,0 20px 50px #0006}
+.modal{backdrop-filter:blur(6px)}
+#lock{background:rgba(8,12,24,.38);backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5)}
+#toast{background:rgba(240,243,250,.78);backdrop-filter:blur(14px)}
+.field{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.btn.secondary,.q{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14)}.q.on{background:var(--accent);border-color:transparent}
+.rcard{backdrop-filter:blur(18px)}
+.btn,.lr,.q{transition:transform .14s cubic-bezier(.3,1.4,.5,1),filter .14s}.btn:active,.lr:active,.q:active{transform:scale(.96)}
+.body>*{animation:fin .32s cubic-bezier(.22,1,.36,1) backwards}.body>*:nth-child(2){animation-delay:.04s}.body>*:nth-child(3){animation-delay:.08s}.body>*:nth-child(4){animation-delay:.12s}.body>*:nth-child(n+5){animation-delay:.16s}
+@keyframes fin{from{opacity:0;transform:translateY(10px)}}
+.sv *{backdrop-filter:none!important}
+</style></head><body>
+<div id="phone">
+<div class="st" id="st"><span id="tm">--:--</span><span><span id="ind"></span> <span id="bell"></span> <span id="bat">▰</span></span></div>
+<main id="home" hidden><div class="clk" id="hc"></div><div class="small" id="hd" style="text-align:center;margin:-22px 0 20px"></div><form class="srch" id="sf"><span>⌕</span><input id="sq" placeholder="Search apps or the web" autocomplete="off"></form><div class="grid" id="grid"></div></main>
+<div class="dock" id="dock" hidden></div>
+<div id="wins"></div>
+<div class="shade" id="shade" hidden></div><div class="shade" id="recents" hidden></div><div class="drawer" id="drawer" hidden></div>
+<nav class="nav"><button id="nb">◁</button><button id="nh">○</button><button id="nr">□</button></nav>
+<div class="ov" id="lock" hidden></div>
+<div class="ov" id="boot" style="z-index:100"><h1>Web OS 3</h1><pre class="small" style="text-align:left;min-height:90px"></pre></div>
+<div id="toast" hidden></div><div id="dim"></div>
+</div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const mem={},T0=Date.now();
+const LS={get(k,d){if(k in mem)return mem[k];try{const v=localStorage.getItem("wos3_"+k);return v==null?d:JSON.parse(v)}catch{return d}},
+ set(k,v){mem[k]=v;if(db&&BIG(k)){idbQueue(k);return true}try{localStorage.setItem("wos3_"+k,JSON.stringify(v));return true}catch{return false}}};
+let tt;function toast(m){const e=$("#toast");e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,2400)}
 
-        /* Player area – custom controls */
-        .player-area {
-            background: #000;
-            border-radius: var(--radius);
-            overflow: hidden;
-            display: none;
-            margin-top: 0.5rem;
-            position: relative;
-        }
-        .player-area.visible { display: block; }
-        .player-area video {
-            width: 100%;
-            display: block;
-            background: #000;
-            max-height: 70vh;
-        }
+/* ---------- Kernel: virtual file system ---------- */
+const guard=p=>{if(p==="/"||p==="/system"||p.startsWith("/system/"))throw Error("Permission denied (read-only)")};
+const FS={
+ root:LS.get("fs",null)||{t:"d",c:{home:{t:"d",c:{user:{t:"d",c:{Documents:{t:"d",c:{"welcome.txt":{t:"f",d:"Welcome to Web OS 3.\nFiles persist in browser storage.",m:Date.now()}}},Pictures:{t:"d",c:{}},Downloads:{t:"d",c:{}}}}}},system:{t:"d",c:{version:{t:"f",d:"Web OS 3.0",m:Date.now()}}}}},
+ norm(p,cwd="/"){const o=[];for(const s of(p.startsWith("/")?p:cwd+"/"+p).split("/")){if(!s||s===".")continue;s===".."?o.pop():o.push(s)}return"/"+o.join("/")},
+ node(p){let n=this.root;for(const s of p.split("/").filter(Boolean)){if(n.t!=="d"||!n.c[s])return null;n=n.c[s]}return n},
+ parent(p){const a=p.split("/").filter(Boolean),n=a.pop();return[this.node("/"+a.join("/")),n]},
+ save(){if(!LS.set("fs",this.root))toast("Storage full - changes kept for this session only")},
+ ls(p){const n=this.node(p);if(!n||n.t!=="d")throw Error("Not a directory: "+p);return Object.entries(n.c).sort((a,b)=>a[1].t.localeCompare(b[1].t)||a[0].localeCompare(b[0]))},
+ read(p){const n=this.node(p);if(!n||n.t!=="f")throw Error("No such file: "+p);return n.d},
+ write(p,d){guard(p);const[par,n]=this.parent(p);if(!par||par.t!=="d"||!n)throw Error("Invalid path");if(par.c[n]&&par.c[n].t==="d")throw Error("Is a directory");if(this.size()+String(d).length>QUOTA)throw Error("Storage full (100 MB limit)");par.c[n]={t:"f",d,m:Date.now()};this.save()},
+ mkdir(p){guard(p);const[par,n]=this.parent(p);if(!par||par.t!=="d"||!n)throw Error("Invalid path");if(par.c[n])throw Error("Already exists");par.c[n]={t:"d",c:{}};this.save()},
+ rm(p){guard(p);const[par,n]=this.parent(p);if(!par||!par.c[n])throw Error("No such file");delete par.c[n];this.save()},
+ mv(a,b){guard(a);guard(b);const[pa,na]=this.parent(a),[pb,nb]=this.parent(b);if(!pa||!pa.c[na]||!pb||pb.t!=="d"||!nb||b.startsWith(a+"/"))throw Error("Invalid path");if(pb.c[nb])throw Error("Target exists");pb.c[nb]=pa.c[na];delete pa.c[na];this.save()},
+ size(n=this.root){return n.t==="f"?n.d.length:Object.values(n.c).reduce((s,x)=>s+this.size(x),0)}
+};
 
-        /* Custom controls bar */
-        .custom-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 0.8rem;
-            background: rgba(0,0,0,0.85);
-            flex-wrap: wrap;
-        }
-        .custom-controls .btn {
-            background: transparent;
-            color: #fff;
-            border: none;
-            padding: 0.2rem 0.6rem;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-        .custom-controls .btn:hover { background: rgba(255,255,255,0.1); }
+/* ---------- Kernel: settings, permissions ---------- */
+const PERMS={camera:["Camera","📷"],microphone:["Microphone","🎙"],location:["Location","📍"],notifications:["Notifications","🔔"],storage:["File storage","📁"],clipboard:["Clipboard","📋"]};
+let S=Object.assign({wall:0,wifi:true,bt:false,air:false,focus:false,saver:false,night:false,vol:60},LS.get("s",{accent:"#a9c7ff",bright:100,pin:""}));
+let grants=LS.get("grants",{files:{storage:"allow"},terminal:{storage:"allow"}});
+let N=LS.get("n",[{app:"System",title:"Welcome to Web OS 3",body:"Permissions, processes and a file system are live."}]);
+function applyS(){document.documentElement.style.setProperty("--accent",S.accent);$("#dim").style.opacity=Math.min(.85,(100-S.bright)/100*.8+(S.saver?.12:0));$("#phone").style.background=WALLS[S.wall]||WALLS[0];$("#phone").style.filter=S.night?"sepia(.45) saturate(.9)":"";$("#ind").textContent=(S.air?"✈":S.wifi?"◉":"○")+(S.bt?" ᛒ":"")+(S.focus?" ◐":"")+(S.saver?" ⚡":"");LS.set("s",S)}
+async function hash(s){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("wos"+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch{return"x"+btoa(s)}}
+function dlg(title,val="",type="text"){return new Promise(res=>{const d=document.createElement("div");d.className="modal";d.innerHTML=`<form class="dlg"><h3 style="margin:0">${esc(title)}</h3><input class="field" type="${type}" value="${esc(val)}" autocomplete="off"><div class="row"><button type="button" class="btn secondary grow" data-c>Cancel</button><button class="btn grow">OK</button></div></form>`;const f=d.firstChild,i=f.querySelector("input");f.onsubmit=e=>{e.preventDefault();d.remove();res(i.value)};f.querySelector("[data-c]").onclick=()=>{d.remove();res(null)};$("#phone").appendChild(d);i.focus()})}
+let pq=Promise.resolve();
+function askPerm(app,perm){
+ const a=APPS[app];
+ if(!a||(!a.pkg&&!a.perms.includes(perm)))return Promise.resolve(false);
+ const g=(grants[app]||{})[perm];
+ if(g==="allow")return Promise.resolve(true);
+ if(g==="deny")return Promise.resolve(false);
+ pq=pq.then(()=>new Promise(res=>{
+  const d=document.createElement("div");d.className="modal";
+  d.innerHTML=`<div class="dlg"><div style="font-size:34px">${PERMS[perm][1]}</div><h3 style="margin:0">Allow ${esc(a.name)} to use ${PERMS[perm][0].toLowerCase()}?</h3><p class="small">You can change this later in Settings › App permissions.</p><button class="btn" data-r="a">Allow</button><button class="btn secondary" data-r="o">Only this time</button><button class="btn danger" data-r="d">Deny</button></div>`;
+  d.onclick=e=>{const r=e.target.dataset.r;if(!r)return;d.remove();if(r!=="o"){(grants[app]=grants[app]||{})[perm]=r==="a"?"allow":"deny";LS.set("grants",grants)}res(r!=="d")};
+  $("#phone").appendChild(d)}));
+ return pq;
+}
 
-        .custom-controls .seek-bar {
-            flex: 1;
-            min-width: 60px;
-            height: 4px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: var(--border);
-            border-radius: 2px;
-            outline: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .custom-controls .seek-bar::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        .custom-controls .seek-bar::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-        }
-        .custom-controls .time-display {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
-        }
-        .custom-controls .volume-wrap {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .custom-controls .volume-bar {
-            width: 60px;
-            height: 4px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: var(--border);
-            border-radius: 2px;
-            outline: none;
-            cursor: pointer;
-        }
-        .custom-controls .volume-bar::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 10px;
-            height: 10px;
-            background: var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        .custom-controls .volume-bar::-moz-range-thumb {
-            width: 10px;
-            height: 10px;
-            background: var(--accent);
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-        }
-        .custom-controls .file-name {
-            flex: 1;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 80px;
-        }
+/* ---------- Kernel: processes and window manager ---------- */
+const procs=new Map();let pidN=100,fg=null;
+function makeSys(id){
+ const s={toast,dlg,need:p=>askPerm(id,p),
+  notify:async(t,b)=>{if(await askPerm(id,"notifications"))notify(APPS[id].name,t,b);else toast("Notifications blocked")},fs:{}};
+ for(const m of["ls","read","write","mkdir","rm","mv"])s.fs[m]=async(...a)=>{if(!await askPerm(id,"storage"))throw Error("Permission denied: storage");return FS[m](...a)};
+ return s}
+function launch(id){
+ if(!APPS[id])return;
+ let p=[...procs.values()].find(x=>x.app===id),n=false;
+ if(!p){n=true;p={pid:++pidN,app:id,t:Date.now(),mem:Math.round(20+Math.random()*60),el:document.createElement("section")};
+  p.el.className="win";p.el.innerHTML=`<header class="hd"><h2>${APPS[id].icon} ${esc(APPS[id].name)}</h2></header><div class="body"></div>`;
+  $("#wins").appendChild(p.el);procs.set(p.pid,p);
+  try{p.inst=APPS[id].run(p.el.querySelector(".body"),makeSys(id),p)}catch(e){toast("App crashed: "+e.message);kill(p.pid);return}}
+ show(p,n)}
+function show(p,n){fg=p.pid;procs.forEach(x=>{const on=x===p;x.el.classList.toggle("on",on);const f=x.inst&&x.inst[on?"resume":"pause"];if(f&&!(n&&on))f()});$("#home").hidden=$("#dock").hidden=true;closeRecents();closeDrawer()}
+function home(){fg=null;procs.forEach(x=>{x.el.classList.remove("on");x.inst&&x.inst.pause&&x.inst.pause()});$("#home").hidden=$("#dock").hidden=false;closeRecents();closeDrawer()}
+function kill(pid){const p=procs.get(pid);if(!p)return;try{p.inst&&p.inst.destroy&&p.inst.destroy()}catch{}p.el.remove();procs.delete(pid);if(fg===pid)home();if(!$("#recents").hidden)renderRecents()}
+function closeRecents(){$("#recents").hidden=true}
+function renderRecents(){$("#recents").innerHTML=`<div class="row"><h3 class="grow" style="margin:0">Running apps</h3><button class="btn secondary" data-a="all">Close all</button></div><div style="height:12px"></div>`+([...procs.values()].map(p=>`<div class="card row" data-pid="${p.pid}"><span style="font-size:26px">${APPS[p.app].icon}</span><div class="grow"><b>${esc(APPS[p.app].name)}</b><div class="small">PID ${p.pid}</div></div><button class="btn danger" data-a="x">✕</button></div>`).join("")||'<p class="small" style="text-align:center;margin-top:40px">No running apps</p>')}
+$("#recents").onclick=e=>{if(e.target.dataset.a==="all"){[...procs.keys()].forEach(kill);renderRecents();return}const c=e.target.closest("[data-pid]");if(!c)return;const p=procs.get(+c.dataset.pid);if(e.target.dataset.a==="x")kill(p.pid);else if(p)show(p)};
 
-        /* Password overlay */
-        .password-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            z-index: 10;
-            padding: 2rem;
-            border-radius: var(--radius);
-        }
-        .password-overlay.visible { display: flex; }
-        .password-overlay h3 {
-            color: var(--text);
-            font-size: 1.2rem;
-        }
-        .password-overlay p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-align: center;
-        }
-        .password-overlay input[type="password"] {
-            padding: 0.7rem 1rem;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            font-size: 1rem;
-            width: 80%;
-            max-width: 320px;
-            text-align: center;
-        }
-        .password-overlay input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(88,166,255,0.2);
-        }
-        .password-overlay .btn {
-            font-size: 1rem;
-            padding: 0.6rem 2.5rem;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            background: var(--accent);
-            color: #0d1117;
-        }
-        .password-overlay .btn:hover { background: var(--accent-hover); }
-        .password-overlay .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .password-overlay .error-msg {
-            color: var(--danger);
-            font-size: 0.85rem;
-            display: none;
-        }
-        .password-overlay .error-msg.visible { display: block; }
+/* ---------- Notifications, shade ---------- */
+function updateBell(){$("#bell").textContent=N.length?"🔔"+N.length:""}
+function notify(app,title,body){N.unshift({app,title,body});N=N.slice(0,20);LS.set("n",N);updateBell();if(!S.focus)toast(app+": "+title)}
+function drawShade(){$("#shade").innerHTML=`<div class="row"><h3 class="grow" style="margin:0">Control centre</h3><button class="btn secondary" data-a="lock">🔒 Lock</button></div><div class="card" style="margin-top:12px"><div class="small">Brightness</div><input type="range" min="30" max="100" value="${S.bright}" data-k="bright" style="width:100%"></div><div class="row"><h3 class="grow">Notifications</h3><button class="btn secondary" data-a="clr">Clear</button></div>`+(N.map((n,i)=>`<div class="card"><b>${esc(n.app)}</b> · ${esc(n.title)}<div class="small">${esc(n.body||"")}</div><button class="btn secondary" style="margin-top:8px" data-i="${i}">Dismiss</button></div>`).join("")||'<p class="small">No notifications</p>')}
+function toggleShade(f){const s=$("#shade"),o=f===undefined?s.hidden:f;s.hidden=!o;if(o){closeRecents();drawShade()}}
+$("#shade").onclick=e=>{const a=e.target.dataset.a,i=e.target.dataset.i;if(a==="lock")lock();else if(a==="clr"){N=[];LS.set("n",N);updateBell();drawShade()}else if(i!==undefined){N.splice(+i,1);LS.set("n",N);updateBell();drawShade()}};
+$("#shade").oninput=e=>{if(e.target.dataset.k==="bright"){S.bright=+e.target.value;applyS()}};
+$("#st").onclick=()=>toggleShade();
 
-        .status-bar {
-            margin-top: 0.8rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            background: var(--surface2);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-            min-height: 2.5rem;
-        }
-        .status-bar .status-text { color: var(--text-muted); }
-        .status-bar .status-text strong { color: var(--text); }
+/* ---------- Lock screen and boot ---------- */
+let locked=true,pinBuf="",fails=0,lockUntil=0,idle=Date.now();
+function drawLock(){
+ const d=new Date();
+ $("#lock").innerHTML=`<div class="clk" id="lc" style="margin:0">${d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",hour12:false})}</div><div class="small">${d.toLocaleDateString([],{weekday:"long",day:"numeric",month:"long"})}</div>`+
+ (S.pin?`<div id="dots" style="font-size:26px;letter-spacing:8px;margin-top:24px;height:34px">○○○○</div><div class="small" id="lerr">Enter PIN</div><div class="pad">${["1","2","3","4","5","6","7","8","9","","0","⌫"].map(k=>k?`<button data-k="${k}">${k}</button>`:"<span></span>").join("")}</div>`:`<button class="btn" style="margin-top:40px" data-k="go">Tap to unlock</button>`)}
+function lock(){locked=true;pinBuf="";toggleShade(false);closeRecents();drawLock();$("#lock").hidden=false}
+function unlock(){locked=false;fails=0;$("#lock").hidden=true;home()}
+$("#lock").onclick=async e=>{
+ const k=e.target.dataset.k;if(!k)return;
+ if(k==="go")return unlock();
+ const err=m=>$("#lerr").textContent=m,dots=()=>$("#dots").textContent="●".repeat(pinBuf.length)+"○".repeat(4-pinBuf.length);
+ if(Date.now()<lockUntil){err("Too many attempts. Wait "+Math.ceil((lockUntil-Date.now())/1000)+"s");return}
+ if(k==="⌫")pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=k;
+ dots();
+ if(pinBuf.length===4){const ok=await hash(pinBuf)===S.pin;pinBuf="";if(ok)return unlock();fails++;if(fails>=5){fails=0;lockUntil=Date.now()+15000;err("Too many attempts. Locked 15s")}else err("Wrong PIN");dots()}};
+addEventListener("pointerdown",()=>idle=Date.now(),true);
+setInterval(()=>{if(!locked&&S.pin&&+S.lock&&Date.now()-idle>S.lock*1000)lock()},5000);
+async function boot(){const b=$("#boot"),lg=b.querySelector("pre");
+ for(const l of["kernel: init vfs ("+(FS.size()/1024).toFixed(1)+" KB)","kernel: mount /home /system","perm: load grants for "+Object.keys(grants).length+" apps","proc: scheduler ready","ui: compositor started"]){lg.textContent+=l+"\n";await new Promise(r=>setTimeout(r,200))}
+ b.hidden=true;lock()}
 
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(120px);
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 0.6rem 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            font-weight: 500;
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
-            pointer-events: none;
-            z-index: 999;
-            max-width: 90%;
-        }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-        .toast.error { border-color: var(--danger); }
-        .toast.success { border-color: var(--success); }
+/* ---------- Navigation ---------- */
+function back(){
+ if(locked)return;
+ if(!$("#shade").hidden)return toggleShade(false);
+ if(!$("#drawer").hidden)return closeDrawer();if(!$("#recents").hidden)return closeRecents();
+ const p=procs.get(fg);if(p){if(p.inst&&p.inst.back&&p.inst.back())return;home()}}
+$("#nb").onclick=back;$("#nh").onclick=()=>{toggleShade(false);home()};
+$("#nr").onclick=()=>{const r=$("#recents");if(r.hidden){toggleShade(false);renderRecents();r.hidden=false}else r.hidden=true};
+addEventListener("keydown",e=>{if(e.key==="Escape")back()});
 
-        @media (max-width: 600px) {
-            body { padding: 1rem; }
-            .card { padding: 1rem; }
-            h1 { font-size: 1.4rem; }
-            .custom-controls .file-name { max-width: 80px; }
-            .custom-controls .volume-bar { width: 40px; }
-            .password-overlay input { width: 90%; }
-        }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-    </style>
-</head>
-<body>
+/* ---------- Apps ---------- */
+const APPS={
+ files:{name:"Files",icon:"📁",color:"#d1a353",perms:["storage"],run:filesApp},
+ notes:{name:"Notes",icon:"📝",color:"#e5b957",perms:["storage"],run:notesApp},
+ camera:{name:"Camera",icon:"📷",color:"#596477",perms:["camera","storage"],run:cameraApp},
+ terminal:{name:"Terminal",icon:"⌘",color:"#525c6a",perms:["storage"],run:termApp},
+ taskman:{name:"Tasks",icon:"📊",color:"#4f8f7a",perms:[],run:tmApp},
+ settings:{name:"Settings",icon:"⚙",color:"#77879a",perms:[],run:settingsApp}
+};
+function filesApp(el,sys){
+ let cwd="/home/user",view=null;
+ const ic=(n,x)=>x.t==="d"?"📁":/\.(jpe?g|png)$/i.test(n)?"🖼":"📄";
+ async function draw(){view=null;let it;
+  try{it=await sys.fs.ls(cwd)}catch(e){el.innerHTML=`<div class="card">${esc(e.message)}<p class="small">Grant storage in Settings › App permissions.</p></div>`;return}
+  el.innerHTML=`<div class="row"><button class="btn secondary" data-a="up">↑</button><div class="grow small" style="word-break:break-all">${esc(cwd)}</div><button class="btn secondary" data-a="nd">＋📁</button><button class="btn secondary" data-a="nf">＋📄</button><label class="btn secondary">⬆<input type="file" multiple hidden data-up></label><button hidden data-a="rf"></button><label class="btn secondary">📦<input type="file" accept=".web,.json,.html,.htm,text/html,application/json" hidden data-imp></label></div><div style="height:10px"></div>`+(it.map(([n,x])=>`<div class="card row" data-n="${esc(n)}"><span style="font-size:22px">${ic(n,x)}</span><div class="grow"><b>${esc(n)}</b><div class="small">${x.t==="f"?x.d.length+" B":"Folder"}</div></div><button class="btn secondary" data-a="rn">✎</button><button class="btn danger" data-a="rm">✕</button></div>`).join("")||'<div class="small" style="text-align:center;margin-top:30px">Empty folder</div>')}
+ async function open(n){const p=FS.norm(n,cwd),d=await sys.fs.read(p);view=p;
+  el.innerHTML=d.startsWith("data:audio")?`<div class="small">${esc(p)}</div><audio controls src="${d}" style="width:100%;margin-top:12px"></audio>`:d.startsWith("data:video")?`<video controls playsinline src="${d}" style="width:100%;border-radius:12px"></video>`:d.startsWith("data:image")?`<img src="${d}" style="width:100%;border-radius:12px" alt=""><p class="small">${esc(p)}</p>`:`<div class="small">${esc(p)}</div><textarea class="field">${esc(d)}</textarea><div class="row"><button class="btn grow" data-a="sv">Save</button>${/\.(web|html?)$/i.test(p)?'<button class="btn secondary grow" data-a="ins">📦 Install as app</button>':""}</div>`}
+ el.onclick=async e=>{
+  const b=e.target.closest("[data-a]"),c=e.target.closest("[data-n]"),a=b&&b.dataset.a;
+  try{
+   if(a==="rf")return draw();if(a==="up"){cwd=FS.norm("..",cwd);return draw()}
+   if(a==="nd"||a==="nf"){const n=await dlg(a==="nd"?"Folder name":"File name");if(n){const p=FS.norm(n,cwd);if(FS.node(p))throw Error("Already exists");a==="nd"?await sys.fs.mkdir(p):await sys.fs.write(p,"")}return draw()}
+   if(a==="sv"){await sys.fs.write(view,el.querySelector("textarea").value);return toast("Saved")}
+   if(!c)return;const n=c.dataset.n,p=FS.norm(n,cwd);
+   if(a==="rm"){await sys.fs.rm(p);return draw()}
+   if(a==="rn"){const m=await dlg("Rename",n);if(m)await sys.fs.mv(p,FS.norm(m,cwd));return draw()}
+   if(FS.node(p).t==="d"){cwd=p;draw()}else open(n)
+  }catch(x){toast(x.message)}};
+ draw();return{back(){if(view){draw();return true}}}}
+function notesApp(el,sys){
+ const D="/home/user/Documents";let cur=null;
+ async function list(){cur=null;let it;
+  try{it=(await sys.fs.ls(D)).filter(([n,x])=>x.t==="f"&&n.endsWith(".txt"))}catch(e){el.innerHTML=`<div class="card">${esc(e.message)}<p class="small">Grant storage in Settings › App permissions.</p></div>`;return}
+  el.innerHTML=`<button class="btn" data-n="">＋ New note</button><div style="height:10px"></div>`+it.map(([n,x])=>`<div class="card" data-n="${esc(n)}"><b>${esc(n)}</b><div class="small">${esc(x.d.slice(0,60))}</div></div>`).join("")}
+ async function edit(n){cur=n||"note-"+Date.now()+".txt";let t="";try{t=await sys.fs.read(D+"/"+cur)}catch{}
+  el.innerHTML=`<div class="small">${esc(cur)} · saved to Documents</div><textarea class="field">${esc(t)}</textarea><div class="row"><button class="btn grow" data-s>Save</button><button class="btn danger" data-d>Delete</button></div>`}
+ el.onclick=async e=>{try{
+  if(e.target.closest("[data-s]")){await sys.fs.write(D+"/"+cur,el.querySelector("textarea").value);toast("Saved");return}
+  if(e.target.closest("[data-d]")){try{await sys.fs.rm(D+"/"+cur)}catch{}return list()}
+  const c=e.target.closest("[data-n]");if(c)edit(c.dataset.n)}catch(x){toast(x.message)}};
+ list();return{back(){if(cur){const t=el.querySelector("textarea");(t&&t.value.trim()?sys.fs.write(D+"/"+cur,t.value):Promise.resolve()).catch(()=>{}).then(list);return true}}}}
+function cameraApp(el,sys){
+ el.innerHTML=`<video class="cam" autoplay playsinline muted></video><p class="small msg" style="text-align:center">Starting…</p><button class="btn" style="width:100%">📸 Capture to Pictures</button>`;
+ let stream,busy=false;const v=el.querySelector("video"),msg=el.querySelector(".msg");
+ async function start(){if(stream||busy)return;busy=true;
+  try{if(!await sys.need("camera")){msg.textContent="Camera permission denied. Change it in Settings › App permissions.";return}
+   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg.textContent="Camera API unavailable here.";return}
+   stream=await navigator.mediaDevices.getUserMedia({video:true});v.srcObject=stream;msg.textContent="Camera ready"}
+  catch(e){msg.textContent="Unavailable: "+e.message}finally{busy=false}}
+ function stop(){stream&&stream.getTracks().forEach(t=>t.stop());stream=null;v.srcObject=null}
+ el.querySelector("button").onclick=async()=>{
+  if(!stream||!v.videoWidth)return toast("Camera not ready");
+  const c=document.createElement("canvas"),w=Math.min(480,v.videoWidth);c.width=w;c.height=w*v.videoHeight/v.videoWidth;
+  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  try{await sys.fs.write("/home/user/Pictures/IMG_"+Date.now()+".jpg",c.toDataURL("image/jpeg",.6));await sys.notify("Photo saved","Saved to Pictures");toast("Saved to Pictures")}catch(e){toast(e.message)}};
+ start();return{pause:stop,resume:start,destroy:stop}}
+function termApp(el,sys){
+ let cwd="/home/user";
+ el.innerHTML=`<div class="term"></div><form class="row"><input class="field grow" style="margin:0" autocomplete="off" autocapitalize="off" placeholder="command"><button class="btn">Run</button></form>`;
+ const out=el.querySelector(".term"),inp=el.querySelector("input");
+ const w=t=>{out.textContent+=t+"\n";out.scrollTop=out.scrollHeight};
+ w("Web OS shell · type help");
+ el.querySelector("form").onsubmit=async e=>{e.preventDefault();const l=inp.value.trim();inp.value="";w("$ "+l);if(l)try{await run(l)}catch(x){w("error: "+x.message)}};
+ async function run(l){
+  let redir=null;const m=l.match(/^(.*?)\s*>\s*(\S+)$/);if(m){l=m[1];redir=m[2]}
+  const[c,...a]=l.split(/\s+/),P=x=>FS.norm(x||".",cwd),o=[];
+  switch(c){
+   case"help":o.push("help pwd ls cd cat mkdir touch rm mv echo ps kill open perms df date lock clear");break;
+   case"pwd":o.push(cwd);break;
+   case"ls":o.push((await sys.fs.ls(P(a[0]))).map(([n,x])=>n+(x.t==="d"?"/":"")).join("  ")||"(empty)");break;
+   case"cd":{const t=P(a[0]||"/home/user");await sys.fs.ls(t);cwd=t;break}
+   case"cat":o.push((await sys.fs.read(P(a[0]))).slice(0,2000));break;
+   case"mkdir":await sys.fs.mkdir(P(a[0]));break;
+   case"touch":try{await sys.fs.read(P(a[0]))}catch{await sys.fs.write(P(a[0]),"")}break;
+   case"rm":await sys.fs.rm(P(a[0]));break;
+   case"mv":await sys.fs.mv(P(a[0]),P(a[1]));break;
+   case"echo":o.push(a.join(" "));break;
+   case"ps":o.push("PID   APP        UP(s)");procs.forEach(p=>o.push(p.pid+"  "+p.app.padEnd(10)+Math.round((Date.now()-p.t)/1000)));break;
+   case"kill":if(!procs.has(+a[0]))throw Error("No such process");kill(+a[0]);break;
+   case"open":if(!APPS[a[0]])throw Error("Unknown app");launch(a[0]);break;
+   case"perms":for(const[id,g]of Object.entries(grants))o.push(id+": "+JSON.stringify(g));if(!o.length)o.push("(no grants)");break;
+   case"df":o.push("Used "+(FS.size()/1024).toFixed(1)+" KB of ~5120 KB");break;
+   case"date":o.push(new Date().toString());break;
+   case"lock":lock();break;
+   case"clear":out.textContent="";break;
+   default:throw Error("command not found: "+c)}
+  if(redir)await sys.fs.write(P(redir),o.join("\n"));else if(o.length)w(o.join("\n"))}
+ return{}}
+function tmApp(el){
+ let t;
+ function draw(){const hm=performance.memory;
+  el.innerHTML=`<div class="card"><b>System</b><div class="small">Processes ${procs.size} · FS ${(FS.size()/1024).toFixed(1)} KB${hm?" · JS heap "+(hm.usedJSHeapSize/1048576).toFixed(1)+" MB":""} · Uptime ${Math.round((Date.now()-T0)/1000)}s</div></div>`+
+  [...procs.values()].map(p=>`<div class="card row"><div class="grow"><b>${APPS[p.app].icon} ${esc(APPS[p.app].name)}</b><div class="small">PID ${p.pid} · ${p.pid===fg?"foreground":"background"} · ${Math.round((Date.now()-p.t)/1000)}s · ~${p.mem} MB</div></div><button class="btn danger" data-p="${p.pid}">Kill</button></div>`).join("")}
+ const go=()=>{stop();draw();t=setInterval(draw,1500)},stop=()=>clearInterval(t);
+ el.onclick=e=>{const p=e.target.dataset.p;if(p)kill(+p)};
+ go();return{pause:stop,resume:go,destroy:stop}}
+function settingsApp(el,sys){
+ function draw(){
+  el.innerHTML=`<h3 style="margin-top:0">Display</h3><div class="card"><div class="small">Accent</div><input type="color" class="field" value="${S.accent}" data-k="accent"><div class="small">Brightness</div><input type="range" min="30" max="100" value="${S.bright}" data-k="bright" style="width:100%"></div>
+  <h3>Connections</h3><div class="card">${[["wifi","Wi-Fi"],["bt","Bluetooth"],["air","Airplane mode"],["focus","Focus mode"],["saver","Battery saver"],["night","Night light"]].map(([k,n])=>`<div class="row" style="padding:8px 0"><span class="grow">${n}</span><button class="sw ${S[k]?"on":""}" data-t="${k}"></button></div>`).join("")}</div><h3>Wallpaper & sound</h3><div class="card"><div class="small">Wallpaper</div><select class="field" data-k="wall">${["Midnight","Violet","Ocean","Dusk"].map((w,i)=>`<option value="${i}" ${+S.wall===i?"selected":""}>${w}</option>`).join("")}</select><div class="small">Volume</div><input type="range" data-k="vol" min="0" max="100" value="${S.vol}" style="width:100%"></div><h3>System</h3><div class="card">${[["h12","12-hour clock"],["nomo","Reduce motion"],["hap","Haptic feedback"]].map(([k,n])=>`<div class="row" style="padding:8px 0"><span class="grow">${n}</span><button class="sw ${S[k]?"on":""}" data-t="${k}"></button></div>`).join("")}<div class="small">Auto-lock (needs a PIN)</div><select class="field" data-k="lock">${[[15,"15 seconds"],[30,"30 seconds"],[60,"1 minute"],[300,"5 minutes"],[0,"Never"]].map(([v,n])=>`<option value="${v}" ${+S.lock===v?"selected":""}>${n}</option>`).join("")}</select></div><div class="card"><b>Device</b><div class="small" style="margin-top:6px">Web OS 3.1 · ${procs.size} running · ${INST.length} apps installed<br>Screen ${innerWidth}×${innerHeight} · ${esc(navigator.platform||"")}<br>Files ${(FS.size()/1024).toFixed(1)} KB used</div></div><h3>Developer</h3><div class="card"><div class="row"><div class="grow">.web packages<div class="small">${PKGS.length} installed · sandboxed HTML/CSS/JS apps</div></div><button class="btn secondary" onclick="launch('studio')">Studio</button></div></div><h3>Security</h3><div class="card"><div class="row"><div class="grow">Lock PIN<div class="small">${S.pin?"Enabled · auto-lock after 60s idle":"Not set"}</div></div><button class="btn secondary" data-a="pin">${S.pin?"Remove":"Set"}</button></div><button class="btn secondary" style="margin-top:10px" data-a="lock">Lock now</button></div>
+  <h3>App permissions</h3>`+Object.entries(APPS).filter(([,a])=>a.perms.length).map(([id,a])=>`<div class="card"><b>${a.icon} ${esc(a.name)}</b>`+a.perms.map(pm=>`<div class="row" style="margin-top:8px"><span class="grow">${PERMS[pm][1]} ${PERMS[pm][0]}</span><select data-app="${id}" data-perm="${pm}" style="background:#ffffff14;border:0;border-radius:8px;padding:6px">${["ask","allow","deny"].map(v=>`<option ${((grants[id]||{})[pm]||"ask")===v?"selected":""}>${v}</option>`).join("")}</select></div>`).join("")+`</div>`).join("")+
+  `<p class="small">Camera still shows the browser's own prompt too. The OS layer decides first, then the browser.</p>
+  <h3>Storage</h3><div class="card">Used ${(FS.size()/1024).toFixed(1)} KB of ~5 MB<div class="row" style="margin-top:10px"><button class="btn secondary grow" data-a="rp">Reset permissions</button><button class="btn danger grow" data-a="rf">Format files</button></div></div>
+  <div class="card"><b>Web OS 3.0</b><div class="small">Kernel layer: VFS, permission broker, process manager, lock screen.</div></div>`}
+ el.oninput=e=>{const k=e.target.dataset.k;if(k){S[k]=k==="bright"?+e.target.value:e.target.value;applyS()}};
+ el.onchange=e=>{const{app,perm}=e.target.dataset;if(!app)return;const v=e.target.value;grants[app]=grants[app]||{};if(v==="ask")delete grants[app][perm];else grants[app][perm]=v;LS.set("grants",grants)};
+ el.onclick=async e=>{const a=e.target.dataset.a;if(!a)return;
+  if(a==="lock")lock();
+  else if(a==="pin"){
+   if(S.pin){const c=await dlg("Enter current PIN","","password");if(c!==null&&await hash(c)===S.pin){S.pin="";applyS();toast("PIN removed")}else if(c!==null)toast("Wrong PIN")}
+   else{const v=await dlg("Choose a 4-digit PIN","","password");if(v===null)return;if(!/^\d{4}$/.test(v))return toast("PIN must be 4 digits");S.pin=await hash(v);applyS();toast("PIN set")}
+   draw()}
+  else if(a==="rp"){grants={};LS.set("grants",grants);toast("Permissions reset");draw()}
+  else if(a==="rf"){const c=await dlg('Type FORMAT to erase all files');if(c==="FORMAT"){LS.set("fs",null);toast("Reload to recreate the file system");try{localStorage.removeItem("wos3_fs")}catch{}}}};
+ draw();return{}}
 
-    <div class="container">
-        <header>
-            <h1>🎬 DLS Player <small>· custom controls</small></h1>
-            <p class="subhead">Load a <strong>.dls</strong> file, enter password if needed, and watch instantly.</p>
-        </header>
+/* ---------- Home and startup ---------- */
+$("#grid").innerHTML=Object.entries(APPS).map(([id,a])=>`<button class="ic" data-app="${id}"><i style="--c:${a.color}">${a.icon}</i>${esc(a.name)}</button>`).join("");
+const WALLS=["linear-gradient(150deg,#1a2a52,#171c37 55%,#0c1424)","radial-gradient(ellipse at 70% 20%,#b36e68,transparent 45%),linear-gradient(145deg,#321d38,#152039)","radial-gradient(ellipse at 45% 25%,#428d91,transparent 45%),linear-gradient(145deg,#102c3c,#101626)","radial-gradient(ellipse at 20% 25%,#9a824e,transparent 42%),linear-gradient(145deg,#33261d,#111725)"];
+Object.assign(APPS,{
+ browser:{name:"Browser",icon:"🌐",color:"#468bd4",perms:[],run:browserApp},
+ gallery:{name:"Gallery",icon:"🌄",color:"#c27c91",perms:["storage"],run:galApp},
+ calc:{name:"Calculator",icon:"＋",color:"#6075a8",perms:[],run:calcApp},
+ clock:{name:"Clock",icon:"◷",color:"#657ed2",perms:["notifications"],run:clockApp},
+ calendar:{name:"Calendar",icon:"📅",color:"#d86c76",perms:[],run:calApp},
+ music:{name:"Music",icon:"♫",color:"#a47be0",perms:[],run:musicApp},
+ draw:{name:"Canvas",icon:"🎨",color:"#ce8a72",perms:["storage"],run:drawApp},
+ weather:{name:"Weather",icon:"☀",color:"#65b6dc",perms:["location"],run:weatherApp}});
+function browserApp(el){el.innerHTML=`<form class="row"><input class="field grow" style="margin:0" placeholder="Search or enter website"><button class="btn">Go</button></form><p class="small" id="bm">Many sites block embedding; use Open externally if blank.</p><div id="bx"></div>`;
+ const bm=el.querySelector("#bm"),bx=el.querySelector("#bx"),inp=el.querySelector("input");
+ function go(v){v=(v||"").trim();if(!v)return;if(S.air||!S.wifi){bm.textContent="No connection. Turn on Wi-Fi in Quick Settings.";return}
+  if(!/^https?:\/\//i.test(v))v=/^[\w-]+\.[\w.-]+$/.test(v)?"https://"+v:"https://duckduckgo.com/?q="+encodeURIComponent(v);
+  inp.value=v;bm.innerHTML=`<a href="${esc(v)}" target="_blank" rel="noopener" style="color:var(--accent)">Open externally ↗</a>`;
+  bx.innerHTML=`<iframe sandbox="allow-forms allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer" style="width:100%;height:60vh;border:0;border-radius:12px;background:#fff" src="${esc(v)}"></iframe>`}
+ el.querySelector("form").onsubmit=e=>{e.preventDefault();go(inp.value)};return{go}}
+function galApp(el,sys){let v=null;
+ async function draw(){v=null;let it=[];try{it=(await sys.fs.ls("/home/user/Pictures")).filter(([n,x])=>x.t==="f"&&x.d.startsWith("data:image"))}catch(e){el.innerHTML=`<div class="card">${esc(e.message)}</div>`;return}
+  el.innerHTML=it.length?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${it.map(([n,x])=>`<img src="${x.d}" data-n="${esc(n)}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px" alt="">`).join("")}</div>`:`<p class="small" style="text-align:center;margin-top:40px">No photos yet. Take one with Camera or Canvas.</p>`}
+ el.onclick=async e=>{const a=e.target.dataset.a;if(e.target.dataset.n&&!a){v=e.target.dataset.n;el.innerHTML=`<img src="${e.target.src}" style="width:100%;border-radius:14px" alt=""><p class="small">${esc(v)}</p><button class="btn danger" data-a="del">Delete</button>`}else if(a==="del"){try{await sys.fs.rm("/home/user/Pictures/"+v)}catch(x){toast(x.message)}draw()}};
+ draw();return{back(){if(v){draw();return true}}}}
+function calcApp(el){let ex="";const K=["AC","⌫","%","÷","7","8","9","×","4","5","6","−","1","2","3","+","±","0",".","="];
+ el.innerHTML=`<div class="card" id="cd" style="text-align:right;font-size:34px;min-height:90px;overflow-wrap:anywhere">0</div><div class="cg">${K.map(k=>`<button class="${"÷×−+%".includes(k)?"o":k==="="?"e":""}">${k}</button>`).join("")}</div>`;
+ const d=el.querySelector("#cd");
+ function calc(s){if(!/^[0-9+\-*/().\s]+$/.test(s))throw 0;const t=s.match(/\d*\.?\d+|[()+\-*/]/g)||[];let i=0;
+  const pr=()=>{const x=t[i++];if(x==="-")return-pr();if(x==="+")return pr();if(x==="("){const v=ee();if(t[i++]!==")")throw 0;return v}if(x===undefined||isNaN(x))throw 0;return+x},
+  tm=()=>{let v=pr();while(t[i]==="*"||t[i]==="/"){const o=t[i++],r=pr();v=o==="*"?v*r:v/r}return v},
+  ee=()=>{let v=tm();while(t[i]==="+"||t[i]==="-"){const o=t[i++],r=tm();v=o==="+"?v+r:v-r}return v};
+  const r=ee();if(i!==t.length||!isFinite(r))throw 0;return r}
+ el.onclick=e=>{if(e.target.tagName!=="BUTTON")return;const k=e.target.textContent;
+  if(k==="AC")ex="";else if(k==="⌫")ex=ex.slice(0,-1);else if(k==="±")ex=ex.startsWith("-")?ex.slice(1):"-"+ex;
+  else if(k==="="){try{ex=String(+calc(ex).toPrecision(12))}catch{ex="";d.textContent="Error";return}}
+  else ex+={"×":"*","÷":"/","−":"-","%":"/100"}[k]||k;
+  d.textContent=ex||"0"};return{}}
+function clockApp(el,sys){let sw=0,st=null,ti=null;const q=s=>el.querySelector(s);
+ el.innerHTML=`<div class="card" style="text-align:center"><div id="ck" style="font-size:44px"></div><div class="small" id="cdt"></div></div><div class="card"><b>Stopwatch</b><div id="sw" style="font-size:30px;margin:10px 0">00:00.0</div><div class="row"><button class="btn grow" data-a="ss">Start / Stop</button><button class="btn secondary" data-a="sr">Reset</button></div></div><div class="card"><b>Timer</b><input id="tm2" class="field" type="number" min="1" max="180" value="5"><div class="small" id="td">Stopped</div><div class="row"><button class="btn grow" data-a="ts">Start</button><button class="btn secondary" data-a="tx">Stop</button></div><p class="small">The timer keeps running in the background and sends a notification.</p></div>`;
+ const iv=setInterval(()=>{const n=new Date();q("#ck").textContent=n.toLocaleTimeString();q("#cdt").textContent=n.toDateString();const e=sw+(st?Date.now()-st:0);q("#sw").textContent=String(Math.floor(e/60000)).padStart(2,"0")+":"+String(Math.floor(e/1000)%60).padStart(2,"0")+"."+Math.floor(e/100)%10;
+  if(ti){const r=Math.max(0,Math.ceil((ti-Date.now())/1000));q("#td").textContent=Math.floor(r/60)+":"+String(r%60).padStart(2,"0");if(!r){ti=null;sys.notify("Timer finished","Your timer has ended")}}},100);
+ el.onclick=e=>{const a=e.target.dataset.a;if(a==="ss"){if(st){sw+=Date.now()-st;st=null}else st=Date.now()}else if(a==="sr"){sw=0;st=null}else if(a==="ts"){const m=+q("#tm2").value;if(m>=1&&m<=180)ti=Date.now()+m*60000}else if(a==="tx"){ti=null;q("#td").textContent="Stopped"}};
+ return{destroy(){clearInterval(iv)}}}
+function calApp(el){let R=LS.get("rem",[]),m=new Date();m.setDate(1);
+ function draw(){const y=m.getFullYear(),mo=m.getMonth(),f=m.getDay(),n=new Date(y,mo+1,0).getDate(),now=new Date(),iso=d=>`${y}-${String(mo+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  el.innerHTML=`<div class="row"><button class="btn secondary" data-a="p">‹</button><b class="grow" style="text-align:center">${m.toLocaleDateString([],{month:"long",year:"numeric"})}</b><button class="btn secondary" data-a="n">›</button></div><div class="cal" style="margin:12px 0">${"SMTWTFS".split("").map(d=>`<span class="small">${d}</span>`).join("")}${"<span></span>".repeat(f)}${Array.from({length:n},(_,i)=>{const d=i+1,k=iso(d),t=now.getFullYear()===y&&now.getMonth()===mo&&now.getDate()===d;return`<span class="${t?"t":R.some(r=>r.d===k)?"r":""}">${d}</span>`}).join("")}</div><input type="date" id="rd" class="field" value="${iso(now.getDate())}"><input id="rt" class="field" placeholder="Reminder"><button class="btn" data-a="add">Add reminder</button><h3>Reminders</h3>`+(R.map((r,i)=>`<div class="card row"><div class="grow"><b>${esc(r.t)}</b><div class="small">${r.d}</div></div><button class="btn danger" data-x="${i}">✕</button></div>`).join("")||'<p class="small">None yet</p>')}
+ el.onclick=e=>{const a=e.target.dataset.a,x=e.target.dataset.x;if(a==="p")m.setMonth(m.getMonth()-1);else if(a==="n")m.setMonth(m.getMonth()+1);else if(a==="add"){const t=el.querySelector("#rt").value.trim(),d=el.querySelector("#rd").value;if(!t||!d)return toast("Enter a title and date");R.push({t,d});R.sort((p,q)=>p.d.localeCompare(q.d));LS.set("rem",R)}else if(x!==undefined){R.splice(+x,1);LS.set("rem",R)}else return;draw()};
+ draw();return{}}
+function musicApp(el){el.innerHTML=`<div style="text-align:center;padding:20px 0"><div style="font-size:80px">♫</div><h3>Web OS Music</h3><audio controls style="width:100%;margin:16px 0"></audio><label class="btn" style="display:inline-block">Choose audio file<input type="file" accept="audio/*" hidden></label><p class="small">Keeps playing while you use other apps.</p></div>`;
+ const au=el.querySelector("audio");let u;el.querySelector("input").onchange=e=>{const f=e.target.files[0];if(!f)return;u&&URL.revokeObjectURL(u);u=URL.createObjectURL(f);au.src=u;au.volume=S.vol/100;au.play().catch(()=>{})};return{destroy(){au.pause();u&&URL.revokeObjectURL(u)}}}
+function drawApp(el,sys){el.innerHTML=`<div class="row"><input type="color" value="#ffffff" id="dc"><input type="range" id="db" min="1" max="25" value="5" class="grow"></div><canvas width="600" height="600" style="width:100%;aspect-ratio:1;background:#20283a;border-radius:15px;touch-action:none;margin:12px 0"></canvas><div class="row"><button class="btn grow" data-a="s">Save to Pictures</button><button class="btn secondary" data-a="c">Clear</button></div>`;
+ const c=el.querySelector("canvas"),x=c.getContext("2d");let on=false;x.fillStyle="#20283a";x.fillRect(0,0,600,600);x.lineCap=x.lineJoin="round";
+ const P=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*600/r.width,(e.clientY-r.top)*600/r.height]};
+ c.onpointerdown=e=>{on=true;c.setPointerCapture(e.pointerId);x.beginPath();x.moveTo(...P(e))};
+ c.onpointermove=e=>{if(!on)return;x.strokeStyle=el.querySelector("#dc").value;x.lineWidth=el.querySelector("#db").value*2;x.lineTo(...P(e));x.stroke()};
+ c.onpointerup=c.onpointercancel=()=>on=false;
+ el.onclick=async e=>{const a=e.target.dataset.a;if(a==="c"){x.fillStyle="#20283a";x.fillRect(0,0,600,600)}else if(a==="s"){try{await sys.fs.write("/home/user/Pictures/art_"+Date.now()+".jpg",c.toDataURL("image/jpeg",.6));toast("Saved to Pictures")}catch(er){toast(er.message)}}};return{}}
+function weatherApp(el,sys){el.innerHTML=`<div class="card" style="text-align:center;padding:26px"><div style="font-size:64px">☀️</div><h3>Weather</h3><p class="small" id="wm">Live forecasts need a weather API, which this hosted page can't call. Location access is wired up for when you host it yourself.</p><button class="btn">📍 Use my location</button></div>`;
+ el.querySelector("button").onclick=async()=>{const m=el.querySelector("#wm");if(!await sys.need("location")){m.textContent="Location permission denied.";return}if(!navigator.geolocation){m.textContent="Geolocation unavailable.";return}navigator.geolocation.getCurrentPosition(p=>m.textContent="Lat "+p.coords.latitude.toFixed(3)+", Lon "+p.coords.longitude.toFixed(3),e=>m.textContent="Location error: "+e.message)};return{}}
 
-        <div class="card">
-            <div class="card-header">
-                <h2>📂 Load a DLS file</h2>
-                <span class="text-muted" id="fileInfo">No file loaded</span>
-            </div>
-            <div class="file-input-wrap">
-                <input type="file" id="fileInput" accept=".dls" />
-            </div>
-        </div>
+/* Home screen, dock, drawer, quick settings, gestures */
+const DOCK=["files","browser","camera","settings"];
+const ib=id=>{const a=APPS[id];return`<button class="ic" data-app="${id}"><i style="--c:${a.color}">${a.icon}</i>${esc(a.name)}</button>`};
+$("#grid").innerHTML=Object.keys(APPS).filter(i=>!DOCK.includes(i)).map(ib).join("");
+$("#dock").innerHTML=DOCK.map(ib).join("");
+document.addEventListener("click",e=>{const b=e.target.closest("#home [data-app],#dock [data-app],#drawer [data-app]");if(b)launch(b.dataset.app)});
+$("#sf").onsubmit=e=>{e.preventDefault();const q=$("#sq").value.trim();$("#sq").value="";if(!q)return;const id=Object.keys(APPS).find(i=>APPS[i].name.toLowerCase()===q.toLowerCase());if(id)return launch(id);launch("browser");const p=[...procs.values()].find(x=>x.app==="browser");p&&p.inst&&p.inst.go(q)};
+function closeDrawer(){$("#drawer").hidden=true}
+function openDrawer(){toggleShade(false);closeRecents();const d=$("#drawer");d.innerHTML=`<input class="field" id="ds" placeholder="Search apps" autocomplete="off" style="margin-top:0"><div class="grid" id="dg" style="margin-top:14px">${Object.keys(APPS).map(ib).join("")}</div><p class="small" style="text-align:center;margin-top:24px">Swipe down from the top for Quick Settings</p>`;d.hidden=false}
+$("#drawer").oninput=e=>{if(e.target.id==="ds")$("#dg").innerHTML=Object.keys(APPS).filter(i=>APPS[i].name.toLowerCase().includes(e.target.value.toLowerCase())).map(ib).join("")};
+function drawShade(){const T=[["wifi","📶","Wi-Fi"],["bt","ᛒ","Bluetooth"],["air","✈","Airplane"],["focus","◐","Focus"],["saver","🔋","Battery saver"],["night","🌙","Night light"]];
+ $("#shade").innerHTML=`<div class="row"><h3 class="grow" style="margin:0">Quick settings</h3><button class="btn secondary" data-a="lock">🔒</button></div><div class="qg" style="margin:14px 0">${T.map(([k,i,n])=>`<button class="q ${S[k]?"on":""}" data-t="${k}"><i>${i}</i>${n}</button>`).join("")}</div><div class="card"><div class="small">☀ Brightness</div><input type="range" min="30" max="100" value="${S.bright}" data-k="bright" style="width:100%"><div class="small" style="margin-top:8px">🔊 Volume</div><input type="range" min="0" max="100" value="${S.vol}" data-k="vol" style="width:100%"></div><div class="row"><h3 class="grow">Notifications</h3><button class="btn secondary" data-a="clr">Clear</button></div>`+(N.map((n,i)=>`<div class="card"><b>${esc(n.app)}</b> · ${esc(n.title)}<div class="small">${esc(n.body||"")}</div><button class="btn secondary" style="margin-top:8px" data-i="${i}">Dismiss</button></div>`).join("")||'<p class="small">No notifications</p>')}
+$("#shade").oninput=e=>{const k=e.target.dataset.k;if(!k)return;S[k]=+e.target.value;applyS();if(k==="vol")document.querySelectorAll("audio").forEach(a=>a.volume=S.vol/100)};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-t]");if(!t)return;const k=t.dataset.t;S[k]=!S[k];if(k==="air"&&S.air)S.wifi=S.bt=false;if(k==="wifi"&&S.wifi)S.air=false;applyS();document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",!!S[x.dataset.t]));toast((S[k]?"On: ":"Off: ")+(t.textContent.trim()||k))});
+function renderRecents(){const L=[...procs.values()];$("#recents").innerHTML=`<div class="row"><h3 class="grow" style="margin:0">Recent apps</h3><button class="btn secondary" data-a="all">Clear all</button></div>`+(L.length?`<div class="rc" style="margin-top:20px">${L.map(p=>`<div class="rcard" data-pid="${p.pid}"><div style="font-size:64px;margin:30px 0 10px">${APPS[p.app].icon}</div><b>${esc(APPS[p.app].name)}</b><div class="small">PID ${p.pid} · ${p.pid===fg?"active":"background"}</div><button class="btn danger" style="margin-top:18px" data-a="x">Close</button></div>`).join("")}</div><p class="small" style="text-align:center">Swipe sideways · tap a card to open</p>`:'<p class="small" style="text-align:center;margin-top:60px">No recent apps</p>')}
+let g=null;
+$("#phone").addEventListener("pointerdown",e=>{g={y:e.clientY,x:e.clientX,t:Date.now(),el:e.target}},true);
+addEventListener("pointerup",e=>{if(!g)return;const{x,y,t,el}=g;g=null;const dy=e.clientY-y,dx=e.clientX-x;if(locked||Math.abs(dy)<60||Math.abs(dy)<Math.abs(dx)*1.3||!el.closest)return;
+ const up=dy<0,h=el.closest("#home,#dock"),n=el.closest(".nav"),s=el.closest("#st");
+ if(up&&n){if(Date.now()-t>380)$("#nr").click();else{toggleShade(false);home()}}
+ else if(up&&h)openDrawer();
+ else if(up&&s)toggleShade(false);
+ else if(!up&&(s||h))toggleShade(true)});
 
-        <div class="card" id="playerCard" style="position:relative;">
-            <div class="card-header">
-                <h2>▶️ Player</h2>
-                <span class="text-muted" id="nowPlaying">—</span>
-            </div>
-            <div class="player-area" id="playerArea">
-                <video id="videoPlayer" style="width:100%;background:#000;"></video>
-                <div class="custom-controls" id="customControls">
-                    <button class="btn" id="playPauseBtn" title="Play/Pause">⏸️</button>
-                    <input type="range" class="seek-bar" id="seekBar" min="0" max="100" value="0" step="0.1" />
-                    <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                    <div class="volume-wrap">
-                        <button class="btn" id="muteBtn" title="Mute">🔊</button>
-                        <input type="range" class="volume-bar" id="volumeBar" min="0" max="1" step="0.05" value="1" />
-                    </div>
-                    <button class="btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
-                </div>
-                <div class="password-overlay" id="passwordOverlay">
-                    <h3>🔐 This file is encrypted</h3>
-                    <p>Enter the password to unlock and play</p>
-                    <input type="password" id="pwdInput" placeholder="Password" autocomplete="new-password" />
-                    <button class="btn" id="pwdSubmitBtn">▶️ Play</button>
-                    <div class="error-msg" id="pwdError">❌ Incorrect password. Please try again.</div>
-                </div>
-            </div>
-            <div class="status-bar">
-                <span class="status-text" id="statusText">Ready</span>
-                <span class="status-text" id="statusDetail">—</span>
-            </div>
-        </div>
-
-        <footer style="margin-top:1.5rem;font-size:0.75rem;color:var(--text-muted);text-align:center;border-top:1px solid var(--border);padding-top:1rem;">
-            DLS Player v4 · custom controls · client‑side decryption
-        </footer>
-    </div>
-
-    <div class="toast" id="toast"></div>
-
-    <script>
-        (() => {
-            'use strict';
-
-            // DOM refs
-            const fileInput = document.getElementById('fileInput');
-            const fileInfo = document.getElementById('fileInfo');
-            const playerArea = document.getElementById('playerArea');
-            const videoPlayer = document.getElementById('videoPlayer');
-            const nowPlaying = document.getElementById('nowPlaying');
-            const statusText = document.getElementById('statusText');
-            const statusDetail = document.getElementById('statusDetail');
-            const toast = document.getElementById('toast');
-            const passwordOverlay = document.getElementById('passwordOverlay');
-            const pwdInput = document.getElementById('pwdInput');
-            const pwdSubmitBtn = document.getElementById('pwdSubmitBtn');
-            const pwdError = document.getElementById('pwdError');
-
-            // Custom controls
-            const playPauseBtn = document.getElementById('playPauseBtn');
-            const seekBar = document.getElementById('seekBar');
-            const timeDisplay = document.getElementById('timeDisplay');
-            const volumeBar = document.getElementById('volumeBar');
-            const muteBtn = document.getElementById('muteBtn');
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-
-            // State
-            let currentFile = null;
-            let isDecrypting = false;
-            let isDraggingSeek = false;
-
-            // Toast
-            let toastTimer = null;
-            function showToast(msg, type = 'info', duration = 3000) {
-                if (toastTimer) { clearTimeout(toastTimer); toast.classList.remove('show','error','success'); }
-                toast.textContent = msg;
-                toast.className = 'toast';
-                if (type === 'error') toast.classList.add('error');
-                if (type === 'success') toast.classList.add('success');
-                void toast.offsetWidth;
-                toast.classList.add('show');
-                toastTimer = setTimeout(() => { toast.classList.remove('show'); toastTimer = null; }, duration);
-            }
-
-            // Helpers
-            function formatSize(bytes) {
-                if (bytes === 0) return '0 MB';
-                const mb = bytes / (1024 * 1024);
-                if (mb < 0.01) return '< 0.01 MB';
-                return mb.toFixed(2) + ' MB';
-            }
-            function escapeHtml(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
-            function getFileExtension(filename) {
-                const i = filename.lastIndexOf('.');
-                return i > 0 ? filename.slice(i + 1) : '';
-            }
-            function getBaseName(filename) {
-                const i = filename.lastIndexOf('.');
-                return i > 0 ? filename.slice(0, i) : filename;
-            }
-
-            function arrayBufferToBase64(buffer) {
-                const bytes = new Uint8Array(buffer);
-                let binary = '';
-                const chunkSize = 8192;
-                for (let i = 0; i < bytes.length; i += chunkSize) {
-                    const chunk = bytes.slice(i, Math.min(i + chunkSize, bytes.length));
-                    binary += String.fromCharCode.apply(null, chunk);
-                }
-                return btoa(binary);
-            }
-            function base64ToArrayBuffer(base64) {
-                const binary = atob(base64);
-                const bytes = new Uint8Array(binary.length);
-                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-                return bytes.buffer;
-            }
-
-            async function decompressChunk(arrayBuffer) {
-                if (!window.DecompressionStream) return arrayBuffer;
-                try {
-                    const blob = new Blob([arrayBuffer]);
-                    const stream = blob.stream().pipeThrough(new DecompressionStream('gzip'));
-                    const decompressedBlob = await new Response(stream).blob();
-                    return await decompressedBlob.arrayBuffer();
-                } catch (_) { return arrayBuffer; }
-            }
-
-            const PBKDF2_ITERATIONS = 600000;
-            async function deriveKey(password, salt) {
-                const enc = new TextEncoder();
-                const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-                return crypto.subtle.deriveKey({
-                    name: 'PBKDF2',
-                    salt: salt,
-                    iterations: PBKDF2_ITERATIONS,
-                    hash: 'SHA-256'
-                }, keyMaterial, { name: 'AES-CBC', length: 256 }, false, ['encrypt', 'decrypt']);
-            }
-            async function decryptData(encryptedBase64, password, saltBase64, ivBase64) {
-                const encrypted = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-                const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
-                const salt = Uint8Array.from(atob(saltBase64), c => c.charCodeAt(0));
-                const key = await deriveKey(password, salt);
-                const decrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, encrypted);
-                return decrypted;
-            }
-
-            // ─── Parse DLS ─────────────────────────────────────────────
-
-            async function parseDLSFile(file) {
-                const text = await file.text();
-                let container;
-                try { container = JSON.parse(text); } catch (_) { throw new Error('Invalid DLS format'); }
-                if (!container.version || container.version !== '1.0') throw new Error('Unsupported DLS version');
-
-                if (container.chunked === true && Array.isArray(container.chunks) && container.chunks.length > 0) {
-                    for (const chunk of container.chunks) {
-                        if (!chunk.data) throw new Error('Chunk missing data');
-                        if (chunk.encrypted && (!chunk.salt || !chunk.iv)) throw new Error('Encrypted chunk missing salt/iv');
-                    }
-                    if (container.encryptedMeta === true) {
-                        if (!container.metaSalt || !container.metaIv || !container.metaData)
-                            throw new Error('Encrypted metadata missing salt/iv/data');
-                    } else {
-                        if (!container.metaData) throw new Error('Metadata missing');
-                    }
-                    return container;
-                }
-
-                // Legacy
-                if (container.data && container.fileName !== undefined) {
-                    const encrypted = container.encrypted || false;
-                    const salt = container.salt || '';
-                    const iv = container.iv || '';
-                    const chunks = [{ index: 0, encrypted, salt, iv, data: container.data }];
-                    const metaObj = {
-                        fileName: container.fileName,
-                        fileType: container.fileType || 'application/octet-stream',
-                        fileSize: container.fileSize || 0
-                    };
-                    const metaJson = JSON.stringify(metaObj);
-                    const metaBuffer = new TextEncoder().encode(metaJson).buffer;
-                    const metaData = arrayBufferToBase64(metaBuffer);
-                    return {
-                        version: '1.0',
-                        chunked: true,
-                        chunkSize: 0,
-                        chunks: chunks,
-                        encryptedMeta: false,
-                        metaSalt: '',
-                        metaIv: '',
-                        metaData: metaData
-                    };
-                }
-                throw new Error('Invalid container: unrecognized format');
-            }
-
-            async function decryptMetadata(container, password) {
-                let metaJson;
-                if (container.encryptedMeta === true) {
-                    const decryptedMeta = await decryptData(container.metaData, password, container.metaSalt, container.metaIv);
-                    metaJson = new TextDecoder().decode(decryptedMeta);
-                } else {
-                    const raw = base64ToArrayBuffer(container.metaData);
-                    metaJson = new TextDecoder().decode(raw);
-                }
-                return JSON.parse(metaJson);
-            }
-
-            async function decryptFile(container, password) {
-                const chunks = container.chunks;
-                const decryptedChunks = [];
-                for (const chunk of chunks) {
-                    let chunkBuffer = base64ToArrayBuffer(chunk.data);
-                    if (chunk.encrypted) {
-                        chunkBuffer = await decryptData(chunk.data, password, chunk.salt, chunk.iv);
-                    }
-                    const decompressed = await decompressChunk(chunkBuffer);
-                    decryptedChunks.push(decompressed);
-                }
-                const totalLength = decryptedChunks.reduce((sum, buf) => sum + buf.byteLength, 0);
-                const combined = new Uint8Array(totalLength);
-                let offset = 0;
-                for (const buf of decryptedChunks) {
-                    combined.set(new Uint8Array(buf), offset);
-                    offset += buf.byteLength;
-                }
-                return combined.buffer;
-            }
-
-            // ─── Load and play ─────────────────────────────────────────
-
-            async function loadDLSFile(file) {
-                if (currentFile && currentFile.blobUrl) {
-                    URL.revokeObjectURL(currentFile.blobUrl);
-                }
-                currentFile = null;
-                playerArea.classList.remove('visible');
-                passwordOverlay.classList.remove('visible');
-                videoPlayer.src = '';
-                videoPlayer.load();
-                statusText.textContent = 'Loading…';
-                statusDetail.textContent = file.name;
-                fileInfo.textContent = `${file.name} (${formatSize(file.size)}) – loading…`;
-
-                try {
-                    const container = await parseDLSFile(file);
-                    let meta = null;
-                    if (!container.encryptedMeta) {
-                        try { meta = await decryptMetadata(container, ''); } catch (_) {}
-                    }
-
-                    const isEncrypted = container.encryptedMeta === true ||
-                        container.chunks.some(ch => ch.encrypted === true);
-
-                    if (isEncrypted) {
-                        playerArea.classList.add('visible');
-                        passwordOverlay.classList.add('visible');
-                        pwdInput.value = '';
-                        pwdError.classList.remove('visible');
-                        pwdSubmitBtn.disabled = false;
-                        pwdSubmitBtn.textContent = '▶️ Play';
-                        currentFile = { container, meta, file, password: '' };
-                        statusText.textContent = '🔐 Encrypted';
-                        statusDetail.textContent = 'Enter password to play';
-                        fileInfo.textContent = `${file.name} (${formatSize(file.size)}) – 🔐 encrypted`;
-                        setTimeout(() => pwdInput.focus(), 200);
-                        return;
-                    }
-
-                    if (!meta) {
-                        meta = await decryptMetadata(container, '');
-                    }
-                    const fileBuffer = await decryptFile(container, '');
-                    const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
-                    const url = URL.createObjectURL(blob);
-                    currentFile = { container, meta, file, blobUrl: url, password: '' };
-                    playVideo(url, meta);
-                    statusText.textContent = '✅ Playing';
-                    statusDetail.textContent = meta.fileName;
-                    fileInfo.textContent = `${file.name} (${formatSize(file.size)}) – ▶️ playing`;
-                    showToast(`▶️ Playing: ${meta.fileName}`, 'success', 2000);
-                } catch (err) {
-                    console.error('Load error', err);
-                    statusText.textContent = '❌ Error';
-                    statusDetail.textContent = err.message || 'Failed to load';
-                    fileInfo.textContent = `${file.name} – ❌ error`;
-                    showToast('Failed to load: ' + err.message, 'error', 4000);
-                }
-            }
-
-            function playVideo(blobUrl, meta) {
-                videoPlayer.src = blobUrl;
-                videoPlayer.load();
-                playerArea.classList.add('visible');
-                passwordOverlay.classList.remove('visible');
-                const displayName = getBaseName(meta.fileName) + '.' + getFileExtension(meta.fileName);
-                nowPlaying.textContent = meta.fileName;
-                // Start playing
-                videoPlayer.play().catch(() => {});
-                // Set up custom controls
-                setupControls();
-                // Update UI
-                updatePlayPauseButton();
-                updateTimeDisplay();
-            }
-
-            // ─── Custom Controls ──────────────────────────────────────
-
-            function setupControls() {
-                // Seek bar
-                videoPlayer.addEventListener('timeupdate', () => {
-                    if (!isDraggingSeek) {
-                        const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-                        seekBar.value = isNaN(progress) ? 0 : progress;
-                        updateTimeDisplay();
-                    }
-                });
-                seekBar.addEventListener('input', (e) => {
-                    isDraggingSeek = true;
-                    const percent = parseFloat(e.target.value);
-                    const time = (percent / 100) * videoPlayer.duration;
-                    videoPlayer.currentTime = time;
-                    updateTimeDisplay();
-                });
-                seekBar.addEventListener('change', () => {
-                    isDraggingSeek = false;
-                });
-
-                // Volume
-                volumeBar.addEventListener('input', (e) => {
-                    videoPlayer.volume = parseFloat(e.target.value);
-                    updateMuteButton();
-                });
-                muteBtn.addEventListener('click', () => {
-                    if (videoPlayer.muted) {
-                        videoPlayer.muted = false;
-                        volumeBar.value = videoPlayer.volume;
-                    } else {
-                        videoPlayer.muted = true;
-                        volumeBar.value = 0;
-                    }
-                    updateMuteButton();
-                });
-                videoPlayer.addEventListener('volumechange', () => {
-                    volumeBar.value = videoPlayer.muted ? 0 : videoPlayer.volume;
-                    updateMuteButton();
-                });
-
-                // Fullscreen
-                fullscreenBtn.addEventListener('click', () => {
-                    if (!document.fullscreenElement) {
-                        document.getElementById('playerCard').requestFullscreen().catch(() => {});
-                    } else {
-                        document.exitFullscreen().catch(() => {});
-                    }
-                });
-
-                // Play/Pause
-                playPauseBtn.addEventListener('click', () => {
-                    if (videoPlayer.paused) {
-                        videoPlayer.play().catch(() => {});
-                    } else {
-                        videoPlayer.pause();
-                    }
-                });
-                videoPlayer.addEventListener('play', updatePlayPauseButton);
-                videoPlayer.addEventListener('pause', updatePlayPauseButton);
-            }
-
-            function updatePlayPauseButton() {
-                playPauseBtn.textContent = videoPlayer.paused ? '▶️' : '⏸️';
-            }
-
-            function updateTimeDisplay() {
-                if (!videoPlayer.duration) {
-                    timeDisplay.textContent = '0:00 / 0:00';
-                    return;
-                }
-                const current = videoPlayer.currentTime;
-                const total = videoPlayer.duration;
-                const fmt = (t) => {
-                    const m = Math.floor(t / 60);
-                    const s = Math.floor(t % 60);
-                    return `${m}:${s.toString().padStart(2,'0')}`;
-                };
-                timeDisplay.textContent = `${fmt(current)} / ${fmt(total)}`;
-            }
-
-            function updateMuteButton() {
-                muteBtn.textContent = videoPlayer.muted ? '🔇' : '🔊';
-            }
-
-            // ─── Password submission ───────────────────────────────────
-
-            async function handlePasswordSubmit() {
-                if (!currentFile || !currentFile.container) return;
-                if (isDecrypting) return;
-                const password = pwdInput.value;
-                if (!password) {
-                    pwdError.textContent = 'Please enter a password.';
-                    pwdError.classList.add('visible');
-                    return;
-                }
-                pwdError.classList.remove('visible');
-                isDecrypting = true;
-                pwdSubmitBtn.disabled = true;
-                pwdSubmitBtn.textContent = '⏳ Decrypting…';
-                statusText.textContent = '⏳ Decrypting…';
-
-                try {
-                    const meta = await decryptMetadata(currentFile.container, password);
-                    const fileBuffer = await decryptFile(currentFile.container, password);
-                    const blob = new Blob([fileBuffer], { type: meta.fileType || 'application/octet-stream' });
-                    const url = URL.createObjectURL(blob);
-                    currentFile.meta = meta;
-                    currentFile.blobUrl = url;
-                    currentFile.password = password;
-                    playVideo(url, meta);
-                    statusText.textContent = '✅ Playing';
-                    statusDetail.textContent = meta.fileName;
-                    fileInfo.textContent = `${currentFile.file.name} (${formatSize(currentFile.file.size)}) – ▶️ playing`;
-                    showToast(`✅ Playing: ${meta.fileName}`, 'success', 2000);
-                } catch (err) {
-                    console.error('Decryption error', err);
-                    pwdError.textContent = '❌ ' + (err.message || 'Incorrect password or corrupted file.');
-                    pwdError.classList.add('visible');
-                    pwdSubmitBtn.disabled = false;
-                    pwdSubmitBtn.textContent = '▶️ Play';
-                    statusText.textContent = '❌ Decryption failed';
-                    showToast('Decryption failed: ' + err.message, 'error', 3000);
-                }
-                isDecrypting = false;
-            }
-
-            // ─── File selection ────────────────────────────────────────
-
-            fileInput.addEventListener('change', (e) => {
-                const files = e.target.files;
-                if (files.length === 0) return;
-                const file = files[0];
-                if (!file.name.toLowerCase().endsWith('.dls')) {
-                    showToast('Please select a .dls file.', 'error', 3000);
-                    fileInput.value = '';
-                    return;
-                }
-                loadDLSFile(file);
-                fileInput.value = '';
-            });
-
-            // drag & drop
-            const inputWrap = document.querySelector('.file-input-wrap');
-            ['dragover','dragenter'].forEach(evt => {
-                inputWrap.addEventListener(evt, (e) => {
-                    e.preventDefault();
-                    inputWrap.querySelector('input').classList.add('drag-over');
-                });
-            });
-            ['dragleave','drop'].forEach(evt => {
-                inputWrap.addEventListener(evt, (e) => {
-                    e.preventDefault();
-                    inputWrap.querySelector('input').classList.remove('drag-over');
-                });
-            });
-            inputWrap.addEventListener('drop', (e) => {
-                e.preventDefault();
-                const files = e.dataTransfer.files;
-                if (files.length === 0) return;
-                const file = files[0];
-                if (!file.name.toLowerCase().endsWith('.dls')) {
-                    showToast('Please drop a .dls file.', 'error', 3000);
-                    return;
-                }
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                fileInput.files = dt.files;
-                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-
-            // Password submit
-            pwdSubmitBtn.addEventListener('click', handlePasswordSubmit);
-            pwdInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') handlePasswordSubmit();
-            });
-
-            // Init
-            fileInput.value = '';
-            statusText.textContent = 'Ready';
-            statusDetail.textContent = 'Load a .dls file to play';
-            playerArea.classList.remove('visible');
-            passwordOverlay.classList.remove('visible');
-
-            console.log('🎬 DLS Player v4 ready (custom controls)');
-        })();
-    </script>
-</body>
-</html>
+/* v3.1: store, new apps, richer shell, app switching */
+if(S.lock===undefined)S.lock=60;
+Object.assign(APPS,{
+ store:{name:"Store",icon:"🛍",color:"#68bd9d",perms:[],run:storeApp},
+ phone:{name:"Phone",icon:"☎",color:"#48a995",perms:[],run:phoneApp},
+ messages:{name:"Messages",icon:"✉",color:"#6388d9",perms:["notifications"],run:msgApp},
+ recorder:{name:"Recorder",icon:"🎙",color:"#c0577a",perms:["microphone","storage"],run:recApp}});
+const CORE=["files","settings","store","taskman","browser","camera"];
+let INST=LS.get("inst",null)||Object.keys(APPS).filter(i=>i!=="recorder");
+function refreshHome(){const L=Object.keys(APPS).filter(i=>INST.includes(i)),D=DOCK.filter(i=>INST.includes(i));$("#grid").innerHTML=L.filter(i=>!D.includes(i)).slice(0,12).map(ib).join("");$("#dock").innerHTML=D.map(ib).join("")}
+refreshHome();
+/* ---- .web packages: format, sandbox runtime, installer, Studio ---- */
+let PKGS=LS.get("pkgs",[]);
+const BRIDGE=`(()=>{let n=0;const P={};addEventListener("message",e=>{const m=e.data;if(m&&m.r&&P[m.r]){const q=P[m.r];delete P[m.r];m.err?q[1](Error(m.err)):q[0](m.v)}});const c=(a,...b)=>new Promise((ok,no)=>{const r=++n;P[r]=[ok,no];parent.postMessage({w:1,r,a,b},"*")});window.WebOS={toast:t=>c("toast",t),notify:(t,b)=>c("notify",t,b),clipboard:{write:t=>c("clip",t)},fs:{ls:p=>c("ls",p),read:p=>c("read",p),write:(p,d)=>c("write",p,d),mkdir:p=>c("mkdir",p),rm:p=>c("rm",p)},store:{get:k=>c("kget",k),set:(k,v)=>c("kset",k,v)},perms:{request:p=>c("perm",p)},app:{close:()=>c("close"),info:()=>c("info")}};const K=window.__KV||{};const ls={getItem:k=>k in K?K[k]:null,setItem:(k,v)=>{K[k]=String(v);c("kset","ls:"+k,String(v))},removeItem:k=>{delete K[k];c("kset","ls:"+k,null)},clear:()=>{for(const k in K){delete K[k];c("kset","ls:"+k,null)}},key:i=>Object.keys(K)[i]??null,get length(){return Object.keys(K).length}};try{Object.defineProperty(window,"localStorage",{value:ls,configurable:true})}catch{}
+const SS={},ss={getItem:k=>k in SS?SS[k]:null,setItem:(k,v)=>{SS[k]=String(v)},removeItem:k=>{delete SS[k]},clear:()=>{for(const k in SS)delete SS[k]},key:i=>Object.keys(SS)[i]??null,get length(){return Object.keys(SS).length}};try{Object.defineProperty(window,"sessionStorage",{value:ss,configurable:true})}catch{}
+let ck="";try{Object.defineProperty(document,"cookie",{get:()=>ck,set:v=>{ck=String(v).split(";")[0]},configurable:true})}catch{}
+["log","info","warn","error"].forEach(k=>{const o=console[k];console[k]=(...a)=>{try{c("log",k,a.map(x=>typeof x==="object"?JSON.stringify(x):String(x)).join(" "))}catch{}o.apply(console,a)}});
+addEventListener("error",e=>{c("log","error",e.message+" (line "+e.lineno+")")});addEventListener("unhandledrejection",e=>{c("log","error","Unhandled promise rejection: "+(e.reason&&e.reason.message||e.reason))})
+})();`;
+const jp=p=>{p=FS.norm(String(p),"/home/user");if(p!=="/home/user"&&!p.startsWith("/home/user/"))throw Error("Path outside /home/user");return p};
+const BR={toast:(s,i,p,t)=>{toast(String(t).slice(0,120))},
+ notify:(s,i,p,t,b)=>s.notify(String(t).slice(0,80),String(b||"").slice(0,200)),
+ ls:async(s,i,p,d)=>(await s.fs.ls(jp(d))).map(([n,x])=>({name:n,type:x.t==="d"?"dir":"file",size:x.t==="f"?x.d.length:0})),
+ read:(s,i,p,f)=>s.fs.read(jp(f)),write:(s,i,p,f,d)=>s.fs.write(jp(f),String(d)),mkdir:(s,i,p,d)=>s.fs.mkdir(jp(d)),rm:(s,i,p,f)=>s.fs.rm(jp(f)),
+ kget:(s,i,p,k)=>(LS.get("kv_"+i,{}))[k]??null,
+ kset:(s,i,p,k,v)=>{const o=LS.get("kv_"+i,{});o[String(k).slice(0,60)]=v;if(!LS.set("kv_"+i,o))throw Error("Storage full");return true},
+ perm:(s,i,p,n)=>PERMS[n]?askPerm(i,n):false,
+ clip:async(s,i,p,t)=>{if(!await askPerm(i,"clipboard"))throw Error("Permission denied: clipboard");await navigator.clipboard.writeText(String(t));return true},
+ close:(s,i,p)=>kill(p.pid),
+ info:(s,i,p)=>({id:i,name:APPS[i].name,accent:S.accent,version:(PKGS.find(x=>x.id===i)||{}).version})};
+addEventListener("message",async e=>{const m=e.data;if(!m||m.w!==1)return;const pr=[...procs.values()].find(p=>p.frame&&p.frame.contentWindow===e.source);if(!pr)return;
+ const reply=o=>{try{e.source.postMessage({r:m.r,...o},"*")}catch{}};
+ try{const h=BR[m.a];if(!h)throw Error("Unknown call");reply({v:await h(pr.sys,pr.app,pr,...(m.b||[]))})}catch(x){reply({err:x.message})}});
+function pkgRun(pk){return(el,sys,p)=>{
+ const f=document.createElement("iframe");f.setAttribute("sandbox","allow-scripts allow-forms allow-modals allow-popups allow-downloads"+(COMPAT[pk.id]?" allow-same-origin":""));f.setAttribute("allow","autoplay; fullscreen"+[["camera","camera"],["microphone","microphone"],["location","geolocation"]].filter(([k])=>(grants[pk.id]||{})[k]==="allow").map(([,v])=>"; "+v).join(""));
+ f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff";
+ el.style.cssText="padding:0;overflow:hidden;position:relative";
+ const ES="</scr"+"ipt>",bt="<script>window.__KV="+KV(pk.id)+";"+BRIDGE.replace(/\n/g," ")+ES,js=pk.js.split("</scr"+"ipt").join("<\\/scr"+"ipt");
+ f.srcdoc=/<html/i.test(pk.html)?(/<head[^>]*>/i.test(pk.html)?pk.html.replace(/<head[^>]*>/i,m=>m+bt):bt+pk.html):"<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"+bt+"<style>"+pk.css+"</style></head><body>"+pk.html+"<script>"+js+ES+"</body></html>";
+ el.appendChild(f);p.frame=f;p.sys=sys;return{}}}
+function registerPkg(pk){APPS[pk.id]={name:pk.name,icon:pk.icon,color:pk.color,perms:pk.perms,pkg:true,run:pkgRun(pk)}}
+function parsePkg(txt,fname){let o;txt=String(txt).trim();
+ if(txt[0]==="{")o=JSON.parse(txt);else o=metaOf(txt,fname);
+ if(!o||typeof o!=="object")throw Error("Not a valid package");
+ const name=String(o.name||"").trim().slice(0,30);if(!name)throw Error("Package needs a name");
+ const raw=String(o.id||name).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,30);if(!raw)throw Error("Invalid id");
+ const html=String(o.html||""),css=String(o.css||""),js=String(o.js||"");
+ if(!html&&!js)throw Error("Package has no content");if(html.length+css.length+js.length>1048576)throw Error("Package too large (1 MB max)");
+ return{id:raw.startsWith("pkg-")?raw:"pkg-"+raw,name,icon:String(o.icon||"📦").slice(0,4),color:/^#[0-9a-f]{6}$/i.test(o.color)?o.color:"#687da9",version:String(o.version||"1.0").slice(0,12),perms:(Array.isArray(o.perms)?o.perms:[]).filter(p=>PERMS[p]),html,css,js}}
+function confirmPkg(pk){return new Promise(res=>{const d=document.createElement("div");d.className="modal";d.innerHTML=`<div class="dlg"><div style="font-size:40px">${esc(pk.icon)}</div><h3 style="margin:0">Install ${esc(pk.name)}?</h3><p class="small">v${esc(pk.version)} · runs in a sandbox<br>Requests: ${pk.perms.length?pk.perms.map(p=>PERMS[p][0]).join(", "):"no permissions"}<br>You'll be asked again when it first uses each one.</p><button class="btn" data-r="1">Install</button><button class="btn secondary" data-r="0">Cancel</button></div>`;d.onclick=e=>{const r=e.target.dataset.r;if(r===undefined)return;d.remove();res(r==="1")};$("#phone").appendChild(d)})}
+function installPkg(pk){[...procs.values()].filter(p=>p.app===pk.id).forEach(p=>kill(p.pid));PKGS=PKGS.filter(x=>x.id!==pk.id);PKGS.push(pk);if(!LS.set("pkgs",PKGS))toast("Storage full - package kept for this session only");registerPkg(pk);if(!INST.includes(pk.id))INST.push(pk.id);LS.set("inst",INST);refreshHome()}
+function delPkg(id){[...procs.values()].filter(p=>p.app===id).forEach(p=>kill(p.pid));PKGS=PKGS.filter(x=>x.id!==id);LS.set("pkgs",PKGS);delete APPS[id];INST=INST.filter(x=>x!==id);LS.set("inst",INST);delete grants[id];LS.set("grants",grants);delete mem["kv_"+id];try{localStorage.removeItem("wos3_kv_"+id)}catch{}refreshHome();toast("Package deleted")}
+function exportPkg(pk){const json=JSON.stringify({web:1,...pk},null,1),fn=pk.name.replace(/[^\w-]+/g,"_")+".web";
+ try{FS.write("/home/user/Downloads/"+fn,json)}catch{}
+ try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([json],{type:"application/json"}));a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}catch{}
+ try{navigator.clipboard.writeText(json)}catch{}
+ toast("Saved Downloads/"+fn+" (also copied)")}
+async function importFile(f){if(!f)return;if(f.size>1048576)return toast("Package too large (1 MB max)");
+ try{const pk=parsePkg(await f.text(),f.name);if(await confirmPkg(pk)){installPkg(pk);toast("Installed "+pk.name);const p=[...procs.values()].find(x=>x.app==="store");if(p){kill(p.pid);launch("store")}}}catch(x){toast("Import failed: "+x.message)}}
+document.addEventListener("change",e=>{if(e.target.dataset&&e.target.dataset.imp!==undefined){importMany([...e.target.files]);e.target.value=""}});
+const TPL={html:`<h2>Hello Web OS 👋</h2><p id="cnt">Taps: 0</p><button id="btn">Tap me</button> <button id="ntf">Notify</button> <button id="sav">Save file</button><pre id="out"></pre>`,css:`body{font-family:sans-serif;background:#0f1a30;color:#fff;padding:20px}\nbutton{padding:12px 16px;border:0;border-radius:12px;background:#a9c7ff;margin:4px;font-size:15px}`,js:`let n=0;\nWebOS.store.get("n").then(v=>{n=+v||0;cnt.textContent="Taps: "+n});\nbtn.onclick=()=>{cnt.textContent="Taps: "+(++n);WebOS.store.set("n",n)};\nntf.onclick=()=>WebOS.notify("Hello","From my own app!");\nsav.onclick=async()=>{try{await WebOS.fs.write("/home/user/Documents/hello.txt","Hi from a .web app");out.textContent="Saved!"}catch(e){out.textContent=e.message}};`};
+function studioApp(el){
+ let D=LS.get("draft",null)||{name:"Hello App",icon:"👋",color:"#6388d9",version:"1.0",perms:["storage","notifications"],...TPL},tab="html",view="ed";
+ function draw(){
+  if(view==="my"){el.innerHTML=`<div class="row"><button class="btn secondary" data-v="ed">‹ Editor</button><b class="grow" style="text-align:center">My .web apps</b></div><div style="height:10px"></div>`+(PKGS.map(p=>`<div class="card"><div class="row"><span style="font-size:26px">${esc(p.icon)}</span><div class="grow"><b>${esc(p.name)}</b><div class="small">v${esc(p.version)} · ${p.perms.length?p.perms.map(x=>PERMS[x][0]).join(", "):"no permissions"}</div></div></div><div class="row" style="margin-top:8px"><button class="btn secondary grow" data-e="${p.id}">Edit</button><button class="btn secondary grow" data-x="${p.id}">Export</button><button class="btn danger" data-d="${p.id}">Delete</button></div></div>`).join("")||'<p class="small">No packages installed yet.</p>');return}
+  el.innerHTML=`<div class="row"><button class="btn secondary" data-v="my">My apps (${PKGS.length})</button><button class="btn secondary grow" data-a="ex">Example</button><label class="btn secondary">📦 Import<input type="file" accept=".web,.json,.html" hidden data-imp></label></div><div class="row" style="margin-top:10px"><input class="field" style="width:70px;text-align:center;margin:0" data-f="icon" value="${esc(D.icon)}"><input class="field grow" style="margin:0" data-f="name" value="${esc(D.name)}" placeholder="App name"><input type="color" data-f="color" value="${D.color}" style="width:46px;height:46px;border:0;background:none"></div><div class="small" style="margin:10px 0 6px">Permissions this app may request</div><div class="row" style="flex-wrap:wrap">${Object.keys(PERMS).map(p=>`<label class="small" style="background:#ffffff12;border-radius:10px;padding:6px 8px"><input type="checkbox" data-p="${p}" ${D.perms.includes(p)?"checked":""}> ${PERMS[p][0]}</label>`).join("")}</div><div class="row" style="margin:10px 0">${["html","css","js"].map(t=>`<button class="btn ${tab===t?"":"secondary"} grow" data-t="${t}">${t.toUpperCase()}</button>`).join("")}</div><textarea class="field" data-f="${tab}" spellcheck="false" style="min-height:240px;font:12px monospace;white-space:pre;margin-top:0">${esc(D[tab])}</textarea><div class="row"><button class="btn grow" data-a="run">▶ Install & run</button><button class="btn secondary grow" data-a="pkg">⬇ Export .web</button></div><p class="small">In your JS use the WebOS object: toast(), notify(), store.get/set(), fs.read/write/ls/mkdir/rm() (inside /home/user), clipboard.write(), perms.request(), app.close(), app.info().</p>`}
+ el.oninput=e=>{const f=e.target.dataset.f;if(f){D[f]=e.target.value;LS.set("draft",D)}};
+ el.onchange=e=>{const p=e.target.dataset.p;if(p){D.perms=D.perms.filter(x=>x!==p);if(e.target.checked)D.perms.push(p);LS.set("draft",D)}};
+ el.onclick=async e=>{const t=e.target,a=t.dataset.a;
+  if(t.dataset.v){view=t.dataset.v;return draw()}
+  if(t.dataset.t){tab=t.dataset.t;return draw()}
+  if(t.dataset.e){const p=PKGS.find(x=>x.id===t.dataset.e);if(p){D={...p,perms:[...p.perms]};view="ed";tab="html";LS.set("draft",D);draw()}return}
+  if(t.dataset.x){const p=PKGS.find(x=>x.id===t.dataset.x);if(p)exportPkg(p);return}
+  if(t.dataset.d){delPkg(t.dataset.d);return draw()}
+  if(a==="ex"){D={...D,...TPL,perms:["storage","notifications"]};delete D.id;LS.set("draft",D);draw()}
+  else if(a==="run"||a==="pkg"){try{const pk=parsePkg(JSON.stringify({...D,web:1}),"x");if(a==="pkg")exportPkg(pk);else if(await confirmPkg(pk)){installPkg(pk);launch(pk.id)}}catch(x){toast(x.message)}}};
+ draw();return{back(){if(view==="my"){view="ed";draw();return true}}}}
+Object.assign(APPS,{studio:{name:"Studio",icon:"🛠",color:"#8a6fd1",perms:[],run:studioApp}});
+PKGS.forEach(registerPkg);
+for(const i of["store","studio"])if(!INST.includes(i)&&!LS.get("seen_"+i,0)){INST.push(i);LS.set("seen_"+i,1);LS.set("inst",INST)}
+function refreshHome(){const w=i=>APPS[i].pkg?2:i==="studio"?1:0,L=Object.keys(APPS).filter(i=>INST.includes(i)).sort((a,b)=>w(b)-w(a)),D=DOCK.filter(i=>INST.includes(i));$("#grid").innerHTML=L.filter(i=>!D.includes(i)).slice(0,12).map(ib).join("");$("#dock").innerHTML=D.map(ib).join("")}
+refreshHome();
+/* ---- v3.2: HTML apps, scan-on-install, long-press app info, animations ---- */
+function metaOf(t,fn){const M={};(t.match(/<meta[^>]*>/gi)||[]).forEach(x=>{const n=(x.match(/name=["']([^"']*)/i)||[])[1],c=(x.match(/content=["']([^"']*)/i)||[])[1];if(n&&c!==undefined)M[n.toLowerCase()]=c});
+ const title=((t.match(/<title>([^<]*)/i)||[])[1]||fn.replace(/\.\w+$/,"")).trim()||"App";
+ return{name:title,icon:M["webos-icon"]||Array.from(title)[0],color:M["theme-color"],version:M["webos-version"],perms:(M["webos-permissions"]||"").split(/[\s,]+/).filter(Boolean),html:t}}
+function KV(id){const o=LS.get("kv_"+id,{}),r={};for(const k in o)if(k.startsWith("ls:")&&o[k]!=null)r[k.slice(3)]=o[k];return JSON.stringify(r).replace(/</g,"\\u003c")}
+function scanPkg(pk){const all=pk.html+pk.css+pk.js,L=["✓ File readable ("+(all.length/1024).toFixed(1)+" KB)","✓ Name: "+pk.name];
+ L.push(/<(audio|video)|new Audio|AudioContext/i.test(all)?"✓ Uses audio/video":"· No media detected");
+ L.push(/https?:\/\//i.test(all)?"⚠ Mentions external web addresses":"✓ Fully self-contained");
+ L.push(pk.perms.length?"⚠ Requests: "+pk.perms.map(p=>PERMS[p][0]).join(", "):"✓ Requests no permissions");return L}
+function confirmPkg(pk){return new Promise(res=>{const d=document.createElement("div");d.className="modal";
+ d.innerHTML=`<div class="dlg"><div style="font-size:40px">${esc(pk.icon)}</div><h3 style="margin:0">${esc(pk.name)}</h3><p class="small" id="sc" style="text-align:left;min-height:90px">Scanning package…</p><div class="row"><button class="btn secondary grow" data-r="0">Cancel</button><button class="btn grow" data-r="1" disabled>Install</button></div></div>`;
+ d.onclick=e=>{const r=e.target.dataset.r;if(r===undefined||e.target.disabled)return;d.remove();res(r==="1")};$("#phone").appendChild(d);
+ const L=scanPkg(pk);let i=0;const t=setInterval(()=>{d.querySelector("#sc").innerHTML=L.slice(0,++i).map(esc).join("<br>");if(i>=L.length){clearInterval(t);d.querySelector("[data-r='1']").disabled=false}},260)})}
+function appSheet(id){if(EDIT)return;const a=APPS[id],pk=PKGS.find(x=>x.id===id),gr=grants[id]||{},d=document.createElement("div");d.className="modal";
+ d.innerHTML=`<div class="dlg"><div style="font-size:40px">${esc(a.icon)}</div><h3 style="margin:0">${esc(a.name)}</h3><p class="small">${pk?"Installed .web app v"+esc(pk.version)+" · "+((pk.html.length+pk.css.length+pk.js.length)/1024).toFixed(1)+" KB":"System app"}<br>${a.perms.length?a.perms.map(p=>PERMS[p][0]+": "+(gr[p]||"ask")).join("<br>"):"No permissions"}</p><button class="btn" data-r="o">Open</button><button class="btn secondary" data-r="s">App settings</button>${HOME.includes(id)||DOCKL.includes(id)?'<button class="btn secondary" data-r="e">Edit home screen</button>':'<button class="btn secondary" data-r="h">Add to home screen</button>'}${pk&&S.dev?'<button class="btn secondary" data-r="x">Export .web</button>':""}${CORE.includes(id)?"":'<button class="btn danger" data-r="u">Uninstall</button>'}<button class="btn secondary" data-r="c">Close</button></div>`;
+ d.onclick=e=>{const r=e.target.dataset.r;if(!r)return;d.remove();if(r==="o")launch(id);else if(r==="s")openAppSettings(id);else if(r==="e"){closeDrawer();home();setEdit(true)}else if(r==="h"){HID=HID.filter(x=>x!==id);if(HOME.length<11&&!HOME.includes(id)){HOME.push(id);saveLay();refreshHome();toast("Added to home screen")}else toast("Home screen is full")}else if(r==="x")exportPkg(pk);else if(r==="u"){if(pk)delPkg(id);else{[...procs.values()].filter(p=>p.app===id).forEach(p=>kill(p.pid));INST=INST.filter(x=>x!==id);LS.set("inst",INST);refreshHome();toast("Removed "+a.name)}}};
+ $("#phone").appendChild(d)}
+let lp=null,lpd=false,lx=0,ly=0;
+document.addEventListener("pointerdown",e=>{const ic=e.target.closest&&e.target.closest(".ic[data-app]");lpd=false;clearTimeout(lp);lp=null;if(!ic)return;
+ const r=ic.getBoundingClientRect(),b=$("#phone").getBoundingClientRect(),ph=$("#phone").style;ph.setProperty("--ox",(r.left+r.width/2-b.left)+"px");ph.setProperty("--oy",(r.top+r.height/2-b.top-36)+"px");
+ lx=e.clientX;ly=e.clientY;lp=setTimeout(()=>{lpd=true;appSheet(ic.dataset.app)},550)},true);
+document.addEventListener("pointermove",e=>{if(lp&&Math.hypot(e.clientX-lx,e.clientY-ly)>12){clearTimeout(lp);lp=null}},true);
+["pointerup","pointercancel"].forEach(t=>document.addEventListener(t,()=>{clearTimeout(lp);lp=null},true));
+document.addEventListener("click",e=>{if(lpd){lpd=false;e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(".ic"))e.preventDefault()});
+document.addEventListener("click",async e=>{const t=e.target.closest&&e.target.closest("[data-a='ins']");if(!t)return;const b=t.closest(".body"),ta=b.querySelector("textarea"),nm=(b.querySelector(".small")||{}).textContent||"app.html";
+ try{const pk=parsePkg(ta.value,nm.split("/").pop());if(await confirmPkg(pk)){installPkg(pk);toast("Installed "+pk.name)}}catch(x){toast("Install failed: "+x.message)}});
+const TILE=`<label class="ic" style="cursor:pointer"><i style="--c:#ffffff24">＋</i>Install app<input type="file" accept=".web,.json,.html,.htm,text/html,application/json" hidden data-imp></label>`;
+const _rh=refreshHome;refreshHome=()=>{_rh();const g=$("#grid");while(g.children.length>11)g.lastElementChild.remove();g.insertAdjacentHTML("beforeend",TILE)};refreshHome();
+const _home=home;home=()=>{const p=procs.get(fg);if(p&&!S.nomo){const el=p.el;el.classList.add("out");setTimeout(()=>el.classList.remove("out"),200)}_home()};
+/* ---- v3.3: home layout editor, app settings, clean Settings, new Recents ---- */
+var HOME=LS.get("home",null),DOCKL=LS.get("dockl",null),HID=LS.get("hid",[]),EDIT=false,SEL=null,SETPG=null,READY=false;
+function saveLay(){LS.set("home",HOME);LS.set("dockl",DOCKL);LS.set("hid",HID)}
+function layoutFix(){const w=i=>APPS[i].pkg?2:i==="studio"?1:0,ins=Object.keys(APPS).filter(i=>INST.includes(i)).sort((a,b)=>w(b)-w(a));
+ if(!DOCKL)DOCKL=DOCK.filter(i=>ins.includes(i));
+ if(!HOME)HOME=ins.filter(i=>!DOCKL.includes(i)).slice(0,11);
+ HOME=HOME.filter(i=>ins.includes(i));DOCKL=DOCKL.filter(i=>ins.includes(i));
+ const SN=LS.get("seenapps",[]);for(const i of ins)if(!SN.includes(i)){SN.push(i);if(!HOME.includes(i)&&!DOCKL.includes(i)&&HOME.length<11)HOME.push(i)}
+ LS.set("seenapps",SN);saveLay()}
+function ib2(id){let h=ib(id);if(SEL===id)h=h.replace('class="ic"','class="ic sel"');return EDIT?h.replace("</button>",`<b class="xb" data-rm="${id}">−</b></button>`):h};
+function refreshHome(){if(!READY)return;layoutFix();$("#grid").innerHTML=HOME.map(ib2).join("");$("#dock").innerHTML=DOCKL.map(ib2).join("")}
+function swapApps(a,b){const A=HOME.includes(a)?HOME:DOCKL,B=HOME.includes(b)?HOME:DOCKL,i=A.indexOf(a),j=B.indexOf(b);A[i]=b;B[j]=a}
+const ED=document.createElement("button");ED.id="editdone";ED.className="btn";ED.textContent="Done";ED.hidden=true;ED.style.cssText="position:absolute;top:42px;right:16px;z-index:46";ED.onclick=()=>setEdit(false);$("#phone").appendChild(ED);
+function setEdit(v){EDIT=v;SEL=null;ED.hidden=!v;$("#home").classList.toggle("edit",v);$("#dock").classList.toggle("edit",v);refreshHome();if(v)toast("Tap an app, then another to swap · tap − to remove")}
+document.addEventListener("click",e=>{if(!EDIT)return;const t=e.target,rm=t.closest&&t.closest("[data-rm]"),ic=t.closest&&t.closest("#home .ic[data-app],#dock .ic[data-app]");
+ if(!rm&&!ic)return;e.stopPropagation();e.preventDefault();const id=rm?rm.dataset.rm:ic.dataset.app;
+ if(rm){HOME=HOME.filter(x=>x!==id);DOCKL=DOCKL.filter(x=>x!==id);if(!HID.includes(id))HID.push(id);SEL=null}
+ else if(!SEL)SEL=id;else if(SEL===id)SEL=null;else{swapApps(SEL,id);SEL=null}
+ saveLay();refreshHome()},true);
+const _h2=home;home=()=>{if(EDIT)setEdit(false);_h2()};
+const _back=back;back=()=>{if(EDIT)return setEdit(false);return _back()};READY=true;$("#nb").onclick=back;
+refreshHome();
+function openAppSettings(id){const p=[...procs.values()].find(x=>x.app==="settings");SETPG="app:"+id;if(p&&p.inst&&p.inst.go){p.inst.go(SETPG);SETPG=null;show(p)}else launch("settings")}
+function settingsApp(el){
+ let pg="root";if(SETPG){pg=SETPG;SETPG=null}
+ const ACC=".web,.json,.html,.htm,text/html,application/json",
+ row=(i,t,s,go)=>`<div class="lr" data-go="${go}"><span class="i">${i}</span><div class="grow"><b>${t}</b>${s?`<div class="small">${s}</div>`:""}</div><span class="small">›</span></div>`,
+ tg=(k,n)=>`<div class="row" style="padding:10px 0"><span class="grow">${n}</span><button class="sw ${S[k]?"on":""}" data-t="${k}"></button></div>`,
+ seg=(id,pm,cur)=>`<div class="seg">${["ask","allow","deny"].map(v=>`<button class="${cur===v?"on":""}" data-g="${id}|${pm}|${v}">${v}</button>`).join("")}</div>`,
+ kvSize=id=>JSON.stringify(LS.get("kv_"+id,{})).length,
+ PGT={display:"Display",conn:"Connections",sound:"Sound & haptics",sec:"Security",apps:"Apps",stor:"Storage",about:"About",priv:"Privacy",dev:"Developer"};
+ function draw(){let h="";const isA=pg.startsWith("app:"),bk=pg==="root"?"":`<div class="row" style="margin-bottom:12px"><button class="btn secondary" data-go="${isA?"apps":"root"}">‹</button><b class="grow">${isA?"App info":PGT[pg]}</b></div>`;
+  if(pg==="root")h=row("🎨","Display","Accent, wallpaper, brightness","display")+row("📶","Connections","Wi-Fi, Bluetooth, modes","conn")+row("🔊","Sound & haptics","","sound")+row("🔒","Security",S.pin?"PIN on":"No PIN","sec")+row("📱","Apps",INST.length+" installed","apps")+row("💾","Storage",(FS.size()/1024).toFixed(1)+" KB used","stor")+row("ℹ️","About","Web OS 3.3","about")+row("🛡","Privacy","Camera, mic, location","priv")+row("🧑‍💻","Developer",S.dev?"On":"Off","dev");
+  else if(pg==="display")h=`<div class="card"><div class="small">Accent colour</div><input type="color" class="field" value="${S.accent}" data-k="accent"><div class="small">Wallpaper</div><select class="field" data-k="wall">${["Midnight","Violet","Ocean","Dusk","Aurora","Sunset"].map((w,i)=>`<option value="${i}" ${+S.wall===i?"selected":""}>${w}</option>`).join("")}</select><div class="small">Brightness</div><input type="range" min="30" max="100" value="${S.bright}" data-k="bright" style="width:100%"></div><div class="card">${tg("night","Night light")}${tg("nomo","Reduce motion")}${tg("h12","12-hour clock")}${tg("navg","Gesture navigation (hide buttons)")}</div><button class="btn secondary" style="width:100%" data-a="eh2">✎ Edit home screen & dock</button><div style="display:none"></div>`;
+  else if(pg==="conn")h=`<div class="card">${[["wifi","Wi-Fi"],["bt","Bluetooth"],["air","Airplane mode"],["focus","Focus mode"],["saver","Battery saver"]].map(([k,n])=>tg(k,n)).join("")}</div>`;
+  else if(pg==="sound")h=`<div class="card"><div class="small">Volume</div><input type="range" min="0" max="100" value="${S.vol}" data-k="vol" style="width:100%">${tg("hap","Haptic feedback")}</div>`;
+  else if(pg==="sec")h=`<div class="card"><div class="row"><div class="grow">Lock PIN<div class="small">${S.pin?"Enabled":"Not set"}</div></div><button class="btn secondary" data-a="pin">${S.pin?"Remove":"Set"}</button></div></div><div class="card"><div class="small">Auto-lock (needs a PIN)</div><select class="field" data-k="lock">${[[15,"15 seconds"],[30,"30 seconds"],[60,"1 minute"],[300,"5 minutes"],[0,"Never"]].map(([v,n])=>`<option value="${v}" ${+S.lock===v?"selected":""}>${n}</option>`).join("")}</select></div><button class="btn secondary" style="width:100%" data-a="lock">Lock now</button>`;
+  else if(pg==="apps")h=`<label class="btn" style="display:block;text-align:center;margin-bottom:10px">📦 Install app from device<input type="file" accept="${ACC}" hidden data-imp></label><button class="btn secondary" style="width:100%;margin-bottom:12px;${S.dev?"":"display:none"}" data-go2="studio">🛠 Create apps in Studio</button>`+Object.keys(APPS).filter(i=>INST.includes(i)).map(i=>row(APPS[i].icon,esc(APPS[i].name),APPS[i].pkg?"Installed app":"System","app:"+i)).join("");
+  else if(isA){const id=pg.slice(4),a=APPS[id];if(!a){pg="apps";return draw()}
+   const pk=PKGS.find(x=>x.id===id),gr=grants[id]||{},pl=pk?Object.keys(PERMS):a.perms;
+   h=`<div class="card" style="text-align:center"><div style="font-size:44px">${esc(a.icon)}</div><h3 style="margin:6px 0">${esc(a.name)}</h3><div class="small">${pk?"v"+esc(pk.version)+" · "+((pk.html.length+pk.css.length+pk.js.length)/1024).toFixed(1)+" KB":"System app"}</div><button class="btn" style="margin-top:10px" data-open="${id}">Open</button></div><div class="card"><b>Permissions</b>${pl.length?pl.map(p=>`<div class="row" style="margin-top:10px"><span class="grow">${PERMS[p][1]} ${PERMS[p][0]}</span>${seg(id,p,gr[p]||"ask")}</div>`).join(""):'<div class="small" style="margin-top:6px">This app requests no permissions.</div>'}${pk?'<div class="small" style="margin-top:10px">The app restarts when you change a permission. Camera, microphone and location are only available to the app when set to allow.</div>':""}</div>`
+   +(pk?`${errCard(id)}<div class="card"><b>App data</b><div class="small" style="margin:6px 0 10px">Saved data: ${(kvSize(id)/1024).toFixed(1)} KB</div><button class="btn secondary" style="width:100%" data-a="cl:${id}">Clear app data</button></div><div class="row"><button class="btn secondary grow" ${S.dev?"":"hidden"} data-a="ex:${id}">Export .web</button><button class="btn danger grow" data-a="un:${id}">Uninstall</button></div>`:CORE.includes(id)?"":`<button class="btn danger" style="width:100%" data-a="un:${id}">Uninstall</button>`)}
+  else if(pg==="priv")h=`<div class="card"><div class="small" style="margin-bottom:6px">Block hardware for every app at once</div>${tg("nocam","Camera off")}${tg("nomic","Microphone off")}${tg("noloc","Location off")}</div><button class="btn secondary" style="width:100%" data-go="apps">Review app permissions</button>`;
+  else if(pg==="dev")h=`<div class="card">${tg("dev","Developer mode")}<div class="small">Shows Studio and lets you export installed apps as .web files. Exports ask for your PIN when one is set. Exported files are plain text, so anyone holding one can read the code.</div></div>${S.dev?'<button class="btn secondary" style="width:100%;margin-bottom:8px" data-go2="studio">Open Studio</button>':""}<div class="card"><b>Installed .web apps</b><div class="small">${PKGS.length} apps · ${(JSON.stringify(PKGS).length/1024).toFixed(0)} KB of code</div></div>`;
+  else if(pg==="stor")h=`${storCard()}<button class="btn secondary" style="width:100%;margin-bottom:8px" data-a="rp">Reset all permissions</button><button class="btn secondary" style="width:100%;margin-bottom:8px" data-a="rh">Reset home layout</button><button class="btn danger" style="width:100%" data-a="rf">Format files</button>`;
+  else h=`<div class="card"><b>Web OS 3.3</b><div class="small" style="margin-top:6px">Screen ${innerWidth}×${innerHeight}<br>${procs.size} running · ${INST.length} apps · ${PKGS.length} .web apps<br>${esc(navigator.platform||"")}</div></div>`;
+  el.innerHTML=bk+h}
+ el.oninput=e=>{const k=e.target.dataset.k;if(!k)return;S[k]=k==="accent"?e.target.value:+e.target.value;applyS();if(k==="vol")document.querySelectorAll("audio").forEach(a=>a.volume=S.vol/100)};
+ el.onclick=async e=>{const t=e.target.closest("[data-go],[data-g],[data-a],[data-open],[data-go2]");if(!t)return;const d=t.dataset;
+  if(d.go){pg=d.go;return draw()}
+  if(d.go2||d.open)return launch(d.go2||d.open);
+  if(d.g){const[id,p,v]=d.g.split("|");grants[id]=grants[id]||{};if(v==="ask")delete grants[id][p];else grants[id][p]=v;LS.set("grants",grants);if(APPS[id]&&APPS[id].pkg)[...procs.values()].filter(x=>x.app===id).forEach(x=>kill(x.pid));return draw()}
+  const[a,id]=(d.a||"").split(":");
+  if(a==="lock")lock();
+  else if(a==="pin"){if(S.pin){const c=await dlg("Enter current PIN","","password");if(c!==null&&await hash(c)===S.pin){S.pin="";applyS();toast("PIN removed")}else if(c!==null)toast("Wrong PIN")}else{const v=await dlg("Choose a 4-digit PIN","","password");if(v===null)return;if(!/^\d{4}$/.test(v))return toast("PIN must be 4 digits");S.pin=await hash(v);applyS();toast("PIN set")}draw()}
+  else if(a==="rp"){grants={};LS.set("grants",grants);toast("Permissions reset")}
+  else if(a==="rh"){HOME=null;DOCKL=null;HID=[];LS.set("seenapps",[]);refreshHome();toast("Home layout reset")}
+  else if(a==="rf"){const c=await dlg("Type FORMAT to erase all files");if(c==="FORMAT"){LS.set("fs",null);try{localStorage.removeItem("wos3_fs")}catch{}toast("Reload to recreate the file system")}}
+  else if(a==="cl"){const c=await dlg("Type CLEAR to erase this app's data");if(c==="CLEAR"){LS.set("kv_"+id,{});[...procs.values()].filter(x=>x.app===id).forEach(x=>kill(x.pid));toast("App data cleared");draw()}}
+  else if(a==="ex"){const pk=PKGS.find(x=>x.id===id);if(pk)exportPkg(pk)}else if(a==="rs"){[...procs.values()].filter(x=>x.app===id).forEach(x=>kill(x.pid));launch(id)}else if(a==="cc"){try{navigator.clipboard.writeText((ERRS[id]||[]).join("\n"))}catch{}toast("Log copied")}else if(a==="cm"){COMPAT[id]=!COMPAT[id];LS.set("compat",COMPAT);[...procs.values()].filter(x=>x.app===id).forEach(x=>kill(x.pid));draw()}
+  else if(a==="un"){if(PKGS.some(x=>x.id===id))delPkg(id);else{[...procs.values()].filter(p=>p.app===id).forEach(p=>kill(p.pid));INST=INST.filter(x=>x!==id);LS.set("inst",INST);refreshHome();toast("Removed")}pg="apps";draw()}};
+ draw();return{go(x){pg=x;draw()},back(){if(pg!=="root"){pg=pg.startsWith("app:")?"apps":"root";draw();return true}}}}
+function renderRecents(){const L=[...procs.values()];$("#recents").innerHTML=`<div class="row"><h3 class="grow" style="margin:0">Recent apps</h3><button class="btn secondary" data-a="all">Clear all</button></div>`+(L.length?`<div class="rc" style="margin-top:22px">${L.map((p,i)=>{const a=APPS[p.app];return`<div class="rcard" data-pid="${p.pid}" style="--c:${a.color};animation-delay:${i*60}ms"><div class="rh"><span style="font-size:34px">${a.icon}</span><div style="text-align:left"><b>${esc(a.name)}</b><div class="small">${p.pid===fg?"Active":"Running"} · ${Math.round((Date.now()-p.t)/1000)}s</div></div></div><div class="rp"><span style="font-size:78px">${a.icon}</span></div><button class="btn danger" style="width:100%" data-a="x">Close</button></div>`}).join("")}</div><p class="small" style="text-align:center">Tap a card to open · swipe it up to close</p>`:'<p class="small" style="text-align:center;margin-top:60px">No recent apps</p>')}
+let rs=null,swd=false;
+$("#recents").addEventListener("pointerdown",e=>{const c=e.target.closest(".rcard");rs=c?{c,y:e.clientY}:null});
+$("#recents").addEventListener("pointerup",e=>{if(!rs)return;const{c,y}=rs;rs=null;if(y-e.clientY>70){swd=true;c.classList.add("gone");setTimeout(()=>kill(+c.dataset.pid),200)}});
+$("#recents").addEventListener("click",e=>{if(swd){swd=false;e.stopPropagation()}},true);
+const swp=(el,fn)=>{let y0=0,x0=0,st=0;el.addEventListener("touchstart",e=>{y0=e.touches[0].clientY;x0=e.touches[0].clientX;st=el.scrollTop},{passive:true});el.addEventListener("touchend",e=>{const t=e.changedTouches[0],dy=t.clientY-y0;if(Math.abs(dy)>80&&Math.abs(dy)>Math.abs(t.clientX-x0)*1.3)fn(dy,st)},{passive:true})};
+swp($("#drawer"),(dy,st)=>{if(dy>0&&st===0)closeDrawer()});
+swp($("#shade"),dy=>{if(dy<0)toggleShade(false)});
+function confirmPkg(pk){return new Promise(res=>{const d=document.createElement("div");d.className="modal";
+ d.innerHTML=`<div class="dlg"><div style="font-size:40px">${esc(pk.icon)}</div><h3 style="margin:0">${esc(pk.name)}</h3><p class="small" id="sc" style="text-align:left;min-height:90px">Scanning package…</p><div class="row"><button class="btn secondary grow" data-r="0">Cancel</button><button class="btn grow" data-r="1" disabled>Install</button></div></div>`;
+ d.onclick=e=>{const r=e.target.dataset.r;if(r===undefined||e.target.disabled)return;
+  if(r==="1"){const p=d.querySelector(".dlg");p.innerHTML=`<div style="font-size:48px;animation:pop .4s">${esc(pk.icon)}</div><h3 style="margin:0">Installing ${esc(pk.name)}…</h3><div class="bar"><i></i></div>`;setTimeout(()=>{p.querySelector("h3").textContent="Installed ✓";setTimeout(()=>{d.remove();res(true)},450)},900);return}
+  d.remove();res(false)};
+ $("#phone").appendChild(d);
+ const L=scanPkg(pk);let i=0;const t=setInterval(()=>{d.querySelector("#sc").innerHTML=L.slice(0,++i).map(esc).join("<br>");if(i>=L.length){clearInterval(t);d.querySelector("[data-r='1']").disabled=false}},260)})}
+const _ip=installPkg;installPkg=pk=>{_ip(pk);setTimeout(()=>{const c=procs.get(fg);if(c&&c.app===pk.id)return;openDrawer();const b=document.querySelector('#dg [data-app="'+pk.id+'"]');if(b){b.classList.add("new");b.scrollIntoView({block:"center"})}},300)};
+const ERRS={};
+BR.log=(s,i,p,k,t)=>{const L=ERRS[i]=ERRS[i]||[];L.push(k+": "+String(t).slice(0,300));if(L.length>60)L.shift();if(k==="error"&&!S.focus)toast("⚠ "+APPS[i].name+": "+String(t).slice(0,70))};
+function errCard(id){const L=ERRS[id]||[];return`<div class="card"><b>Console</b>${L.length?`<div class="term" style="min-height:0;max-height:160px;overflow:auto;margin-top:8px">${esc(L.slice(-12).join("\n"))}</div>`:'<div class="small" style="margin-top:6px">No output yet. console.log() and JavaScript errors from the app appear here.</div>'}</div>`}
+/* ---- v3.4: 100 MB IndexedDB storage, 1 MB apps, compat mode, file import ---- */
+var db=null;
+const QUOTA=100*1048576,COMPAT=LS.get("compat",{}),dirty={};let idbT=null;
+function BIG(k){return k==="fs"||k==="pkgs"||k.startsWith("kv_")}
+function idbOpen(){return new Promise(r=>{try{const q=indexedDB.open("webos3",1);q.onupgradeneeded=()=>q.result.createObjectStore("kv");q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch{r(null)}})}
+function idbFlush(){if(!db)return;for(const k in dirty){delete dirty[k];try{const t=db.transaction("kv","readwrite");t.objectStore("kv").put(mem[k],k);t.oncomplete=()=>{try{localStorage.removeItem("wos3_"+k)}catch{}};t.onerror=t.onabort=()=>toast("Storage error: the device may be out of space")}catch{}}}
+function idbQueue(k){dirty[k]=1;clearTimeout(idbT);idbT=setTimeout(idbFlush,300)}
+addEventListener("pagehide",idbFlush);addEventListener("visibilitychange",()=>{if(document.hidden)idbFlush()});
+async function storageInit(){db=await idbOpen();if(!db)return;
+ const keys=await new Promise(r=>{try{const q=db.transaction("kv").objectStore("kv").getAllKeys();q.onsuccess=()=>r(q.result);q.onerror=()=>r([])}catch{r([])}});
+ for(const k of keys){const v=await new Promise(r=>{try{const q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(undefined)}catch{r(undefined)}});if(v!==undefined)mem[k]=v}
+ try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("wos3_kv_")&&!keys.includes(k.slice(5)))LS.set(k.slice(5),JSON.parse(localStorage.getItem(k)))}}catch{}
+ if(mem.fs)FS.root=mem.fs;else LS.set("fs",FS.root);
+ if(mem.pkgs){PKGS=mem.pkgs;PKGS.forEach(registerPkg)}else if(PKGS.length)LS.set("pkgs",PKGS);
+ refreshHome()}
+async function boot(){const b=$("#boot"),lg=b.querySelector("pre"),w=async l=>{lg.textContent+=l+"\n";await new Promise(r=>setTimeout(r,160))};
+ await w("kernel: mount storage (100 MB)");await storageInit();
+ for(const l of["kernel: init vfs ("+(FS.size()/1048576).toFixed(2)+" MB)","perm: load grants for "+Object.keys(grants).length+" apps","proc: scheduler ready","ui: frosted compositor started"])await w(l);
+ b.hidden=true;lock()}
+function storCard(){const f=FS.size(),a=JSON.stringify(PKGS).length;let k=0;for(const id of Object.keys(APPS))if(APPS[id].pkg)k+=JSON.stringify(LS.get("kv_"+id,{})).length;
+ const t=f+a+k,pc=Math.min(100,t/QUOTA*100),mb=x=>(x/1048576).toFixed(2)+" MB";
+ return`<div class="card"><b>${mb(t)} of 100 MB used</b><div class="bar" style="margin:10px 0"><i style="width:${pc}%;animation:none"></i></div><div class="small">Files ${mb(f)} · Apps ${mb(a)} · App data ${mb(k)}</div></div>`}
+function errCard(id){const L=ERRS[id]||[];return`<div class="card"><b>Console</b>${L.length?`<div class="term" style="min-height:0;max-height:160px;overflow:auto;margin-top:8px">${esc(L.slice(-12).join("\n"))}</div>`:'<div class="small" style="margin-top:6px">No output yet. console.log() and JavaScript errors from the app appear here.</div>'}<div class="row" style="margin-top:10px"><button class="btn secondary grow" data-a="rs:${id}">Restart app</button><button class="btn secondary grow" data-a="cc:${id}">Copy log</button></div></div><div class="card"><div class="row"><div class="grow">Compatibility mode<div class="small">Unlocks IndexedDB and other browser features the sandbox blocks. The app can then read all Web OS data, so only use it for apps you trust.</div></div><button class="sw ${COMPAT[id]?"on":""}" data-a="cm:${id}"></button></div></div>`}
+WALLS.push("radial-gradient(ellipse at 20% 15%,#3ddcc0aa,transparent 45%),radial-gradient(ellipse at 85% 30%,#7b61ffaa,transparent 50%),linear-gradient(160deg,#0b1830,#14122e)","radial-gradient(ellipse at 50% 100%,#ff8a5caa,transparent 55%),radial-gradient(ellipse at 10% 10%,#c34fa0aa,transparent 45%),linear-gradient(170deg,#1b1233,#2b1633)");
+document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||t.dataset.up===undefined)return;const b=t.closest(".body"),cwd=b.querySelector(".row .grow.small").textContent;
+ for(const f of t.files){try{const txt=/^text\/|json|javascript|xml|csv/.test(f.type)||/\.(txt|md|html?|css|js|json|csv|web)$/i.test(f.name);const data=txt?await f.text():await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});FS.write(FS.norm(f.name,cwd),data)}catch(x){toast(x.message);break}}
+ t.value="";b.querySelector('[data-a="rf"]').click();toast("Files imported")});
+/* ---- v3.5: camera (flip + video), music library, gallery videos, power terminal ---- */
+APPS.camera.perms=["camera","microphone","storage"];APPS.music.perms=["storage"];
+document.head.appendChild(Object.assign(document.createElement("style"),{textContent:`.cm{position:absolute;inset:0;background:#000}.cv{width:100%;height:100%;object-fit:cover}.ct{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:4px;border-radius:20px;background:rgba(0,0,0,.35);backdrop-filter:blur(12px)}.ct button{border:0;background:none;padding:7px 14px;border-radius:16px;font-size:13px}.ct button.on{background:#fff;color:#111}.cb{position:absolute;left:0;right:0;bottom:0;padding:18px 24px 22px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(transparent,rgba(0,0,0,.55))}.sh{width:72px;height:72px;border-radius:50%;border:5px solid #fff;background:rgba(255,255,255,.25);transition:.2s}.sh.v{background:#e5484d}.sh.rec{border-radius:20px;transform:scale(.8)}.th,.fp{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);font-size:20px}.rt{position:absolute;top:56px;left:50%;transform:translateX(-50%);background:#e5484dcc;padding:4px 12px;border-radius:14px;font-size:13px}.cmsg{position:absolute;top:45%;left:0;right:0;text-align:center;padding:0 24px;color:#ddd}@keyframes fl{from{opacity:.9}to{opacity:0}}.cm.flash::after{content:"";position:absolute;inset:0;background:#fff;pointer-events:none;animation:fl .3s forwards}.art{width:120px;height:120px;border-radius:28px;margin:0 auto 12px;display:grid;place-items:center;font-size:56px;background:linear-gradient(135deg,var(--accent),#a47be0);color:#17223a;box-shadow:0 14px 34px #0005}.ib{border:0;background:none;font-size:22px;opacity:.7}.ib.on{opacity:1;color:var(--accent)}.ib.big{font-size:34px;opacity:1}.lr.cur{outline:1px solid var(--accent)}.gt{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#000}.gt img,.gt video{width:100%;height:100%;object-fit:cover}.gt span{position:absolute;right:6px;bottom:4px;font-size:14px}`}));
+function cameraApp(el,sys){
+ el.style.cssText="padding:0;overflow:hidden;position:relative";
+ el.innerHTML=`<div class="cm"><video class="cv" autoplay playsinline muted></video><div class="ct"><button data-a="mode:photo" class="on">Photo</button><button data-a="mode:video">Video</button></div><div class="rt" hidden>● 0:00</div><div class="cmsg">Starting camera…</div><div class="cb"><button class="th" data-a="gal">🌄</button><button class="sh" data-a="shot"></button><button class="fp" data-a="flip">⟲</button></div></div>`;
+ const q=s=>el.querySelector(s),v=q("video");
+ let stream,mode="photo",face="user",devs=[],di=0,mr=null,tm=null,sec=0,busy=false,fresh=true;
+ async function start(){if(stream||busy)return;busy=true;
+  try{if(!await sys.need("camera")){q(".cmsg").textContent="Camera permission denied. Change it in Settings › Apps › Camera.";return}
+   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){q(".cmsg").textContent="Camera API unavailable here.";return}
+   const vc=devs.length>1?{deviceId:{exact:devs[di].deviceId}}:{facingMode:{ideal:face}};
+   stream=await navigator.mediaDevices.getUserMedia({video:{...vc,width:{ideal:1280},height:{ideal:720}},audio:false});
+   if(fresh){fresh=false;try{devs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==="videoinput");const id=stream.getVideoTracks()[0].getSettings().deviceId;di=Math.max(0,devs.findIndex(d=>d.deviceId===id))}catch{}}
+   const s=stream.getVideoTracks()[0].getSettings(),front=s.facingMode?s.facingMode==="user":devs.length>1?/front|user|face/i.test(devs[di].label):face==="user";
+   face=front?"user":"environment";v.srcObject=stream;v.style.transform=front?"scaleX(-1)":"";q(".cmsg").textContent=""}
+  catch(e){q(".cmsg").textContent="Camera unavailable: "+e.message}finally{busy=false}}
+ function stop(){mr&&mr.stop();stream&&stream.getTracks().forEach(t=>t.stop());stream=null;v.srcObject=null}
+ async function shot(){
+  if(mode==="photo"){if(!stream||!v.videoWidth)return toast("Camera not ready");const c=document.createElement("canvas"),w=Math.min(1280,v.videoWidth);c.width=w;c.height=w*v.videoHeight/v.videoWidth;c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+   try{await sys.fs.write("/home/user/Pictures/IMG_"+Date.now()+".jpg",c.toDataURL("image/jpeg",.85));q(".cm").classList.add("flash");setTimeout(()=>q(".cm").classList.remove("flash"),300);toast("Photo saved")}catch(e){toast(e.message)}return}
+  if(mr){mr.stop();return}
+  if(!stream)return toast("Camera not ready");if(!window.MediaRecorder)return toast("Video recording is not supported here");
+  let tr=[...stream.getVideoTracks()];
+  if(await sys.need("microphone")){try{const a=await navigator.mediaDevices.getUserMedia({audio:true});tr=tr.concat(a.getAudioTracks())}catch{}}else toast("Recording without sound (microphone not allowed)");
+  const ch=[];mr=new MediaRecorder(new MediaStream(tr));mr.ondataavailable=d=>d.data.size&&ch.push(d.data);
+  mr.onstop=()=>{clearInterval(tm);tr.filter(t=>t.kind==="audio").forEach(t=>t.stop());const type=mr.mimeType||"video/webm";mr=null;q(".rt").hidden=true;q(".sh").classList.remove("rec");const f=new FileReader();f.onload=async()=>{try{await sys.fs.write("/home/user/Pictures/VID_"+Date.now()+(type.includes("mp4")?".mp4":".webm"),f.result);toast("Video saved")}catch(e){toast(e.message)}};f.readAsDataURL(new Blob(ch,{type}))};
+  mr.start(1000);sec=0;q(".rt").hidden=false;q(".sh").classList.add("rec");tm=setInterval(()=>{sec++;q(".rt").textContent="● "+Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0")},1000)}
+ el.onclick=e=>{const b=e.target.closest("[data-a]");if(!b)return;const[a,x]=b.dataset.a.split(":");
+  if(a==="mode"&&!mr){mode=x;el.querySelectorAll(".ct button").forEach(n=>n.classList.toggle("on",n.dataset.a==="mode:"+x));q(".sh").classList.toggle("v",x==="video")}
+  else if(a==="shot")shot();
+  else if(a==="flip"&&!mr){stop();if(devs.length>1)di=(di+1)%devs.length;else face=face==="user"?"environment":"user";start()}
+  else if(a==="gal")launch("gallery")};
+ start();return{pause:stop,resume:start,destroy:stop}}
+function musicApp(el,sys){
+ let T=[],i=-1,sh=false,rp=0,q="";const au=new Audio();au.volume=S.vol/100;
+ const nm=p=>p.split("/").pop().replace(/\.[^.]+$/,"");
+ function walk(n,p,o){for(const[k,x]of Object.entries(n.c)){const f=p+"/"+k;if(x.t==="d")walk(x,f,o);else if(typeof x.d==="string"&&x.d.startsWith("data:audio"))o.push({p:f,n:nm(f),s:x.d.length})}}
+ async function scan(){if(!await sys.need("storage")){el.innerHTML=`<div class="card">Music needs file storage access. Allow it in Settings › Apps › Music.</div>`;return false}
+  try{FS.mkdir("/home/user/Music")}catch{}const o=[],h=FS.node("/home/user");if(h)walk(h,"/home/user",o);o.sort((a,b)=>a.n.localeCompare(b.n));T=o;return true}
+ el.innerHTML=`<div class="card" id="np"></div><div class="row"><input class="field grow" id="ms" placeholder="Search your music" style="margin:0"><label class="btn">＋<input type="file" accept="audio/*" multiple hidden id="mf"></label></div><div id="ml" style="margin-top:10px"></div>`;
+ const $q=s=>el.querySelector(s);
+ function np(){const t=T[i];$q("#np").innerHTML=`<div style="text-align:center"><div class="art">${au.paused?"♫":"♪"}</div><b>${t?esc(t.n):"Nothing playing"}</b><div class="small">${T.length} songs in your library</div><input type="range" id="sk" min="0" max="1000" value="${au.duration?au.currentTime/au.duration*1000:0}" style="width:100%;margin:10px 0"><div class="row" style="justify-content:center;gap:14px"><button class="ib ${sh?"on":""}" data-a="sh">🔀</button><button class="ib" data-a="pv">⏮</button><button class="ib big" data-a="pp">${au.paused?"▶":"⏸"}</button><button class="ib" data-a="nx">⏭</button><button class="ib ${rp?"on":""}" data-a="rp">${rp===2?"🔂":"🔁"}</button></div></div>`}
+ function lib(){const f=T.map((t,k)=>({t,k})).filter(x=>x.t.n.toLowerCase().includes(q));$q("#ml").innerHTML=f.map(({t,k})=>`<div class="lr ${k===i?"cur":""}" data-play="${k}"><span class="i">${k===i&&!au.paused?"♪":"♫"}</span><div class="grow"><b>${esc(t.n)}</b><div class="small">${(t.s/1048576).toFixed(1)} MB · ${esc(t.p.split("/").slice(-2,-1)[0]||"")}</div></div><button class="btn danger" data-del="${k}">✕</button></div>`).join("")||'<p class="small" style="text-align:center;margin-top:30px">No music yet. Tap ＋ to add songs from your phone, or move audio files into Music with the terminal.</p>'}
+ function meta(){try{navigator.mediaSession.metadata=new MediaMetadata({title:T[i].n,artist:"Web OS Music"});const s=navigator.mediaSession;s.setActionHandler("play",()=>au.play());s.setActionHandler("pause",()=>au.pause());s.setActionHandler("nexttrack",()=>nxt(1));s.setActionHandler("previoustrack",()=>nxt(-1))}catch{}}
+ function play(k){if(!T.length)return;i=(k+T.length)%T.length;au.src=FS.read(T[i].p);au.play().catch(()=>{});meta();np();lib()}
+ function nxt(d){if(!T.length)return;if(sh&&d>0)return play(Math.floor(Math.random()*T.length));play(i+d)}
+ au.onended=()=>{if(rp===2)play(i);else if(rp===1||sh||i<T.length-1)nxt(1);else np()};
+ au.onplay=au.onpause=()=>{np();lib()};
+ au.ontimeupdate=()=>{const s=$q("#sk");if(s&&document.activeElement!==s)s.value=au.duration?au.currentTime/au.duration*1000:0};
+ el.onclick=async e=>{const d=e.target.closest("[data-del]");
+  if(d){const t=T[+d.dataset.del];try{FS.rm(t.p)}catch(x){return toast(x.message)}if(T[i]===t){au.pause();i=-1}await scan();lib();np();return}
+  const p=e.target.closest("[data-play]");if(p)return play(+p.dataset.play);
+  const a=e.target.closest("[data-a]");if(!a)return;const v=a.dataset.a;
+  if(v==="pp"){if(i<0)play(0);else au.paused?au.play():au.pause()}else if(v==="pv")nxt(-1);else if(v==="nx")nxt(1);else if(v==="sh"){sh=!sh;np()}else if(v==="rp"){rp=(rp+1)%3;np()}};
+ el.oninput=e=>{if(e.target.id==="sk"&&au.duration)au.currentTime=au.duration*e.target.value/1000;if(e.target.id==="ms"){q=e.target.value.toLowerCase();lib()}};
+ el.onchange=async e=>{if(e.target.id!=="mf")return;let n=0;
+  for(const f of e.target.files){try{const url=await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(new Blob([f],{type:f.type||"audio/mpeg"}))});FS.write("/home/user/Music/"+f.name,url);n++}catch(x){toast(x.message);break}}
+  e.target.value="";await scan();lib();toast(n+" song(s) added")};
+ (async()=>{if(await scan()){lib();np()}})();
+ return{destroy(){au.pause();au.src=""}}}
+function galApp(el,sys){let v=null;
+ async function list(){v=null;if(!await sys.need("storage")){el.innerHTML='<div class="card">Gallery needs file storage access.</div>';return}
+  let it=[];try{it=(await sys.fs.ls("/home/user/Pictures")).filter(([n,x])=>x.t==="f"&&/^data:(image|video)/.test(x.d)).sort((a,b)=>b[1].m-a[1].m)}catch(e){el.innerHTML=`<div class="card">${esc(e.message)}</div>`;return}
+  el.innerHTML=it.length?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${it.map(([n,x])=>x.d.startsWith("data:video")?`<div class="gt" data-n="${esc(n)}"><video src="${x.d}" preload="metadata" muted playsinline style="pointer-events:none"></video><span>▶</span></div>`:`<div class="gt" data-n="${esc(n)}"><img src="${x.d}" alt=""></div>`).join("")}</div>`:`<p class="small" style="text-align:center;margin-top:40px">No photos or videos yet. Capture some with Camera.</p>`}
+ el.onclick=async e=>{const t=e.target.closest("[data-n]"),a=e.target.dataset.a;
+  if(t&&!a){v=t.dataset.n;const d=FS.read("/home/user/Pictures/"+v);el.innerHTML=(d.startsWith("data:video")?`<video src="${d}" controls autoplay playsinline style="width:100%;border-radius:14px"></video>`:`<img src="${d}" style="width:100%;border-radius:14px" alt="">`)+`<p class="small">${esc(v)}</p><button class="btn danger" data-a="del">Delete</button>`}
+  else if(a==="del"){try{await sys.fs.rm("/home/user/Pictures/"+v)}catch(x){toast(x.message)}list()}};
+ list();return{back(){if(v){list();return true}}}}
+function termApp(el,sys){let cwd="/home/user",H=[],hi=0;
+ el.innerHTML=`<div class="term"></div><form class="row"><input class="field grow" style="margin:0" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="command"><button type="button" class="btn secondary" data-u>▲</button><button type="button" class="btn secondary" data-tab>⇥</button><button class="btn">Run</button></form>`;
+ const out=el.querySelector(".term"),inp=el.querySelector("input");
+ const w=t=>{out.textContent+=t+"\n";out.scrollTop=out.scrollHeight};
+ const hist=d=>{if(!H.length)return;hi=Math.max(0,Math.min(H.length,hi+d));inp.value=H[hi]||""};
+ const P=x=>FS.norm(x||".",cwd),kind=p=>{const n=FS.node(p);return n?n.t:null},nf=f=>FS.read(P(f)).split("\n");
+ const tok=s=>[...s.matchAll(/"([^"]*)"|'([^']*)'|(\S+)/g)].map(m=>m[1]??m[2]??m[3]);
+ const walk=(p,f,d=0)=>{for(const[k,x]of FS.ls(p)){const q=p==="/"?"/"+k:p+"/"+k;f(q,x,d);if(x.t==="d")walk(q,f,d+1)}};
+ const sz=n=>n.t==="f"?n.d.length:Object.values(n.c).reduce((s,x)=>s+sz(x),0);
+ const hum=b=>b>1048576?(b/1048576).toFixed(1)+"M":b>1024?(b/1024).toFixed(1)+"K":b+"B";
+ function cpr(a,b){const n=FS.node(a);if(!n)throw Error("No such file: "+a);if(n.t==="f")return FS.write(b,n.d);if(!FS.node(b))FS.mkdir(b);for(const k of Object.keys(n.c))cpr(a+"/"+k,b+"/"+k)}
+ function blob(d){if(!d.startsWith("data:"))return new Blob([d]);const[h,b]=d.split(","),bin=atob(b),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:h.slice(5).split(";")[0]})}
+ function complete(){const m=inp.value.match(/^(.*?)([^\s]*)$/),pre=m[1],t=m[2],i=t.lastIndexOf("/"),dir=t.slice(0,i+1),base=t.slice(i+1);let n;try{n=FS.ls(P(dir||"."))}catch{return}const c=n.filter(([k])=>k.startsWith(base));if(c.length===1)inp.value=pre+dir+c[0][0]+(c[0][1].t==="d"?"/":" ");else if(c.length>1)w(c.map(([k,x])=>k+(x.t==="d"?"/":"")).join("  "))}
+ el.querySelector("[data-u]").onclick=()=>hist(-1);el.querySelector("[data-tab]").onclick=complete;
+ inp.onkeydown=e=>{if(e.key==="ArrowUp"){e.preventDefault();hist(-1)}else if(e.key==="ArrowDown"){e.preventDefault();hist(1)}else if(e.key==="Tab"){e.preventDefault();complete()}};
+ w("Web OS shell 3.5 · simulated · type help");
+ async function cmd(c,a,inp,pp){const fl=a.filter(x=>/^-\w+$/.test(x)).join("").replace(/-/g,""),ar=a.filter(x=>!/^-\w+$/.test(x));switch(c){
+  case"help":return["files: ls [-l] cd pwd cat mkdir [-p] touch rm [-r] mv cp [-r] tree find du stat upload download","text: echo grep [-i -v] wc [-l -w -c] head tail sort uniq","system: ps top kill open apps perms df free uptime uname whoami neofetch install pkgs history date lock clear","tips: use pipes (ls | grep txt), > and >>, && and ; to chain, ⇥ button to complete names"];
+  case"pwd":return[cwd];
+  case"ls":return FS.ls(P(ar[0])).map(([k,x])=>fl.includes("l")?(x.t==="d"?"d ":"- ")+hum(sz(x)).padStart(7)+" "+(x.m?new Date(x.m).toLocaleDateString():"")+" "+k+(x.t==="d"?"/":""):k+(x.t==="d"?"/":""));
+  case"cd":{const t=P(ar[0]||"/home/user");FS.ls(t);cwd=t;return[]}
+  case"cat":{if(!ar.length&&pp)return inp;const o=[];for(const s of ar)o.push(...FS.read(P(s)).slice(0,5000).split("\n"));return o}
+  case"mkdir":for(const s of ar){const p=P(s);if(fl.includes("p")){let c="";for(const g of p.split("/").filter(Boolean)){c+="/"+g;if(!FS.node(c))FS.mkdir(c)}}else FS.mkdir(p)}return[];
+  case"touch":for(const s of ar){const p=P(s);if(!FS.node(p))FS.write(p,"")}return[];
+  case"rm":for(const s of ar){const p=P(s),k=kind(p);if(!k)throw Error("No such file: "+s);if(k==="d"&&!fl.includes("r"))throw Error(s+" is a directory (use rm -r)");FS.rm(p)}return[];
+  case"mv":{if(ar.length<2)throw Error("usage: mv src... dest");const dst=P(ar[ar.length-1]);for(const s of ar.slice(0,-1)){const sp=P(s);FS.mv(sp,kind(dst)==="d"?FS.norm(dst+"/"+sp.split("/").pop()):dst)}return[]}
+  case"cp":{if(ar.length<2)throw Error("usage: cp [-r] src... dest");const dst=P(ar[ar.length-1]);for(const s of ar.slice(0,-1)){const sp=P(s);if(kind(sp)==="d"&&!fl.includes("r"))throw Error(s+" is a directory (use -r)");const t=kind(dst)==="d"?FS.norm(dst+"/"+sp.split("/").pop()):dst;if(t.startsWith(sp+"/"))throw Error("cannot copy into itself");cpr(sp,t)}return[]}
+  case"echo":return[ar.join(" ")];
+  case"grep":{const pat=ar[0]||"",L=pp?inp:ar.slice(1).flatMap(nf),m=x=>fl.includes("i")?x.toLowerCase().includes(pat.toLowerCase()):x.includes(pat);return L.filter(x=>m(x)!==fl.includes("v"))}
+  case"wc":{const L=pp?inp:nf(ar[0]);return[fl.includes("w")?L.join(" ").split(/\s+/).filter(Boolean).length+" words":fl.includes("c")?L.join("\n").length+" chars":L.length+" lines"]}
+  case"head":case"tail":{const L=pp?inp:nf(ar[0]),n=+(a.find(x=>/^-\d+$/.test(x))||"-10").slice(1);return c==="head"?L.slice(0,n):L.slice(-n)}
+  case"sort":return[...(pp?inp:nf(ar[0]))].sort();
+  case"uniq":return(pp?inp:nf(ar[0])).filter((x,i,L)=>i===0||x!==L[i-1]);
+  case"tree":{const r=P(ar[0]),o=[r];walk(r,(p,x,d)=>o.push("  ".repeat(d+1)+"├ "+p.split("/").pop()+(x.t==="d"?"/":"")));return o}
+  case"find":{const r=P(ar[0]&&!ar[0].startsWith("-")?ar[0]:"."),i=a.indexOf("-name"),pat=i>=0?a[i+1]:"*",re=new RegExp("^"+pat.replace(/[^\w*?]/g,"\\$&").replace(/\*/g,".*").replace(/\?/g,".")+"$","i"),o=[];walk(r,p=>{if(re.test(p.split("/").pop()))o.push(p)});return o}
+  case"du":{const r=P(ar[0]),o=FS.ls(r).map(([k,x])=>hum(sz(x)).padStart(8)+"  "+k+(x.t==="d"?"/":""));o.push(hum(sz(FS.node(r))).padStart(8)+"  total");return o}
+  case"stat":{const n=FS.node(P(ar[0]));if(!n)throw Error("No such file");return["name: "+ar[0],"type: "+(n.t==="d"?"directory":"file"),"size: "+hum(sz(n)),"modified: "+(n.m?new Date(n.m).toLocaleString():"-")]}
+  case"upload":{const f=document.createElement("input");f.type="file";f.multiple=true;f.onchange=async()=>{let n=0;for(const x of f.files){try{const txt=/^text\/|json|javascript|xml|csv/.test(x.type)||/\.(txt|md|html?|css|js|json|csv|web)$/i.test(x.name);FS.write(P(x.name),txt?await x.text():await new Promise(r=>{const y=new FileReader();y.onload=()=>r(y.result);y.readAsDataURL(new Blob([x],{type:x.type||"application/octet-stream"}))}));n++}catch(e){w("error: "+e.message);break}}w("uploaded "+n+" file(s) to "+cwd)};f.click();return["choose files…"]}
+  case"download":{const u=URL.createObjectURL(blob(FS.read(P(ar[0])))),b=document.createElement("a");b.href=u;b.download=ar[0].split("/").pop();b.click();setTimeout(()=>URL.revokeObjectURL(u),2000);return["downloading "+b.download]}
+  case"ps":return["PID   APP        UP(s)",...[...procs.values()].map(p=>p.pid+"  "+p.app.padEnd(10)+Math.round((Date.now()-p.t)/1000))];
+  case"top":return["PID   APP        MEM(MB) STATE",...[...procs.values()].map(p=>p.pid+"  "+p.app.padEnd(10)+String(p.mem).padEnd(8)+(p.pid===fg?"fg":"bg"))];
+  case"kill":if(!procs.has(+ar[0]))throw Error("No such process");kill(+ar[0]);return[];
+  case"open":if(!APPS[ar[0]])throw Error("Unknown app");launch(ar[0]);return[];
+  case"apps":return Object.keys(APPS).map(i=>i+(INST.includes(i)?"":" (not installed)"));
+  case"perms":return Object.entries(grants).map(([i,g])=>i+": "+JSON.stringify(g));
+  case"df":return["Used "+(FS.size()/1048576).toFixed(2)+" MB of 100 MB"];
+  case"free":{const h=performance.memory;return[h?"JS heap: "+(h.usedJSHeapSize/1048576).toFixed(1)+" / "+(h.jsHeapSizeLimit/1048576).toFixed(0)+" MB":"memory info unavailable"]}
+  case"uptime":return["up "+Math.round((Date.now()-T0)/1000)+"s, "+procs.size+" processes"];
+  case"uname":return["WebOS 3.5 (JavaScript, "+navigator.platform+")"];
+  case"whoami":return["user"];
+  case"neofetch":return["user@webos","OS: Web OS 3.5 (simulated)","Kernel: JavaScript (browser)","Apps: "+INST.length+" installed","Procs: "+procs.size,"Disk: "+(FS.size()/1048576).toFixed(2)+" MB / 100 MB"];
+  case"install":{const pk=parsePkg(FS.read(P(ar[0])),ar[0]);if(!await confirmPkg(pk))return["cancelled"];installPkg(pk);return["installed "+pk.name+" ("+pk.id+")"]}
+  case"pkgs":return PKGS.map(p=>p.id+" v"+p.version);
+  case"history":return H.map((x,i)=>(i+1)+"  "+x);
+  case"date":return[new Date().toString()];
+  case"lock":lock();return[];
+  case"clear":out.textContent="";return[];
+  default:throw Error("command not found: "+c)}}
+ async function run1(l){let redir=null,app=false;const m=l.match(/^(.*?)\s*(>>?)\s*(\S+)$/);if(m){l=m[1];app=m[2]===">>";redir=m[3]}
+  let o=[];const st=l.split(/\s*\|\s*/);for(let k=0;k<st.length;k++){const t=tok(st[k]);if(!t.length)continue;o=await cmd(t[0],t.slice(1),o,k>0)}
+  if(redir){const p=P(redir),pre=app&&FS.node(p)?FS.read(p)+"\n":"";FS.write(p,pre+o.join("\n"))}else if(o.length)w(o.join("\n"))}
+ async function run(l){if(!await sys.need("storage"))throw Error("Permission denied: storage");for(const part of l.split(/\s*(?:&&|;)\s*/))if(part)await run1(part)}
+ el.querySelector("form").onsubmit=async e=>{e.preventDefault();const l=inp.value.trim();inp.value="";if(l){H.push(l);hi=H.length}w("$ "+l);if(l)try{await run(l)}catch(x){w("error: "+x.message)}};
+ return{}}
+/* ---- v3.6: developer mode, installer sheet, drag & drop home, more quick settings ---- */
+document.head.appendChild(Object.assign(document.createElement("style"),{textContent:`.sheetm{place-items:end center;padding:0}.sheet{width:100%;background:rgba(26,34,56,.72);backdrop-filter:blur(34px) saturate(1.6);-webkit-backdrop-filter:blur(34px) saturate(1.6);border:1px solid #ffffff26;border-radius:28px 28px 0 0;padding:14px 18px 22px;animation:sheet .38s cubic-bezier(.22,1.1,.36,1);text-align:center;max-height:92%;overflow:auto}@keyframes sheet{from{transform:translateY(100%)}}.grab{width:42px;height:4px;border-radius:4px;background:#fff5;margin:0 auto 14px}.aic{width:60px;height:60px;border-radius:20px;display:grid;place-items:center;font-size:30px;background:var(--c);box-shadow:0 8px 20px #0005;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}.st2{opacity:0;animation:fin .35s forwards;text-align:left;font-size:13px;padding:3px 0}.steps{margin:14px 0 4px;min-height:60px}.done{animation:pop .5s cubic-bezier(.2,1.5,.4,1)}#home:not(.edit) .ic,#dock:not(.edit) .ic{animation:pop2 .45s cubic-bezier(.2,1.4,.4,1) backwards;animation-delay:var(--d,0ms)}@keyframes pop2{from{transform:scale(.4);opacity:0}}.nav.g button{visibility:hidden}.nav.g::after{content:"";position:absolute;left:50%;bottom:9px;width:110px;height:4px;border-radius:4px;background:#fffd;transform:translateX(-50%)}`}));
+function exportPkg(pk){if(!S.dev)return toast("Turn on Developer mode in Settings › Developer to export");
+ const go=()=>{const json=JSON.stringify({web:1,...pk},null,1),fn=pk.name.replace(/[^\w-]+/g,"_")+".web";try{FS.write("/home/user/Downloads/"+fn,json)}catch{}try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([json],{type:"application/json"}));a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}catch{}try{navigator.clipboard.writeText(json)}catch{}toast("Saved Downloads/"+fn+" (also copied)")};
+ if(!S.pin)return go();dlg("Enter PIN to export","","password").then(async c=>{if(c!==null&&await hash(c)===S.pin)go();else if(c!==null)toast("Wrong PIN")})}
+async function importMany(L){for(const f of L)await importFile(f)}
+document.addEventListener("click",e=>{const i=e.target;if(i.dataset&&i.dataset.imp!==undefined)i.multiple=true},true);
+function confirmPkg(pk){return new Promise(res=>{
+ const old=PKGS.find(x=>x.id===pk.id),all=pk.html+pk.css+pk.js,g=grants[pk.id]||{},ch={},L=scanPkg(pk),d=document.createElement("div");d.className="modal sheetm";
+ d.innerHTML=`<div class="sheet"><div class="grab"></div><div class="row" style="gap:14px"><div class="aic" style="--c:${esc(pk.color)}">${esc(pk.icon)}</div><div class="grow" style="text-align:left"><b style="font-size:18px">${esc(pk.name)}</b><div class="small">v${esc(pk.version)} · ${(all.length/1024).toFixed(1)} KB${old?" · update from v"+esc(old.version):""}</div></div></div><div class="steps">${L.map((l,i)=>`<div class="st2" style="animation-delay:${i*220}ms">${esc(l)}</div>`).join("")}</div>${pk.perms.length?`<div class="small" style="text-align:left;margin:10px 0 4px">Permissions it asks for</div>${pk.perms.map(p=>`<div class="row" style="margin:6px 0"><span class="grow" style="text-align:left">${PERMS[p][1]} ${PERMS[p][0]}</span><div class="seg" data-p="${p}">${["ask","allow","deny"].map(v=>`<button class="${(g[p]||"ask")===v?"on":""}" data-v="${v}">${v}</button>`).join("")}</div></div>`).join("")}`:""}<div class="row" style="margin-top:14px"><button class="btn secondary grow" data-r="0">Cancel</button><button class="btn grow" data-r="1" disabled>${old?"Update":"Install"}</button></div></div>`;
+ $("#phone").appendChild(d);setTimeout(()=>{const b=d.querySelector("[data-r='1']");if(b)b.disabled=false},L.length*220+200);
+ async function inst(){const s=d.querySelector(".sheet");s.innerHTML=`<div class="aic" style="--c:${esc(pk.color)};margin:8px auto 14px">${esc(pk.icon)}</div><b>Installing ${esc(pk.name)}…</b><div class="bar" style="margin:14px 0"><i></i></div><div id="stp" class="small"></div>`;
+  for(const t of["Verifying package","Copying files","Registering app"]){s.querySelector("#stp").textContent=t+"…";await new Promise(r=>setTimeout(r,360))}
+  s.innerHTML=`<div class="aic done" style="--c:${esc(pk.color)};margin:8px auto 10px">✓</div><b>${esc(pk.name)} installed</b><div class="small" style="margin:6px 0 14px">Find it in your app drawer${HOME.length<11?" and on the home screen":""}.</div><div class="row"><button class="btn secondary grow" data-r="d">Done</button><button class="btn grow" data-r="o">Open</button></div>`}
+ d.onclick=e=>{const t=e.target,r=t.dataset.r,v=t.dataset.v;
+  if(v){ch[t.parentElement.dataset.p]=v;t.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===t));return}
+  if(r===undefined||t.disabled)return;
+  if(r==="1"){for(const p in ch){grants[pk.id]=grants[pk.id]||{};if(ch[p]==="ask")delete grants[pk.id][p];else grants[pk.id][p]=ch[p]}LS.set("grants",grants);inst();return}
+  d.remove();if(r==="0")return res(false);res(true);if(r==="o")setTimeout(()=>launch(pk.id),500)}})}
+let dg=null,dragged=false,lh=null,hx=0,hy=0;
+document.addEventListener("pointerdown",e=>{if(!EDIT)return;const ic=e.target.closest&&e.target.closest("#home .ic[data-app],#dock .ic[data-app]");if(!ic||e.target.closest("[data-rm]"))return;dg={id:ic.dataset.app,x:e.clientX,y:e.clientY,ic,g:null}},true);
+document.addEventListener("pointermove",e=>{if(!dg)return;
+ if(!dg.g){if(Math.hypot(e.clientX-dg.x,e.clientY-dg.y)<8)return;const r=dg.ic.getBoundingClientRect(),g=dg.ic.cloneNode(true);g.className="ic ghost";g.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;z-index:300;pointer-events:none;transform:scale(1.15);opacity:.92;filter:drop-shadow(0 12px 18px #0008);animation:none`;document.body.appendChild(g);dg.g=g;dg.ox=e.clientX-r.left;dg.oy=e.clientY-r.top;dg.ic.style.opacity=".25"}
+ dg.g.style.left=(e.clientX-dg.ox)+"px";dg.g.style.top=(e.clientY-dg.oy)+"px"},true);
+addEventListener("pointerup",e=>{if(!dg)return;const d=dg;dg=null;if(!d.g)return;dragged=true;d.g.remove();d.ic.style.opacity="";
+ const el=document.elementFromPoint(e.clientX,e.clientY),t=el&&el.closest&&el.closest("#home .ic[data-app],#dock .ic[data-app]"),id=d.id,rem=a=>{HOME=HOME.filter(x=>x!==a);DOCKL=DOCKL.filter(x=>x!==a)};
+ if(t&&t.dataset.app!==id){const tid=t.dataset.app;rem(id);const arr=HOME.includes(tid)?HOME:DOCKL;arr.splice(arr.indexOf(tid),0,id)}
+ else if(!t&&el&&el.closest&&el.closest("#dock")){rem(id);DOCKL.push(id)}
+ else if(!t&&el&&el.closest&&el.closest("#home")){rem(id);HOME.push(id)}
+ while(DOCKL.length>5)HOME.push(DOCKL.pop());saveLay();refreshHome()},true);
+addEventListener("click",e=>{if(dragged){dragged=false;e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener("pointerdown",e=>{if(EDIT||locked)return;const t=e.target;if(t.closest&&t.closest("#home,#dock")&&!t.closest(".ic")&&!t.closest("form")){hx=e.clientX;hy=e.clientY;lh=setTimeout(()=>setEdit(true),650)}},true);
+document.addEventListener("pointermove",e=>{if(lh&&Math.hypot(e.clientX-hx,e.clientY-hy)>12){clearTimeout(lh);lh=null}},true);
+["pointerup","pointercancel"].forEach(t=>document.addEventListener(t,()=>{clearTimeout(lh);lh=null},true));
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-a='eh2']");if(b){home();setEdit(true)}});
+function drawShade(){const T=[["wifi","📶","Wi-Fi"],["bt","ᛒ","Bluetooth"],["air","✈","Airplane"],["focus","◐","Focus"],["silent","🔕","Silent"],["saver","🔋","Battery saver"],["night","🌙","Night light"],["rot","🔄","Auto-rotate"],["hot","📡","Hotspot"],["nocam","📷","Camera off"],["nomic","🎙","Mic off"],["noloc","📍","Location off"]];
+ $("#shade").innerHTML=`<div class="row"><h3 class="grow" style="margin:0">Quick settings</h3><button class="btn secondary" data-a="lock">🔒</button></div><div class="qg" style="margin:14px 0">${T.map(([k,i,n])=>`<button class="q ${S[k]?"on":""}" data-t="${k}"><i>${i}</i>${n}</button>`).join("")}</div><div class="card"><div class="small">☀ Brightness</div><input type="range" min="30" max="100" value="${S.bright}" data-k="bright" style="width:100%"><div class="small" style="margin-top:8px">🔊 Volume</div><input type="range" min="0" max="100" value="${S.vol}" data-k="vol" style="width:100%"></div><div class="row" style="margin-bottom:6px"><button class="btn secondary grow" data-a="eh">✎ Edit home</button><button class="btn secondary grow" data-a="st">⚙ Settings</button></div><div class="row"><h3 class="grow">Notifications</h3><button class="btn secondary" data-a="clr">Clear</button></div>`+(N.map((n,i)=>`<div class="card"><b>${esc(n.app)}</b> · ${esc(n.title)}<div class="small">${esc(n.body||"")}</div><button class="btn secondary" style="margin-top:8px" data-i="${i}">Dismiss</button></div>`).join("")||'<p class="small">No notifications</p>')}
+$("#shade").addEventListener("click",e=>{const a=e.target.dataset.a;if(a==="eh"){toggleShade(false);home();setEdit(true)}else if(a==="st"){toggleShade(false);launch("settings")}});
+const _ap=askPerm;askPerm=(app,perm)=>{if((perm==="camera"&&S.nocam)||(perm==="microphone"&&S.nomic)||(perm==="location"&&S.noloc)){toast(PERMS[perm][0]+" is switched off in Quick Settings");return Promise.resolve(false)}return _ap(app,perm)};
+const _pl=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){this.muted=!!S.silent;return _pl.apply(this,arguments)};
+let devPrev;const _aS=applyS;applyS=()=>{_aS();$(".nav").classList.toggle("g",!!S.navg);
+ if(devPrev!==!!S.dev){const first=devPrev===undefined;devPrev=!!S.dev;
+  if(S.dev&&!INST.includes("studio")){INST.push("studio");LS.set("inst",INST);if(!first)refreshHome()}
+  else if(!S.dev&&INST.includes("studio")){[...procs.values()].filter(p=>p.app==="studio").forEach(p=>kill(p.pid));INST=INST.filter(x=>x!=="studio");LS.set("inst",INST);if(!first)refreshHome()}}};
+let eg=null;$("#phone").addEventListener("pointerdown",e=>{if(!S.navg||locked)return;const b=$("#phone").getBoundingClientRect(),l=e.clientX-b.left<22;eg=(l||b.right-e.clientX<22)?{x:e.clientX,l}:null},true);
+addEventListener("pointerup",e=>{if(!eg)return;const o=eg,d=e.clientX-o.x;eg=null;if(o.l?d>90:d<-90)back()});
+const _rh2=refreshHome;refreshHome=()=>{_rh2();document.querySelectorAll("#grid .ic,#dock .ic").forEach((c,i)=>c.style.setProperty("--d",i*35+"ms"))};
+/* ---- v3.7: built-in Flap Bird 2.0 (system app) ---- */
+function flapMain(){
+const $=i=>document.getElementById(i),cv=$('c'),X=cv.getContext('2d');
+const ST=[
+{n:'Meadow',sky:['#5bb8ff','#c6ecff'],pc:'#73d13d',sp:3,gap:168,dist:235,mv:0,wind:0,g:.45},
+{n:'Sunset',sky:['#ff8a5c','#ffd8a0'],pc:'#e08a3c',sp:3.3,gap:158,dist:228,mv:32,wind:0,g:.45},
+{n:'Night',sky:['#0b1340','#34479b'],pc:'#3fa6a6',sp:3.6,gap:150,dist:222,mv:46,wind:0,g:.47,stars:1},
+{n:'Storm',sky:['#36424f','#6b7c8c'],pc:'#6d8f7d',sp:3.9,gap:148,dist:218,mv:50,wind:1,g:.48,rain:1},
+{n:'Space',sky:['#05010f','#26104d'],pc:'#8f73ff',sp:4,gap:152,dist:228,mv:60,wind:0,g:.3,stars:1},
+{n:'Inferno',sky:['#2a0500','#8a2200'],pc:'#d9482a',sp:4.4,gap:142,dist:210,mv:70,wind:.7,g:.5}];
+const PW=62,GR=22,hx=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)),sky=[hx(ST[0].sky[0]),hx(ST[0].sky[1])];
+let W=360,H=640,K=1,dpr=1;
+function resize(){dpr=Math.min(2,devicePixelRatio||1);K=innerHeight/640;W=innerWidth/K;cv.width=innerWidth*dpr;cv.height=innerHeight*dpr}
+addEventListener('resize',resize);resize();
+let save={best:0,coins:0,stage:1,games:0,mute:false},state='menu',startStage=1;
+let bird,pipes=[],items=[],parts=[],score=0,passed=0,stage=1,t=0,last=0,shake=0,flash=0,gl=0,gv=0,gT=200,slow=0,dbl=0,shield=0,inv=0,runCoins=0,cd=0,gx=0,lastPw='';
+const clouds=Array.from({length:6},()=>({x:Math.random()*600,y:40+Math.random()*220,s:.6+Math.random()*.8}));
+const stars=Array.from({length:70},()=>({x:Math.random(),y:Math.random()*.7,r:Math.random()*1.6+.4,p:Math.random()*6}));
+const cfg=()=>{const s={...ST[Math.min(stage,ST.length)-1]};if(stage>ST.length){const e=stage-ST.length;s.sp+=Math.min(1.6,e*.12);s.gap=Math.max(122,s.gap-e*3)}return s};
+let ac;function beep(f,d=.08,ty='square',v=.05,s=0){if(save.mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=ty;o.frequency.setValueAtTime(f,n);if(s)o.frequency.exponentialRampToValueAtTime(s,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(n+d)}catch(e){}}
+const buzz=n=>{try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}};
+function ov(h){const o=$('ov');o.innerHTML=h;o.style.display='grid'}
+function hideOv(){$('ov').style.display='none'}
+function hud(){$('score').textContent=score;$('stg').textContent='Stage '+stage+' · '+cfg().n}
+function banner(){const b=$('ban');b.textContent='Stage '+stage+' · '+cfg().n;b.classList.remove('show');void b.offsetWidth;b.classList.add('show')}
+function burst(x,y,n,c){for(let i=0;i<n;i++)parts.push({x,y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4-1,l:30+Math.random()*20,c,s:2+Math.random()*3})}
+function persist(){WebOS.store.set('save',save).catch(()=>{})}
+function reset(){bird={x:90,y:H/2,vy:0,r:15,rot:0,fl:0};pipes=[];items=[];parts=[];score=0;passed=0;stage=startStage;runCoins=0;slow=dbl=shield=inv=0;gx=0;shake=0;gl=0;gT=200;t=0}
+function menu(){reset();state='menu';$('pz').hidden=true;$('hud').style.display='none';
+ ov(`<div class='card'><div class='logo'>🐦</div><h1>Flap Bird</h1><p class='s'>Best ${save.best} · 🪙 ${save.coins} · Games ${save.games}</p><div class='stages'>${ST.map((s,i)=>`<button class='st ${startStage===i+1?'on':''}' data-s='${i+1}' ${save.stage<i+1?'disabled':''}>${save.stage<i+1?'🔒':i+1}<small>${s.n}</small></button>`).join('')}</div><button class='big' data-a='play'>▶ PLAY</button><div class='row'><button data-a='mute'>${save.mute?'🔇 Sound off':'🔊 Sound on'}</button></div><p class='s'>Tap, click or press Space to flap. Reach a new stage to unlock it. Grab 🛡️ ⏱️ ⭐ and coins!</p></div>`)}
+function start(){hideOv();reset();state='ready';$('hud').style.display='';$('pz').hidden=false;banner();hud()}
+function pause(){if(state!=='play')return;state='pause';ov(`<div class='card'><h1>Paused</h1><p class='s'>Score ${score} · Stage ${stage}</p><button class='big' data-a='resume'>▶ RESUME</button><div class='row'><button data-a='menu'>Quit to menu</button></div></div>`)}
+function resume(){hideOv();state='count';cd=180}
+function flap(){if(state==='ready')state='play';if(state!=='play')return;bird.vy=-Math.sqrt(2*cfg().g*75);bird.fl=0;beep(520,.09,'square',.04,780);burst(bird.x-10,bird.y+4,3,'#fff')}
+function die(){if(state!=='play')return;state='over';shake=14;flash=1;beep(200,.45,'sawtooth',.08,50);buzz(90);burst(bird.x,bird.y,26,'#ffea00');
+ const nb=score>save.best;if(nb)save.best=score;save.coins+=runCoins;save.games++;save.stage=Math.max(save.stage,stage);persist();$('pz').hidden=true;setTimeout(()=>over(nb),750)}
+function over(nb){ov(`<div class='card'><div class='medal'>${score>=50?'🥇':score>=25?'🥈':score>=10?'🥉':'🐤'}</div><h1>${nb?'New best!':'Game over'}</h1><p>Score <b>${score}</b> · Best ${save.best}</p><p class='s'>Reached stage ${stage} (${cfg().n}) · 🪙 +${runCoins} · Total ${save.coins}</p><button class='big' data-a='play'>▶ AGAIN</button><div class='row'><button data-a='menu'>Menu</button></div></div>`)}
+function addPipe(c){const g=c.gap,m=60,hi=H-GR-g-m,y=m+Math.random()*(hi-m),amp=Math.max(0,Math.min(c.mv,y-30,H-GR-y-g-30))*(.5+Math.random()*.5);
+ pipes.push({x:W+60,y,b:y,amp,ph:Math.random()*6.28,gap:g,pass:0});
+ const r=Math.random();if(r<.35)items.push({x:W+60+c.dist/2,y:70+Math.random()*(H-GR-140),type:r<.2?'coin':r<.25?'shield':r<.3?'slow':'dbl',ph:0})}
+const hit=(rx,ry,rw,rh)=>{const cx=Math.max(rx,Math.min(bird.x,rx+rw)),cy=Math.max(ry,Math.min(bird.y,ry+rh));return Math.hypot(cx-bird.x,cy-bird.y)<bird.r-3};
+function update(dt){const c=cfg(),d=dt*(slow>0?.6:1);t+=d;gx+=c.sp*d;slow=Math.max(0,slow-dt);dbl=Math.max(0,dbl-dt);inv=Math.max(0,inv-dt);
+ if(c.wind){gT-=d;if(gT<0){gl=40;gv=(Math.random()<.5?-1:1)*.22*c.wind;gT=220+Math.random()*180}}
+ bird.vy=Math.min(11,bird.vy+(c.g+(gl>0?gv:0))*d);if(gl>0)gl-=d;bird.y+=bird.vy*d;bird.fl+=.35*d;bird.rot+=(Math.max(-.5,Math.min(1.2,bird.vy*.07))-bird.rot)*.2;
+ if(bird.y<bird.r){bird.y=bird.r;bird.vy=0}
+ if(bird.y>H-GR-bird.r){bird.y=H-GR-bird.r;return die()}
+ if(!pipes.length||pipes[pipes.length-1].x<W+60-c.dist)addPipe(c);
+ for(let i=pipes.length-1;i>=0;i--){const p=pipes[i];p.x-=c.sp*d;p.y=p.b+Math.sin(t*.03+p.ph)*p.amp;
+  if(!p.pass&&p.x+PW<bird.x){p.pass=1;passed++;score+=dbl>0?2:1;beep(660,.07,'square',.05,900);if(passed%10===0){stage++;save.stage=Math.max(save.stage,stage);banner();beep(440,.25,'triangle',.07,880)}hud()}
+  if(p.x<-90){pipes.splice(i,1);continue}
+  if(inv<=0&&(hit(p.x,0,PW,p.y)||hit(p.x,p.y+p.gap,PW,H))){if(shield>0){shield=0;inv=70;shake=8;beep(300,.2,'square',.07,120);burst(bird.x,bird.y,16,'#6cf')}else return die()}}
+ for(let i=items.length-1;i>=0;i--){const it=items[i];it.x-=c.sp*d;it.ph+=d*.1;if(it.x<-40){items.splice(i,1);continue}
+  if(Math.hypot(it.x-bird.x,it.y+Math.sin(it.ph)*5-bird.y)<bird.r+16){items.splice(i,1);
+   if(it.type==='coin'){runCoins++;beep(988,.1,'square',.05,1319)}else{beep(600,.2,'triangle',.07,1200);if(it.type==='shield')shield=1;else if(it.type==='slow')slow=300;else dbl=600}
+   burst(it.x,it.y,10,'#fff')}}
+ if(Math.floor(t)%2===0)parts.push({x:bird.x-8,y:bird.y,vx:-1,vy:0,l:14,c:'#fff6',s:3})}
+function draw(){const c=cfg();
+ for(let j=0;j<2;j++){const tg=hx(c.sky[j]);for(let i=0;i<3;i++)sky[j][i]+=(tg[i]-sky[j][i])*.04}
+ X.setTransform(dpr*K,0,0,dpr*K,0,0);
+ const sx=shake>0?(Math.random()-.5)*shake:0,sy=shake>0?(Math.random()-.5)*shake:0;shake=Math.max(0,shake-.6);X.translate(sx,sy);
+ const g=X.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgb('+sky[0].map(Math.round)+')');g.addColorStop(1,'rgb('+sky[1].map(Math.round)+')');X.fillStyle=g;X.fillRect(-20,-20,W+40,H+40);
+ if(c.stars){for(const s of stars){X.globalAlpha=.4+.6*Math.abs(Math.sin(t*.02+s.p));X.fillStyle='#fff';X.beginPath();X.arc(s.x*W,s.y*H,s.r,0,6.3);X.fill()}X.globalAlpha=1}
+ X.fillStyle='rgba(255,255,255,.5)';for(const cl of clouds){const x=((cl.x-gx*.15*cl.s)%(W+200)+W+200)%(W+200)-100;X.beginPath();X.ellipse(x,cl.y,46*cl.s,16*cl.s,0,0,6.3);X.ellipse(x+26*cl.s,cl.y-8*cl.s,30*cl.s,14*cl.s,0,0,6.3);X.fill()}
+ X.fillStyle='rgba(0,0,0,.14)';X.beginPath();X.moveTo(0,H);for(let x=0;x<=W;x+=10)X.lineTo(x,H-GR-40-Math.sin((x+gx*.4)*.012)*26-Math.sin((x+gx*.4)*.03)*8);X.lineTo(W,H);X.fill();
+ if(c.rain){X.strokeStyle='rgba(200,220,255,.45)';X.lineWidth=1.5;X.beginPath();for(let i=0;i<50;i++){const x=((i*83.7-gx*2.2)%W+W)%W,y=(i*131.3+t*14)%H;X.moveTo(x,y);X.lineTo(x-4,y+14)}X.stroke()}
+ for(const p of pipes){X.fillStyle=c.pc;X.strokeStyle='rgba(0,0,0,.45)';X.lineWidth=3;
+  for(const[y0,h0,cy]of[[0,p.y,p.y-22],[p.y+p.gap,H-p.y-p.gap,p.y+p.gap]]){X.fillStyle=c.pc;X.fillRect(p.x,y0,PW,h0);X.strokeRect(p.x,y0,PW,h0);X.fillRect(p.x-4,cy,PW+8,22);X.strokeRect(p.x-4,cy,PW+8,22);X.fillStyle='rgba(255,255,255,.2)';X.fillRect(p.x+8,y0,8,h0)}}
+ X.textAlign='center';X.font='26px sans-serif';
+ for(const it of items){const y=it.y+Math.sin(it.ph)*5;if(it.type==='coin'){X.fillStyle='#ffd23f';X.strokeStyle='#b8860b';X.lineWidth=3;X.beginPath();X.ellipse(it.x,y,11*Math.abs(Math.cos(it.ph*.7))+3,13,0,0,6.3);X.fill();X.stroke()}else X.fillText({shield:'🛡️',slow:'⏱️',dbl:'⭐'}[it.type],it.x,y+9)}
+ for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.x+=q.vx;q.y+=q.vy;q.l--;if(q.l<=0){parts.splice(i,1);continue}X.globalAlpha=Math.min(1,q.l/20);X.fillStyle=q.c;X.fillRect(q.x,q.y,q.s,q.s)}X.globalAlpha=1;
+ X.fillStyle='#cdbf7a';X.fillRect(-20,H-GR,W+40,GR);X.fillStyle='#a89a55';for(let x=-(gx%24);x<W;x+=24)X.fillRect(x,H-GR,12,6);X.fillStyle='rgba(0,0,0,.25)';X.fillRect(-20,H-GR,W+40,3);
+ X.save();X.translate(bird.x,bird.y);if(inv>0&&Math.floor(t/4)%2)X.globalAlpha=.4;X.rotate(bird.rot);
+ X.fillStyle='#ffd800';X.strokeStyle='#000';X.lineWidth=2;X.beginPath();X.ellipse(0,0,bird.r+3,bird.r-2,0,0,6.3);X.fill();X.stroke();
+ X.fillStyle='#fff2a8';X.beginPath();X.ellipse(-2,5,9,5,0,0,6.3);X.fill();
+ X.save();X.translate(-4,2);X.rotate(Math.sin(bird.fl)*.7);X.fillStyle='#ffb400';X.beginPath();X.ellipse(-4,0,9,5,0,0,6.3);X.fill();X.stroke();X.restore();
+ X.fillStyle='#ff6a00';X.beginPath();X.moveTo(bird.r,0);X.lineTo(bird.r+12,3);X.lineTo(bird.r,8);X.fill();
+ X.fillStyle='#fff';X.beginPath();X.arc(7,-5,5,0,6.3);X.fill();X.fillStyle='#000';X.beginPath();X.arc(9,-5,2.4,0,6.3);X.fill();X.restore();
+ if(shield>0){X.strokeStyle='rgba(100,200,255,'+(.5+.3*Math.sin(t*.2))+')';X.lineWidth=3;X.beginPath();X.arc(bird.x,bird.y,bird.r+11,0,6.3);X.stroke()}
+ X.fillStyle='#fff';X.shadowColor='rgba(0,0,0,.5)';X.shadowBlur=6;
+ if(state==='ready'){X.font='800 22px sans-serif';X.fillText('Tap to flap',W/2,H*.62)}
+ if(state==='count'){X.font='800 72px sans-serif';X.fillText(Math.ceil(cd/60),W/2,H*.5)}
+ X.shadowBlur=0;
+ if(flash>0){X.fillStyle='rgba(255,255,255,'+flash+')';X.fillRect(-20,-20,W+40,H+40);flash=Math.max(0,flash-.06)}}
+function pw(){const s=(shield>0?'🛡️ ':'')+(slow>0?'⏱️ '+Math.ceil(slow/60)+'s ':'')+(dbl>0?'⭐ x2 '+Math.ceil(dbl/60)+'s ':'')+(runCoins&&state!=='menu'?'🪙'+runCoins:'');if(s!==lastPw){lastPw=s;$('pw').textContent=s}}
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(2.5,(now-(last||now))/16.67);last=now;
+ if(state==='play')update(dt);
+ else if(state==='over'){bird.vy+=.6*dt;bird.y=Math.min(H-GR-bird.r,bird.y+bird.vy*dt);bird.rot=Math.min(1.5,bird.rot+.08*dt)}
+ else if(state==='ready'||state==='menu'){bird.y=H/2+Math.sin(now/260)*9;bird.fl+=.25*dt;gx+=cfg().sp*.4*dt;t+=dt}
+ else if(state==='count'){cd-=dt;if(cd<=0)state='play'}
+ draw();pw()}
+$('ov').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;
+ if(b.dataset.s){startStage=+b.dataset.s;menu();return}
+ if(a==='play'){beep(500,.1,'square',.05,900);start()}else if(a==='menu')menu();else if(a==='resume')resume();else if(a==='mute'){save.mute=!save.mute;persist();menu()}});
+$('pz').onclick=()=>pause();
+addEventListener('pointerdown',e=>{if(e.target.closest('#ov,#pz'))return;e.preventDefault();flap()});
+addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW'){e.preventDefault();flap()}else if(e.code==='KeyP'||e.code==='Escape'){if(state==='play')pause();else if(state==='pause')resume()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='play')pause()});
+menu();WebOS.store.get('save').then(v=>{if(v&&typeof v==='object'){save={...save,...v};if(state==='menu')menu()}}).catch(()=>{});
+requestAnimationFrame(loop)}
+const GAME={web:1,id:'flapbird-os',name:'Flap Bird',icon:'🐦',color:'#68c4ff',version:'2.0',perms:[],
+ html:"<canvas id='c'></canvas><div id='hud'><div id='score'>0</div><div id='stg'></div><div id='pw'></div></div><div id='ban'></div><button id='pz' hidden>⏸</button><div id='ov'></div>",
+ css:"html,body{margin:0;height:100%;overflow:hidden;background:#70c5ff;font-family:system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none;color:#fff}#c{position:fixed;inset:0;width:100%;height:100%;display:block}#hud{position:fixed;top:14px;left:0;right:0;text-align:center;pointer-events:none;z-index:2}#score{font-size:46px;font-weight:900;text-shadow:0 3px 0 #0006,0 0 14px #0004}#stg{font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-shadow:0 1px 3px #0008}#pw{margin-top:6px;font-size:14px;font-weight:700;text-shadow:0 1px 3px #0008}#pz{position:fixed;top:12px;right:12px;z-index:4;width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.28);color:#fff;font-size:18px;backdrop-filter:blur(8px)}#ban{position:fixed;top:34%;left:0;right:0;text-align:center;font-size:30px;font-weight:900;text-shadow:0 3px 0 #0007;opacity:0;pointer-events:none;z-index:3}#ban.show{animation:ban 1.8s ease-out}@keyframes ban{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.1)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}#ov{position:fixed;inset:0;display:none;place-items:center;background:rgba(10,20,50,.38);backdrop-filter:blur(8px);z-index:5}.card{width:min(88%,340px);padding:22px;border-radius:26px;text-align:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);box-shadow:0 20px 50px #0005,inset 0 1px 0 #fff5;backdrop-filter:blur(20px);animation:pop .35s cubic-bezier(.2,1.3,.4,1)}@keyframes pop{from{transform:scale(.85);opacity:0}}.logo{font-size:54px;animation:bob 1.6s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px) rotate(-6deg)}}h1{margin:4px 0 2px;font-size:30px}.s{font-size:12px;opacity:.85;margin:6px 0}button{font:inherit;color:inherit;cursor:pointer}.big{width:100%;padding:15px;border:0;border-radius:16px;background:#ffea00;color:#3a2d00;font-size:19px;font-weight:900;margin:12px 0 6px;box-shadow:0 5px 0 #b59f00}.big:active{transform:translateY(3px);box-shadow:0 2px 0 #b59f00}.row button{border:1px solid #fff5;background:#ffffff22;border-radius:12px;padding:8px 14px;margin:2px}.stages{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}.st{border:1px solid #fff4;background:#ffffff1a;border-radius:14px;padding:8px 0;font-size:16px;font-weight:800}.st small{display:block;font-size:10px;font-weight:600;opacity:.85}.st.on{background:#ffea00;color:#3a2d00}.st:disabled{opacity:.45}.medal{font-size:46px}",
+ js:'('+flapMain.toString()+')()'};
+registerPkg(GAME);CORE.push(GAME.id);
+if(!INST.includes(GAME.id)&&!LS.get('seen_'+GAME.id,0)){INST.push(GAME.id);LS.set('seen_'+GAME.id,1);LS.set('inst',INST)}
+refreshHome();
+const _launch=launch;launch=id=>{if(!APPS[id])return;if(!INST.includes(id))return toast(APPS[id].name+" is not installed");return _launch(id)};
+const drawerList=q=>Object.keys(APPS).filter(i=>INST.includes(i)&&APPS[i].name.toLowerCase().includes(q.toLowerCase())).map(ib).join("");
+function openDrawer(){toggleShade(false);closeRecents();const d=$("#drawer");d.innerHTML=`<label class="btn" style="display:block;text-align:center;margin-bottom:10px">📦 Install app from device<input type="file" accept=".web,.json,.html,.htm,text/html,application/json" hidden data-imp></label><input class="field" id="ds" placeholder="Search apps" autocomplete="off" style="margin-top:0"><div class="grid" id="dg" style="margin-top:14px">${drawerList("")}</div><p class="small" style="text-align:center;margin-top:24px">Swipe down from the top for Quick Settings</p>`;d.hidden=false}
+$("#drawer").oninput=e=>{if(e.target.id==="ds")$("#dg").innerHTML=drawerList(e.target.value)};
+function applyS(){const p=$("#phone");document.documentElement.style.setProperty("--accent",S.accent);$("#dim").style.opacity=Math.min(.85,(100-S.bright)/100*.8+(S.saver?.12:0));p.style.background=WALLS[S.wall]||WALLS[0];p.style.filter=S.night?"sepia(.45) saturate(.9)":"";p.classList.toggle("nm",!!S.nomo);p.classList.toggle("sv",!!S.saver);$("#ind").textContent=(S.air?"✈":S.wifi?"◉":"○")+(S.bt?" ᛒ":"")+(S.focus?" ◐":"")+(S.saver?" ⚡":"");tick();LS.set("s",S)}
+document.addEventListener("click",e=>{if(S.hap&&navigator.vibrate&&e.target.closest("button"))navigator.vibrate(10)});
+let g2=null;
+$("#phone").addEventListener("pointerdown",e=>{g2={x:e.clientX,y:e.clientY,el:e.target}},true);
+addEventListener("pointerup",e=>{if(!g2)return;const{x,y,el}=g2;g2=null;const dx=e.clientX-x,dy=e.clientY-y;if(locked||!el.closest||!el.closest(".nav")||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.3)return;const L=[...procs.values()];if(L.length<2)return;let i=L.findIndex(p=>p.pid===fg);i=i<0?0:(i+(dx<0?1:-1)+L.length)%L.length;show(L[i])});
+function storeApp(el){
+ function draw(){el.innerHTML=`<p class="small">Install apps to your home screen. Each app lists the permissions it will ask for.</p><label class="btn" style="display:block;text-align:center;margin-bottom:12px">📦 Install .web package<input type="file" accept=".web,.json,.html" hidden data-imp></label>`+Object.entries(APPS).filter(([id])=>id!=="studio"||S.dev).map(([id,a])=>`<div class="card row"><span style="font-size:26px">${a.icon}</span><div class="grow"><b>${esc(a.name)}</b><div class="small">${a.perms.length?"Asks for: "+a.perms.map(p=>PERMS[p][0]).join(", "):"No permissions needed"}</div></div>${CORE.includes(id)?'<span class="small">System</span>':INST.includes(id)?`<button class="btn secondary" data-r="${id}">Remove</button>`:`<button class="btn" data-i="${id}">Install</button>`}</div>`).join("")}
+ el.onclick=e=>{const i=e.target.dataset.i,r=e.target.dataset.r;
+  if(i){INST.push(i);toast("Installed "+APPS[i].name)}
+  else if(r){[...procs.values()].filter(p=>p.app===r).forEach(p=>kill(p.pid));INST=INST.filter(x=>x!==r);delete grants[r];LS.set("grants",grants);toast("Removed "+APPS[r].name)}
+  else return;
+  LS.set("inst",INST);refreshHome();draw()};
+ draw();return{}}
+function phoneApp(el){let C=LS.get("ct",[]),L=LS.get("calls",[]);
+ function draw(){el.innerHTML=`<input id="pn" class="field" inputmode="tel" placeholder="Number or name"><div class="row"><button class="btn grow" data-a="call">📞 Call</button><button class="btn secondary grow" data-a="save">＋ Save contact</button></div><h3>Contacts</h3>`+(C.map((c,i)=>`<div class="card row"><div class="grow"><b>${esc(c.n)}</b><div class="small">${esc(c.p)}</div></div><button class="btn" data-c="${i}">📞</button><button class="btn danger" data-x="${i}">✕</button></div>`).join("")||'<p class="small">No contacts</p>')+`<h3>Recent calls</h3>`+(L.slice(0,8).map(c=>`<div class="small" style="padding:4px 0">${esc(c.w)} · ${esc(c.t)}</div>`).join("")||'<p class="small">No calls</p>')}
+ function call(w){L.unshift({w,t:new Date().toLocaleString()});LS.set("calls",L);toast("Calling "+w+"… (simulated, no real call)");draw()}
+ el.onclick=async e=>{const a=e.target.dataset.a,c=e.target.dataset.c,x=e.target.dataset.x,v=()=>el.querySelector("#pn").value.trim();
+  if(a==="call"){if(v())call(v())}
+  else if(a==="save"){const p=v();if(!p)return;const n=await dlg("Contact name");if(n){C.push({n,p});LS.set("ct",C);draw()}}
+  else if(c!==undefined){call(C[+c].n)}
+  else if(x!==undefined){C.splice(+x,1);LS.set("ct",C);draw()}};
+ draw();return{}}
+function msgApp(el,sys){let M=LS.get("msgs",[]);
+ function draw(){el.innerHTML=`<input id="mt" class="field" placeholder="To" list="cl"><datalist id="cl">${LS.get("ct",[]).map(c=>`<option value="${esc(c.n)}">`).join("")}</datalist><textarea id="mb" class="field" style="min-height:80px" placeholder="Message"></textarea><button class="btn" data-a="s" style="width:100%">Send</button><p class="small">Stored on this device. Recipients send a simulated auto-reply as a notification.</p><h3>Conversation log</h3>`+(M.map(m=>`<div class="card" style="${m.r?"margin-right:30px":"margin-left:30px;background:#ffffff1a"}"><b>${esc(m.r?m.to:"You → "+m.to)}</b><div>${esc(m.body)}</div><div class="small">${esc(m.t)}</div></div>`).join("")||'<p class="small">No messages</p>')}
+ el.onclick=e=>{if(e.target.dataset.a!=="s")return;const to=el.querySelector("#mt").value.trim(),body=el.querySelector("#mb").value.trim();if(!to||!body)return toast("Enter a recipient and message");
+  M.unshift({to,body,t:new Date().toLocaleString()});LS.set("msgs",M);draw();
+  setTimeout(()=>{M.unshift({to,body:"Got it! (auto-reply)",t:new Date().toLocaleString(),r:1});LS.set("msgs",M);draw();sys.notify(to,"Got it! (auto-reply)")},2500)};
+ draw();return{}}
+function recApp(el,sys){el.innerHTML=`<div style="text-align:center"><div style="font-size:70px">🎙</div><p class="small" id="rm">Tap record to start</p><button class="btn" data-a="r" style="width:100%">● Record</button></div><h3>Recordings</h3><div id="rl"></div>`;
+ let mr=null,ch=[],tmr,sec=0;const q=s=>el.querySelector(s);
+ async function list(){let it=[];try{it=(await sys.fs.ls("/home/user/Downloads")).filter(([n,x])=>x.t==="f"&&x.d.startsWith("data:audio"))}catch{}q("#rl").innerHTML=it.map(([n,x])=>`<div class="card"><b>${esc(n)}</b><audio controls src="${x.d}" style="width:100%;margin-top:8px"></audio></div>`).join("")||'<p class="small">None yet</p>'}
+ el.onclick=async e=>{if(e.target.dataset.a!=="r")return;const btn=e.target;
+  if(mr){mr.stop();return}
+  if(!await sys.need("microphone")){q("#rm").textContent="Microphone permission denied.";return}
+  if(!navigator.mediaDevices||!window.MediaRecorder){q("#rm").textContent="Recording unavailable here.";return}
+  try{const st=await navigator.mediaDevices.getUserMedia({audio:true});mr=new MediaRecorder(st);ch=[];sec=0;mr.ondataavailable=d=>ch.push(d.data);
+   mr.onstop=()=>{clearInterval(tmr);st.getTracks().forEach(t=>t.stop());const b=new Blob(ch,{type:mr.mimeType}),f=new FileReader();mr=null;btn.textContent="● Record";q("#rm").textContent="Saving…";f.onload=async()=>{try{await sys.fs.write("/home/user/Downloads/rec_"+Date.now()+".webm",f.result);q("#rm").textContent="Saved to Downloads"}catch(x){q("#rm").textContent=x.message}list()};f.readAsDataURL(b)};
+   mr.start();btn.textContent="■ Stop";tmr=setInterval(()=>q("#rm").textContent="Recording… "+(++sec)+"s",1000)}catch(x){q("#rm").textContent="Unavailable: "+x.message}};
+ list();return{destroy(){mr&&mr.stop();clearInterval(tmr)}}}
+function termApp(el,sys){let cwd="/home/user",H=[],hi=0;
+ el.innerHTML=`<div class="term"></div><form class="row"><input class="field grow" style="margin:0" autocomplete="off" autocapitalize="off" placeholder="command"><button type="button" class="btn secondary" data-u>▲</button><button class="btn">Run</button></form>`;
+ const out=el.querySelector(".term"),inp=el.querySelector("input");
+ const w=t=>{out.textContent+=t+"\n";out.scrollTop=out.scrollHeight};
+ const hist=d=>{if(!H.length)return;hi=Math.max(0,Math.min(H.length,hi+d));inp.value=H[hi]||""};
+ el.querySelector("[data-u]").onclick=()=>hist(-1);
+ inp.onkeydown=e=>{if(e.key==="ArrowUp"){e.preventDefault();hist(-1)}else if(e.key==="ArrowDown"){e.preventDefault();hist(1)}};
+ w("Web OS shell 3 · simulated, type help");
+ const P=x=>FS.norm(x||".",cwd),nf=async f=>(await sys.fs.read(P(f))).split("\n");
+ async function cmd(c,a,inp,pp){switch(c){
+  case"help":return["help pwd ls cd cat mkdir touch rm mv cp echo grep wc head ps top kill open apps perms df free uptime uname whoami hostname neofetch history date lock clear","pipes: ls | grep txt    redirect: echo hi > a.txt"];
+  case"pwd":return[cwd];
+  case"ls":return(await sys.fs.ls(P(a[0]))).map(([n,x])=>n+(x.t==="d"?"/":""));
+  case"cd":{const t=P(a[0]||"/home/user");await sys.fs.ls(t);cwd=t;return[]}
+  case"cat":return(await sys.fs.read(P(a[0]))).slice(0,2000).split("\n");
+  case"mkdir":await sys.fs.mkdir(P(a[0]));return[];
+  case"touch":try{await sys.fs.read(P(a[0]))}catch{await sys.fs.write(P(a[0]),"")}return[];
+  case"rm":await sys.fs.rm(P(a[0]));return[];
+  case"mv":await sys.fs.mv(P(a[0]),P(a[1]));return[];
+  case"cp":await sys.fs.write(P(a[1]),await sys.fs.read(P(a[0])));return[];
+  case"echo":return[a.join(" ")];
+  case"grep":return(pp?inp:await nf(a[1])).filter(x=>x.includes(a[0]));
+  case"wc":return[(pp?inp:await nf(a[0])).length+" lines"];
+  case"head":return(pp?inp:await nf(a[0])).slice(0,5);
+  case"ps":return["PID   APP        UP(s)",...[...procs.values()].map(p=>p.pid+"  "+p.app.padEnd(10)+Math.round((Date.now()-p.t)/1000))];
+  case"top":return["PID   APP        MEM(MB) STATE",...[...procs.values()].map(p=>p.pid+"  "+p.app.padEnd(10)+String(p.mem).padEnd(8)+(p.pid===fg?"fg":"bg"))];
+  case"kill":if(!procs.has(+a[0]))throw Error("No such process");kill(+a[0]);return[];
+  case"open":if(!APPS[a[0]])throw Error("Unknown app");launch(a[0]);return[];
+  case"apps":return Object.keys(APPS).map(i=>i+(INST.includes(i)?"":" (not installed)"));
+  case"perms":return Object.entries(grants).map(([i,g])=>i+": "+JSON.stringify(g));
+  case"df":return["Used "+(FS.size()/1024).toFixed(1)+" KB of 102400 KB"];
+  case"free":{const h=performance.memory;return[h?"JS heap: "+(h.usedJSHeapSize/1048576).toFixed(1)+" / "+(h.jsHeapSizeLimit/1048576).toFixed(0)+" MB":"memory info unavailable"]}
+  case"uptime":return["up "+Math.round((Date.now()-T0)/1000)+"s, "+procs.size+" processes"];
+  case"uname":return["WebOS 3.1 (JavaScript, "+navigator.platform+")"];
+  case"whoami":return["user"];
+  case"hostname":return["webos"];
+  case"neofetch":return["user@webos","OS: Web OS 3.1 (simulated)","Kernel: JavaScript (browser)","Apps: "+INST.length+" installed","Procs: "+procs.size,"Disk: "+(FS.size()/1024).toFixed(1)+" KB"];
+  case"install":{const pk=parsePkg(await sys.fs.read(P(a[0])),a[0]);if(!await confirmPkg(pk))return["cancelled"];installPkg(pk);return["installed "+pk.name+" ("+pk.id+")"]}
+  case"pkgs":return PKGS.map(p=>p.id+" v"+p.version)||[];
+  case"history":return H.map((x,i)=>(i+1)+"  "+x);
+  case"date":return[new Date().toString()];
+  case"lock":lock();return[];
+  case"clear":out.textContent="";return[];
+  default:throw Error("command not found: "+c)}}
+ async function run(l){let redir=null;const m=l.match(/^(.*?)\s*>\s*(\S+)$/);if(m){l=m[1];redir=m[2]}
+  let o=[];const st=l.split(/\s*\|\s*/);for(let k=0;k<st.length;k++){const[c,...a]=st[k].split(/\s+/);o=await cmd(c,a,o,k>0)}
+  if(redir)await sys.fs.write(P(redir),o.join("\n"));else if(o.length)w(o.join("\n"))}
+ el.querySelector("form").onsubmit=async e=>{e.preventDefault();const l=inp.value.trim();inp.value="";if(l){H.push(l);hi=H.length}w("$ "+l);if(l)try{await run(l)}catch(x){w("error: "+x.message)}};
+ return{}}
+function tick(){const d=new Date(),t=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",hour12:S.h12===true});$("#tm").textContent=t;$("#hc").textContent=t;const l=$("#lc");if(l)l.textContent=t;$("#hd").textContent=d.toLocaleDateString([],{weekday:"long",day:"numeric",month:"long"})}
+setInterval(tick,1000);tick();
+try{navigator.getBattery&&navigator.getBattery().then(b=>{const u=()=>$("#bat").textContent="▰ "+Math.round(b.level*100)+"%";u();b.onlevelchange=u})}catch{}
+applyS();updateBell();boot();
+</script></body></html>
